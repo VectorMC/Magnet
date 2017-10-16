@@ -1,0 +1,175 @@
+From ba78b8ce07354657c30aa9ea53b12ae649015634 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Tue, 17 Oct 2017 16:01:29 -0500
+Subject: [PATCH] Remove paper tick loop changes
+
+---
+ .../java/net/minecraft/server/MinecraftServer.java | 79 ++++++++--------------
+ 1 file changed, 29 insertions(+), 50 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 864cba1..fbea234 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -109,6 +109,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     protected final Queue<FutureTask<?>> j = Queues.newArrayDeque(); // Spigot, PAIL: Rename
+     protected final Deque<FutureTask<?>> taskQueue = (Deque<FutureTask<?>>) j; // SportBukkit - alias and downcast
+     private Thread serverThread;
++    void setLastTickStart(long millis) { ab = millis; } // SportBukkit - alias
+     private long ab = az();
+ 
+     // CraftBukkit start
+@@ -593,7 +594,13 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+                     suspended.notifyAll();
+                 }
+             }
+-        }    }
++        }
++    }
++
++    private static double calcTps(double avg, double exp, double tps)
++    {
++        return ( avg * exp ) + ( tps * ( 1 - exp ) );
++    }
+ 
+     // PaperSpigot start - Further improve tick loop
+     private static final int TPS = 20;
+@@ -647,80 +654,52 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     public void run() {
+         try {
+             if (this.init()) {
+-                this.ab = az();
+-                long i = 0L;
+-
+                 this.r.setMOTD(new ChatComponentText(this.motd));
+-                this.r.setServerInfo(new ServerPing.ServerData("1.8.8", 47));
++                this.r.setServerInfo(new ServerPing.ServerData("1.11.1", 316));
+                 this.a(this.r);
+ 
+-                // Spigot start
+-                // PaperSpigot start - Further improve tick loop
++                // SportBukkit start
+                 Arrays.fill( recentTps, 20 );
+-                //long lastTick = System.nanoTime(), catchupTime = 0, curTime, wait, tickSection = lastTick;
+-                long start = System.nanoTime(), lastTick = start - TICK_TIME, catchupTime = 0, curTime, wait, tickSection = start;
+-                // PaperSpigot end
++                long lastTick = System.nanoTime(), catchupTime = 0, curTime, tickSection = lastTick;
+                 while (this.isRunning) {
+-                    curTime = System.nanoTime();
+-                    // PaperSpigot start - Further improve tick loop
+-                    wait = TICK_TIME - (curTime - lastTick);
+-                    if (wait > 0) {
+-                        if (catchupTime < 2E6) {
+-                            wait += Math.abs(catchupTime);
+-                        }
+-                        if (wait < catchupTime) {
+-                            catchupTime -= wait;
+-                            wait = 0;
+-                        } else if (catchupTime > 2E6) {
+-                            wait -= catchupTime;
+-                            catchupTime -= catchupTime;
+-                        }
+-                    }
++                    setLastTickStart(realTimeMillis());
+ 
++                    curTime = System.nanoTime();
++                    final long wait = TICK_TIME - (curTime - lastTick) - catchupTime;
+                     if(wait < 0) {
+                         catchupTime = Math.min(1000000000, Math.abs(wait));
+                     } else {
+-                        wait = TICK_TIME - (curTime - lastTick);
++                        catchupTime = 0;
+                         if(doSuspension()) {
+                             tickSection = lastTick = curTime - TICK_TIME;
+                         } else {
+                             Thread.sleep(wait / 1000000);
+                         }
++                        continue;
+                     }
+-                    
+-                    if ( ++MinecraftServer.currentTick % SAMPLE_INTERVAL == 0 )
++
++                    if ( MinecraftServer.currentTick++ % SAMPLE_INTERVAL == 0 )
+                     {
+-                        final long diff = curTime - tickSection;
+-                        double currentTps = 1E9 / diff * SAMPLE_INTERVAL;
+-                        tps1.add(currentTps, diff);
+-                        tps5.add(currentTps, diff);
+-                        tps15.add(currentTps, diff);
+-                        // Backwards compat with bad plugins
+-                        recentTps[0] = tps1.getAverage();
+-                        recentTps[1] = tps5.getAverage();
+-                        recentTps[2] = tps15.getAverage();
++                        double currentTps = 1E9 / ( curTime - tickSection ) * SAMPLE_INTERVAL;
++                        recentTps[0] = calcTps( recentTps[0], 0.92, currentTps ); // 1/exp(5sec/1min)
++                        recentTps[1] = calcTps( recentTps[1], 0.9835, currentTps ); // 1/exp(5sec/5min)
++                        recentTps[2] = calcTps( recentTps[2], 0.9945, currentTps ); // 1/exp(5sec/15min)
+                         tickSection = curTime;
+-                        // PaperSpigot end
+                     }
+                     lastTick = curTime;
+ 
+                     this.A();
+                     this.Q = true;
+                 }
+-                // Spigot end
++                // SportBukkit end
+             } else {
+-                this.a((CrashReport) null);
++                // CraftBukkit - if init fails, stop the server
++                // this.a((CrashReport) null);
+                 this.abnormalTermination = true; // SportBukkit
+             }
+         } catch (Throwable throwable) {
+             this.abnormalTermination = true; // SportBukkit
+             MinecraftServer.LOGGER.error("Encountered an unexpected exception", throwable);
+-            // Spigot Start
+-            if ( throwable.getCause() != null )
+-            {
+-                MinecraftServer.LOGGER.error( "\tCause of unexpected exception was", throwable.getCause() );
+-            }
+-            // Spigot End
+             CrashReport crashreport = null;
+ 
+             if (throwable instanceof ReportedException) {
+@@ -729,10 +708,10 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+                 crashreport = this.b(new CrashReport("Exception in server tick loop", throwable));
+             }
+ 
+-            File file = new File(new File(this.y(), "crash-reports"), "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-server.txt");
++            File file = new File(new File(this.universe, "crash-reports"), "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-server.txt");
+ 
+             if (crashreport.a(file)) {
+-                MinecraftServer.LOGGER.error("This crash report has been saved to: " + file.getAbsolutePath());
++                MinecraftServer.LOGGER.error("This crash report has been saved to: {}", new Object[] { file.getAbsolutePath()});
+             } else {
+                 MinecraftServer.LOGGER.error("We were unable to save this crash report to disk.");
+             }
+@@ -740,7 +719,6 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+             this.a(crashreport);
+         } finally {
+             try {
+-                org.spigotmc.WatchdogThread.doStop();
+                 this.isStopped = true;
+                 this.stop();
+             } catch (Throwable throwable1) {
+@@ -752,7 +730,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+                 } catch (Exception ignored) {
+                 }
+                 // CraftBukkit end
+-                this.z();
++                this.B();
+             }
+ 
+         }
+@@ -1586,6 +1564,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+         return this.e;
+     }
+ 
++    public static long realTimeMillis() { return az(); } // SportBukkit - alias
+     public static long az() {
+         return System.currentTimeMillis();
+     }
+-- 
+2.6.4
+

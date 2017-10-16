@@ -1,0 +1,83 @@
+From 81814158e48c0c2d6e226719d286167fc41d17c6 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 14:03:16 -0500
+Subject: [PATCH] Block digging API
+
+---
+ src/main/java/org/bukkit/entity/Player.java        | 11 ++++++
+ .../org/bukkit/event/block/BlockUndamageEvent.java | 40 ++++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
+
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index 149b779..c5f2f3b 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -990,6 +990,17 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+     public boolean teleportRelative(org.bukkit.util.Vector deltaPos, float deltaYaw, float deltaPitch);
+ 
+     /**
++     * Is the player digging a block?
++     */
++    public boolean isDigging();
++
++    /**
++     * Return the {@link org.bukkit.block.Block} that the player is currently digging,
++     * or null if they are not digging any block.
++     */
++    public org.bukkit.block.Block getDiggingBlock();
++
++    /**
+      * Checks to see if this player is currently standing on a block. This
+      * information may not be reliable, as it is a state provided by the
+      * client, and may therefore not be accurate.
+diff --git a/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java b/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
+new file mode 100644
+index 0000000..7e81880
+--- /dev/null
++++ b/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
+@@ -0,0 +1,40 @@
++package org.bukkit.event.block;
++
++import org.bukkit.block.Block;
++import org.bukkit.entity.Player;
++import org.bukkit.event.HandlerList;
++
++/**
++ * Called when a player stops digging a block WITHOUT breaking it. This is the
++ * counterpart to {@link BlockDamageEvent}, which fires when the player starts
++ * digging. This event will not be called if the player completes the dig and
++ * breaks the block. It will also not be called if the block breaks instantly
++ * when the player starts digging.
++ */
++public class BlockUndamageEvent extends BlockEvent {
++  private static final HandlerList handlers = new HandlerList();
++  private final Player player;
++
++  public BlockUndamageEvent(final Player player, final Block block) {
++    super(block);
++    this.player = player;
++  }
++
++  /**
++   * Gets the player damaging the block involved in this event.
++   *
++   * @return The player damaging the block involved in this event
++   */
++  public Player getPlayer() {
++    return player;
++  }
++
++  @Override
++  public HandlerList getHandlers() {
++    return handlers;
++  }
++
++  public static HandlerList getHandlerList() {
++    return handlers;
++  }
++}
+\ No newline at end of file
+-- 
+2.6.4
+

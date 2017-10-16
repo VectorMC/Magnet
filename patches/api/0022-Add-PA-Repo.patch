@@ -1,4 +1,4 @@
-From 2b5638b7cf268d49615a86ff8214b39502ad20b1 Mon Sep 17 00:00:00 2001
+From 84b91bb4abe577054b166fecb46851f8e54d8521 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Fri, 14 Jul 2017 22:46:17 -0500
 Subject: [PATCH] Add PA Repo
@@ -14,7 +14,7 @@ index 5448cf9..0c3fe9e 100644
 @@ -21,6 +21,17 @@
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
      </properties>
-
+ 
 +    <repositories>
 +        <repository>
 +            <id>pa-snapshots</id>
@@ -29,5 +29,6 @@ index 5448cf9..0c3fe9e 100644
      <!-- required until fixed plexus-compiler-eclipse is deployed -->
      <pluginRepositories>
          <pluginRepository>
---
+-- 
 2.6.4
+

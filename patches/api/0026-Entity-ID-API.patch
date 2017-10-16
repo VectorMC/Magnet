@@ -1,0 +1,49 @@
+From d33ef6fb545579af0879fe91665174e7083fed9d Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 13:39:56 -0500
+Subject: [PATCH] Entity ID API
+
+---
+ src/main/java/org/bukkit/Bukkit.java | 7 +++++++
+ src/main/java/org/bukkit/Server.java | 7 +++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index c5a28f5..2fa67bc 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -1078,6 +1078,13 @@ public final class Bukkit {
+     }
+ 
+     /**
++     * @see Server#allocateEntityId()
++     */
++    public static int allocateEntityId() {
++        return server.allocateEntityId();
++    }
++
++    /**
+      * Gets an instance of the server's default server-icon.
+      *
+      * @return the default server-icon; null values may be used by the
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 7fd53cd..9276f99 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -895,6 +895,13 @@ public interface Server extends PluginMessageRecipient {
+     ScoreboardManager getScoreboardManager();
+ 
+     /**
++     * Allocate and return a unique entity ID.
++     *
++     * The returned ID has never been, and will never be used as the ID of a real entity.
++     */
++    int allocateEntityId();
++
++    /**
+      * Gets an instance of the server's default server-icon.
+      *
+      * @return the default server-icon; null values may be used by the
+-- 
+2.6.4
+

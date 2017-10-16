@@ -1,0 +1,192 @@
+From a25064206e78b2675679ed556ae2fcc609dee674 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 16:29:28 -0500
+Subject: [PATCH] Registration API
+
+---
+ src/main/java/org/bukkit/Bukkit.java               | 31 +++++++++++++++++++++-
+ src/main/java/org/bukkit/BukkitRuntime.java        | 20 ++++++++++++++
+ src/main/java/org/bukkit/Server.java               |  2 +-
+ src/main/java/org/bukkit/registry/Key.java         |  6 +++++
+ .../java/org/bukkit/registry/Registerable.java     |  5 ++++
+ src/main/java/org/bukkit/registry/Registry.java    | 23 ++++++++++++++++
+ 6 files changed, 85 insertions(+), 2 deletions(-)
+ create mode 100644 src/main/java/org/bukkit/BukkitRuntime.java
+ create mode 100644 src/main/java/org/bukkit/registry/Key.java
+ create mode 100644 src/main/java/org/bukkit/registry/Registerable.java
+ create mode 100644 src/main/java/org/bukkit/registry/Registry.java
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index 790658c..7c20e45 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -32,6 +32,7 @@ import org.bukkit.permissions.Permissible;
+ import org.bukkit.plugin.PluginManager;
+ import org.bukkit.plugin.ServicesManager;
+ import org.bukkit.plugin.messaging.Messenger;
++import org.bukkit.registry.Key;
+ import org.bukkit.scheduler.BukkitScheduler;
+ import org.bukkit.scoreboard.ScoreboardManager;
+ import org.bukkit.util.CachedServerIcon;
+@@ -48,12 +49,31 @@ import org.bukkit.inventory.meta.ItemMeta;
+  */
+ public final class Bukkit {
+     private static Server server;
++    private static BukkitRuntime runtime;
+ 
+     /**
+      * Static class cannot be initialized.
+      */
+     private Bukkit() {}
+ 
++    public static BukkitRuntime runtime() {
++        if(runtime == null) {
++            throw new IllegalStateException("No Bukkit runtime defined");
++        }
++        return runtime;
++    }
++
++    public static BukkitRuntime getRuntime() {
++        return runtime;
++    }
++
++    public static void setRuntime(BukkitRuntime runtime) {
++        if(runtime != null && Bukkit.runtime != null) {
++            throw new UnsupportedOperationException("Cannot redefine Bukkit runtime");
++        }
++        Bukkit.runtime = runtime;
++    }
++
+     /**
+      * Gets the current {@link Server} singleton
+      *
+@@ -75,6 +95,7 @@ public final class Bukkit {
+             throw new UnsupportedOperationException("Cannot redefine singleton Server");
+         }
+ 
++        setRuntime(server);
+         Bukkit.server = server;
+         server.getLogger().info("This server is running " + getName() + " version " + getVersion() + " (Implementing API version " + getBukkitVersion() + ")");
+     }
+@@ -312,6 +333,14 @@ public final class Bukkit {
+     }
+     // Paper end
+ 
++    public static Key key(String prefix, String id) {
++        return runtime().key(prefix, id);
++    }
++
++    public static Key key(String id) {
++        return runtime().key(id);
++    }
++
+     /**
+      * Gets the name of the update folder. The update folder is used to safely
+      * update plugins at the right moment on a plugin load.
+@@ -1070,7 +1099,7 @@ public final class Bukkit {
+      * @see ItemFactory
+      */
+     public static ItemFactory getItemFactory() {
+-        return server.getItemFactory();
++        return runtime().getItemFactory();
+     }
+ 
+     /**
+diff --git a/src/main/java/org/bukkit/BukkitRuntime.java b/src/main/java/org/bukkit/BukkitRuntime.java
+new file mode 100644
+index 0000000..d0385f3
+--- /dev/null
++++ b/src/main/java/org/bukkit/BukkitRuntime.java
+@@ -0,0 +1,20 @@
++package org.bukkit;
++
++import org.bukkit.inventory.ItemFactory;
++import org.bukkit.inventory.meta.ItemMeta;
++import org.bukkit.registry.Key;
++
++public interface BukkitRuntime {
++
++  Key key(String prefix, String id);
++
++  Key key(String key);
++
++  /**
++   * Gets the instance of the item factory (for {@link ItemMeta}).
++   *
++   * @return the item factory
++   * @see ItemFactory
++   */
++  ItemFactory getItemFactory();
++}
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index c09022e..bd3c4e9 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -48,7 +48,7 @@ import org.bukkit.inventory.meta.ItemMeta;
+ /**
+  * Represents a server implementation.
+  */
+-public interface Server extends PluginMessageRecipient, LocalServer {
++public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServer {
+ 
+     /**
+      * Used for all administrative messages, such as an operator using a
+diff --git a/src/main/java/org/bukkit/registry/Key.java b/src/main/java/org/bukkit/registry/Key.java
+new file mode 100644
+index 0000000..b3faa58
+--- /dev/null
++++ b/src/main/java/org/bukkit/registry/Key.java
+@@ -0,0 +1,6 @@
++package org.bukkit.registry;
++
++public interface Key {
++  String prefix();
++  String id();
++}
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/registry/Registerable.java b/src/main/java/org/bukkit/registry/Registerable.java
+new file mode 100644
+index 0000000..52196a1
+--- /dev/null
++++ b/src/main/java/org/bukkit/registry/Registerable.java
+@@ -0,0 +1,5 @@
++package org.bukkit.registry;
++
++public interface Registerable {
++  Key key();
++}
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/registry/Registry.java b/src/main/java/org/bukkit/registry/Registry.java
+new file mode 100644
+index 0000000..37364f3
+--- /dev/null
++++ b/src/main/java/org/bukkit/registry/Registry.java
+@@ -0,0 +1,23 @@
++package org.bukkit.registry;
++
++import java.util.NoSuchElementException;
++import java.util.Set;
++
++public interface Registry<V extends Registerable> extends Iterable<V> {
++
++  V get(Key key);
++
++  V need(Key key) throws NoSuchElementException;
++
++  boolean containsKey(Key key);
++
++  Set<Key> keySet();
++
++  /**
++   * Return an "empty" or "default" value of this registry's type, or null if there is no such value.
++   *
++   * The exact nature of this value depends on the registry type, but it can generally be used
++   * as a fallback where a specific value is unavailable.
++   */
++  V getFallback();
++}
+\ No newline at end of file
+-- 
+2.6.4
+

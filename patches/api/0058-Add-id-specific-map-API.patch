@@ -1,0 +1,33 @@
+From 06ed19562e6bbd32724d33350ba09e7e5b320745 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 21:35:21 -0500
+Subject: [PATCH] Add id specific map API
+
+---
+ src/main/java/org/bukkit/Server.java | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 272da00..9f05e19 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -513,6 +513,16 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+     public MapView createMap(World world);
+ 
+     /**
++     * Create a new map not following the internal per-world counter nms uses.
++     * Be careful when using this method, as it may create map collisions, only use this for disposable worlds.
++     * If a map collision occurs, the old map will be replaced with the new one.
++     *
++     * @param world the world the map will belong to
++     * @return a newly created map view
++     */
++    public MapView createMap(World world, int id);
++
++    /**
+      * Reloads the server, refreshing settings and plugin information.
+      */
+     public void reload();
+-- 
+2.6.4
+

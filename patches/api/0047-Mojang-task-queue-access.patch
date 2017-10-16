@@ -1,0 +1,80 @@
+From d37a7100a16976ea0c57aded81921dd7f72c001f Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 18:50:17 -0500
+Subject: [PATCH] Mojang task queue access
+
+---
+ src/main/java/org/bukkit/Bukkit.java |  9 +++++++++
+ src/main/java/org/bukkit/Server.java | 23 +++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index 7c20e45..3ca1461 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
+ import org.bukkit.inventory.Recipe;
+ import org.bukkit.map.MapView;
+ import org.bukkit.permissions.Permissible;
++import org.bukkit.plugin.Plugin;
+ import org.bukkit.plugin.PluginManager;
+ import org.bukkit.plugin.ServicesManager;
+ import org.bukkit.plugin.messaging.Messenger;
+@@ -341,6 +342,14 @@ public final class Bukkit {
+         return runtime().key(id);
+     }
+ 
++    public static void postToMainThread(Plugin plugin, boolean priority, Runnable task) {
++        server.postToMainThread(plugin, priority, task);
++    }
++
++    public static boolean runOnMainThread(Plugin plugin, boolean priority, Runnable task) {
++        return server.runOnMainThread(plugin, priority, task);
++    }
++
+     /**
+      * Gets the name of the update folder. The update folder is used to safely
+      * update plugins at the right moment on a plugin load.
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index bd3c4e9..a9e8973 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -30,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
+ import org.bukkit.inventory.Recipe;
+ import org.bukkit.map.MapView;
+ import org.bukkit.permissions.Permissible;
++import org.bukkit.plugin.Plugin;
+ import org.bukkit.plugin.PluginManager;
+ import org.bukkit.plugin.ServicesManager;
+ import org.bukkit.plugin.messaging.Messenger;
+@@ -1087,5 +1088,27 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+      * @return a list of all matched players
+      */
+     List<Player> matchPlayer(String name, CommandSender viewer);
++
++    /**
++     * Post the given task to the main thread queue. This is the queue used to handle
++     * incoming packets (NOT the {@link BukkitScheduler} queue).
++     *
++     * The priority flag determines which end of the queue the task is posted to, and
++     * therefor whether it will run before (true) or after (false) any other tasks
++     * that are currently queued.
++     *
++     * Since incoming packets are also handled through this queue,
++     */
++    void postToMainThread(Plugin plugin, boolean priority, Runnable task);
++
++    /**
++     * If called on the main thread, run the given task immediately and return when
++     * the task completes. If run from any other thread, this is the same as calling
++     * {@link #postToMainThread(Plugin, boolean, Runnable)}.
++     *
++     * @return true if the task ran synchronously,
++     *         false if it was added to the main thread queue
++     */
++    boolean runOnMainThread(Plugin plugin, boolean priority, Runnable task);
+     // Magnet end
+ }
+-- 
+2.6.4
+

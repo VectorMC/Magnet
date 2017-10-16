@@ -1,0 +1,43 @@
+From 18405d4891216e750ca8ef29a095d8731ad813cc Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 13:40:21 -0500
+Subject: [PATCH] Add setting to disable skull fetching
+
+---
+ src/main/java/net/minecraft/server/TileEntitySkull.java | 3 +++
+ src/main/java/org/bukkit/craftbukkit/CraftServer.java   | 5 +++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/main/java/net/minecraft/server/TileEntitySkull.java b/src/main/java/net/minecraft/server/TileEntitySkull.java
+index 58014c5..feaeec5 100644
+--- a/src/main/java/net/minecraft/server/TileEntitySkull.java
++++ b/src/main/java/net/minecraft/server/TileEntitySkull.java
+@@ -159,6 +159,9 @@ public class TileEntitySkull extends TileEntity {
+         if (gameprofile != null && !UtilColor.b(gameprofile.getName())) {
+             if (gameprofile.isComplete() && gameprofile.getProperties().containsKey("textures")) {
+                 callback.apply(gameprofile);
++            } else if(!org.bukkit.Bukkit.getFetchSkulls()) {
++                org.bukkit.Bukkit.getLogger().warning("Skull-fetching is disabled, so not fetching skin for '" + gameprofile.getName() + "'");
++                callback.apply(gameprofile);
+             } else if (MinecraftServer.getServer() == null) {
+                 callback.apply(gameprofile);
+             } else {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index e5b0a04..3fe4ca7 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -604,6 +604,11 @@ public final class CraftServer implements Server {
+     }
+ 
+     @Override
++    public boolean getFetchSkulls() {
++        return this.configuration.getBoolean("settings.fetch-skulls", true);
++    }
++
++    @Override
+     public int getTicksPerAnimalSpawns() {
+         return this.configuration.getInt("ticks-per.animal-spawns");
+     }
+-- 
+2.6.4
+

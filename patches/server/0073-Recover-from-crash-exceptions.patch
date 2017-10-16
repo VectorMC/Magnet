@@ -1,0 +1,145 @@
+From 6d70d99930a6f28dd93e17deda1cf5b76154e582 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 18:51:55 -0500
+Subject: [PATCH] Recover from crash exceptions
+
+---
+ .../java/net/minecraft/server/CrashReport.java     |  4 ++++
+ .../java/net/minecraft/server/EntityPlayer.java    |  9 ++++++--
+ src/main/java/net/minecraft/server/TileEntity.java |  1 +
+ src/main/java/net/minecraft/server/World.java      |  7 ++++++-
+ .../java/org/bukkit/craftbukkit/CraftLogging.java  | 24 ++++++++++++++++++++++
+ 5 files changed, 42 insertions(+), 3 deletions(-)
+ create mode 100644 src/main/java/org/bukkit/craftbukkit/CraftLogging.java
+
+diff --git a/src/main/java/net/minecraft/server/CrashReport.java b/src/main/java/net/minecraft/server/CrashReport.java
+index 741c419..2f540a8 100644
+--- a/src/main/java/net/minecraft/server/CrashReport.java
++++ b/src/main/java/net/minecraft/server/CrashReport.java
+@@ -23,6 +23,7 @@ public class CrashReport {
+     private final String b;
+     private final Throwable c;
+     private final CrashReportSystemDetails d = new CrashReportSystemDetails(this, "System Details");
++    public List<CrashReportSystemDetails> extras() { return e; } // SportBukkit - alias
+     private final List<CrashReportSystemDetails> e = Lists.newArrayList();
+     private File f;
+     private boolean g = true;
+@@ -127,10 +128,12 @@ public class CrashReport {
+         this.d.a("CraftBukkit Information", (Callable) (new org.bukkit.craftbukkit.CraftCrashReport())); // CraftBukkit
+     }
+ 
++    public String activity() { return a(); } // SportBukkit alias
+     public String a() {
+         return this.b;
+     }
+ 
++    public Throwable exception() { return b(); } // SportBukkit - alias
+     public Throwable b() {
+         return this.c;
+     }
+@@ -247,6 +250,7 @@ public class CrashReport {
+         }
+     }
+ 
++    public CrashReportSystemDetails details() { return g(); } // SportBukkit - alias
+     public CrashReportSystemDetails g() {
+         return this.d;
+     }
+diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
+index 168a668..6de375f 100644
+--- a/src/main/java/net/minecraft/server/EntityPlayer.java
++++ b/src/main/java/net/minecraft/server/EntityPlayer.java
+@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
+ // CraftBukkit start
+ import org.bukkit.Bukkit;
+ import org.bukkit.WeatherType;
++import org.bukkit.craftbukkit.CraftLogging;
+ import org.bukkit.craftbukkit.CraftWorld;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+@@ -357,8 +358,12 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+             CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Player being ticked");
+ 
+             this.appendEntityCrashDetails(crashreportsystemdetails);
+-            throw new ReportedException(crashreport);
+-        }
++            // SportBukkit start - recover from crash exceptions
++            //throw new ReportedException(crashreport);
++            playerConnection.disconnect("Sorry, you had to be disconnected because of an internal server error");
++            CraftLogging.crashReport(crashreport);
++            // SportBukkit end
++           }
+     }
+ 
+     protected void i_() {
+diff --git a/src/main/java/net/minecraft/server/TileEntity.java b/src/main/java/net/minecraft/server/TileEntity.java
+index f68b132..ff1d146 100644
+--- a/src/main/java/net/minecraft/server/TileEntity.java
++++ b/src/main/java/net/minecraft/server/TileEntity.java
+@@ -132,6 +132,7 @@ public abstract class TileEntity {
+         return this.d;
+     }
+ 
++    public void remove() { y(); } // SportBukkit - alias
+     public void y() {
+         this.d = true;
+     }
+diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
+index 48d5cd7..4b37fb6 100644
+--- a/src/main/java/net/minecraft/server/World.java
++++ b/src/main/java/net/minecraft/server/World.java
+@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+ import org.bukkit.Bukkit;
+ import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.CraftLogging;
+ import org.bukkit.craftbukkit.CraftServer;
+ import org.bukkit.craftbukkit.CraftWorld;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+@@ -1414,7 +1415,11 @@ public abstract class World implements IBlockAccess {
+                     entity.appendEntityCrashDetails(crashreportsystemdetails);
+                 }
+ 
+-                throw new ReportedException(crashreport);
++                // SportBukkit start - recover from crash exceptions
++                //throw new ReportedException(crashreport);
++                entity.die();
++                CraftLogging.crashReport(crashreport);
++                // SportBukkit end
+             }
+ 
+             if (entity.dead) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftLogging.java b/src/main/java/org/bukkit/craftbukkit/CraftLogging.java
+new file mode 100644
+index 0000000..54f9733
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/CraftLogging.java
+@@ -0,0 +1,24 @@
++package org.bukkit.craftbukkit;
++
++import java.util.logging.Level;
++import java.util.logging.Logger;
++
++import net.minecraft.server.CrashReport;
++import net.minecraft.server.CrashReportSystemDetails;
++import org.bukkit.Bukkit;
++
++public class CraftLogging {
++
++  public static void crashReport(CrashReport report) {
++    crashReport(report, Bukkit.getLogger());
++  }
++
++  public static void crashReport(CrashReport report, Logger logger) {
++    final StringBuilder text = new StringBuilder();
++    for(CrashReportSystemDetails extra : report.extras()) {
++      extra.a(text);
++    }
++    report.details().a(text);
++    logger.log(Level.SEVERE, "Exception while " + report.activity() + "\n\n" + text, report.exception());
++  }
++}
+\ No newline at end of file
+-- 
+2.6.4
+

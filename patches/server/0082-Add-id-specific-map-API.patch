@@ -1,0 +1,70 @@
+From c2b71481c7b4b5d8b4c617e21ec34bcb5d1e7991 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 22:45:12 -0500
+Subject: [PATCH] Add id specific map API
+
+---
+ src/main/java/net/minecraft/server/ItemWorldMap.java       | 14 ++++++++++++++
+ src/main/java/org/bukkit/craftbukkit/CraftServer.java      |  7 +++++++
+ src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java |  2 +-
+ 3 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/java/net/minecraft/server/ItemWorldMap.java b/src/main/java/net/minecraft/server/ItemWorldMap.java
+index 95987cd..65e5e30 100644
+--- a/src/main/java/net/minecraft/server/ItemWorldMap.java
++++ b/src/main/java/net/minecraft/server/ItemWorldMap.java
+@@ -22,6 +22,20 @@ public class ItemWorldMap extends ItemWorldMapBase {
+         if (worldmap == null && !world.isClientSide) {
+             itemstack.setData(world.b("map"));
+             s = "map_" + itemstack.getData();
++            // Sportbukkit start
++            worldmap = getNewMap(s, world);
++        }
++        return worldmap;
++    }
++
++    public WorldMap getNewMap(World world, int id) {
++        return getNewMap("map_" + id, world);
++    }
++
++    private WorldMap getNewMap(String s, World world) {
++        WorldMap worldmap;
++        {
++            // Sportbukkit end
+             worldmap = new WorldMap(s);
+             worldmap.scale = 3;
+             worldmap.a((double) world.getWorldData().c(), (double) world.getWorldData().e(), worldmap.scale);
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 9050a4c..b66754d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1421,6 +1421,13 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     }
+ 
+     @Override
++    public CraftMapView createMap(World world, int id) {
++        Validate.notNull(world, "World cannot be null");
++
++        return Items.FILLED_MAP.getNewMap(((CraftWorld) world).getHandle(), id).mapView;
++    }
++
++    @Override
+     public void shutdown() {
+         console.safeShutdown();
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
+index 9af96a6..f8fec56 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
+@@ -608,7 +608,7 @@ public class CraftBlock implements Block {
+     public void simulateNeighborChange(BlockFace neighbor, MaterialData before, MaterialData after) {
+         final net.minecraft.server.World world = nmsWorld();
+         final BlockPosition pos = nmsPosition();
+-        final BlockPosition neighborPos = pos.plus(neighbor.normal());
++        final BlockPosition neighborPos = pos.a(neighbor.getModX(), neighbor.getModY(), neighbor.getModZ());
+ 
+         // This is supposed to be functionally equivalent to updatePhysicsAndRedstone,
+         // which uses the before state as the source rather than the after state
+-- 
+2.6.4
+

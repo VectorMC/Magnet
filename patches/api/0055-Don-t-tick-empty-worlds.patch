@@ -1,0 +1,54 @@
+From 9e4c26063c01bff2524af2dc3215f004c751c709 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 21:05:15 -0500
+Subject: [PATCH] Don't tick empty worlds
+
+---
+ src/main/java/org/bukkit/Server.java | 4 ++++
+ src/main/java/org/bukkit/World.java  | 8 ++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index d9bf0e3..272da00 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -202,6 +202,10 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+      */
+     public boolean getGenerateStructures();
+ 
++    boolean getKeepSpawnInMemory();
++
++    boolean getTickEmptyWorlds();
++
+     /**
+      * Gets whether this server allows the End or not.
+      *
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index b0ea668..4a256a9 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -275,6 +275,8 @@ public interface World extends PluginMessageRecipient, Metadatable, Physical {
+      */
+     public boolean unloadChunk(int x, int z, boolean save, boolean safe);
+ 
++    int unloadAllChunks();
++
+     /**
+      * Safely queues the {@link Chunk} at the specified coordinates for
+      * unloading
+@@ -319,6 +321,12 @@ public interface World extends PluginMessageRecipient, Metadatable, Physical {
+     @Deprecated
+     public boolean refreshChunk(int x, int z);
+ 
++    int getPlayerCount();
++
++    boolean hasPlayers();
++
++    boolean isTicking();
++
+     /**
+      * Drops an item at the specified {@link Location}
+      *
+-- 
+2.6.4
+

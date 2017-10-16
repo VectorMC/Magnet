@@ -1,0 +1,32 @@
+From 0b2c27a3b77aabe6c5d9b2e2c9c3e68e04e0425f Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 21:11:22 -0500
+Subject: [PATCH] FallingBlock form block flag
+
+---
+ src/main/java/net/minecraft/server/EntityFallingBlock.java | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/main/java/net/minecraft/server/EntityFallingBlock.java b/src/main/java/net/minecraft/server/EntityFallingBlock.java
+index 36c384e..303d9e4 100644
+--- a/src/main/java/net/minecraft/server/EntityFallingBlock.java
++++ b/src/main/java/net/minecraft/server/EntityFallingBlock.java
+@@ -17,6 +17,7 @@ public class EntityFallingBlock extends Entity {
+     private float fallHurtAmount = 2.0F;
+     public NBTTagCompound tileEntityData;
+     public org.bukkit.Location sourceLoc; // PaperSpigot
++    public boolean formBlock = true; // SportBukkit
+ 
+     // PaperSpigot start - Add FallingBlock source location API
+     public EntityFallingBlock(World world) {
+@@ -113,6 +114,7 @@ public class EntityFallingBlock extends Entity {
+                     if (this.world.getType(blockposition).getBlock() != Blocks.PISTON_EXTENSION) {
+                         this.die();
+                         if (!this.e) {
++                            if(!formBlock) return; // SportBukkit
+                             if (this.world.a(block, blockposition, true, EnumDirection.UP, (Entity) null, (ItemStack) null) && !BlockFalling.canFall(this.world, blockposition.down()) /* mimic the false conditions of setTypeIdAndData */ && blockposition.getX() >= -30000000 && blockposition.getZ() >= -30000000 && blockposition.getX() < 30000000 && blockposition.getZ() < 30000000 && blockposition.getY() >= 0 && blockposition.getY() < 256 && this.world.getType(blockposition) != this.block) {
+                                 if (CraftEventFactory.callEntityChangeBlockEvent(this, blockposition.getX(), blockposition.getY(), blockposition.getZ(), this.block.getBlock(), this.block.getBlock().toLegacyData(this.block)).isCancelled()) {
+                                     return;
+-- 
+2.6.4
+

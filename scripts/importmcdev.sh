@@ -1,26 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-	SOURCE="$(readlink "$SOURCE")"
-	[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-. $(dirname $SOURCE)/init.sh
-
-workdir=$basedir/base/Paper/work
-minecraftversion=$(cat $basedir/base/Paper/BuildData/info.json | grep minecraftVersion | cut -d '"' -f 4)
-decompiledir=$workdir/$minecraftversion
-
+(
+set -e
 nms="net/minecraft/server"
 export MODLOG=""
-cd $basedir
+PS1="$"
+basedir="$(cd "$1" && pwd -P)"
+
+workdir="$basedir/base/Paper/work"
+minecraftversion=$(cat "$basedir/base/Paper/BuildData/info.json"  | grep minecraftVersion | cut -d '"' -f 4)
+decompiledir="$workdir/$minecraftversion"
 
 export importedmcdev=""
 function import {
 	export importedmcdev="$importedmcdev $1"
 	file="${1}.java"
-	target="$basedir/Magnet-Server/src/main/java/$nms/$file"
+	target="$basedir/base/Paper/PaperSpigot-Server/src/main/java/$nms/$file"
 	base="$decompiledir/$nms/$file"
 
 	if [[ ! -f "$target" ]]; then
@@ -28,20 +23,25 @@ function import {
 		echo "Copying $base to $target"
 		cp "$base" "$target"
 	else
-		echo "UN-NEEDED IMPORT STATEMENT: $file"
+		echo "UN-NEEDED IMPORT: $file"
 	fi
 }
 
 (
-	cd base/Paper/PaperSpigot-Server/
+	cd "$basedir/base/Paper/PaperSpigot-Server/"
 	lastlog=$(git log -1 --oneline)
-	if [[ "$lastlog" = *"Magnet-Server mc-dev Imports"* ]]; then
+	if [[ "$lastlog" = *"mc-dev Imports"* ]]; then
 		git reset --hard HEAD^
 	fi
 )
-(
-	cd Magnet-Server/
-	rm -rf nms-patches
-	git add src -A
-	echo -e "Magnet-Server mc-dev Imports\n\n$MODLOG" | git commit src -F -
+
+import GameProfileBanList
+import OpList
+import WhiteList
+import ThreadWatchdog
+
+cd "$basedir/base/Paper/PaperSpigot-Server/"
+rm -rf nms-patches applyPatches.sh makePatches.sh >/dev/null 2>&1
+git add . -A >/dev/null 2>&1
+echo -e "mc-dev Imports\n\n$MODLOG" | git commit . -F -
 )

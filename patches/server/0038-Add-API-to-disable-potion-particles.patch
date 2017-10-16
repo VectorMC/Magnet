@@ -1,0 +1,112 @@
+From 6c5e5b2396428a6b50e8b072ea329749ae121969 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 13:10:21 -0500
+Subject: [PATCH] Add API to disable potion particles
+
+---
+ src/main/java/net/minecraft/server/EntityLiving.java      | 12 ++++++++++++
+ src/main/java/net/minecraft/server/EntityPlayer.java      |  8 ++++++++
+ .../org/bukkit/craftbukkit/entity/CraftLivingEntity.java  | 15 +++++++++++++++
+ 3 files changed, 35 insertions(+)
+
+diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
+index c8b4e29..089f971 100644
+--- a/src/main/java/net/minecraft/server/EntityLiving.java
++++ b/src/main/java/net/minecraft/server/EntityLiving.java
+@@ -14,6 +14,7 @@ import java.util.UUID;
+ import java.util.ArrayList;
+ import com.google.common.base.Function;
+ import com.google.common.collect.Lists;
++import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.entity.LivingEntity;
+ import org.bukkit.entity.Vehicle;
+@@ -537,15 +538,25 @@ public abstract class EntityLiving extends Entity {
+             this.bj();
+             this.setInvisible(false);
+         } else {
++            // SportBukkit start - optionally disable potion particles
++            if(((CraftLivingEntity) getBukkitEntity()).getPotionParticles()) {
++            // SportBukkit end
+             int i = PotionBrewer.a(this.effects.values());
+ 
+             this.datawatcher.watch(8, Byte.valueOf((byte) (PotionBrewer.b(this.effects.values()) ? 1 : 0)));
+             this.datawatcher.watch(7, Integer.valueOf(i));
++            // SportBukkit start
++            } else {
++                this.clearPotionEffectMetadata();
++            }
++            // SportBukkit end
+             this.setInvisible(this.hasEffect(MobEffectList.INVISIBILITY.id));
+         }
+ 
+     }
+ 
++    public void clearPotionEffectMetadata() { this.bj(); } // SportBukkit - alias for following method
++
+     protected void bj() {
+         this.datawatcher.watch(8, Byte.valueOf((byte) 0));
+         this.datawatcher.watch(7, Integer.valueOf(0));
+@@ -757,6 +768,7 @@ public abstract class EntityLiving extends Entity {
+                 // CraftBukkit start
+                 if(this instanceof EntityAnimal){
+                     ((EntityAnimal)this).cq();
++
+                     if(this instanceof EntityTameableAnimal){
+                         ((EntityTameableAnimal)this).getGoalSit().setSitting(false);
+                     }
+diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
+index e8fda75..c9c7fb3 100644
+--- a/src/main/java/net/minecraft/server/EntityPlayer.java
++++ b/src/main/java/net/minecraft/server/EntityPlayer.java
+@@ -1209,6 +1209,14 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+         this.deathTicks = 0;
+         this.removeAllEffects();
+         this.updateEffects = true;
++
++        // SportBukkit - clear potion metadata now, because new effects might
++        // get added before the update in the tick has a chance to run, and if they
++        // match the old effects, the metadata will never be marked dirty and will
++        // go out of sync with the client.
++        this.clearPotionEffectMetadata();
++        this.setInvisible(false);
++
+         this.activeContainer = this.defaultContainer;
+         this.killer = null;
+         this.lastDamager = null;
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index 3e3a048..b4e415a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -65,6 +65,7 @@ import org.bukkit.util.Vector;
+ 
+ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+     private CraftEntityEquipment equipment;
++    private boolean potionParticles = true;
+ 
+     public CraftLivingEntity(final CraftServer server, final EntityLiving entity) {
+         super(server, entity);
+@@ -333,6 +334,20 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+         return effects;
+     }
+ 
++    @Override
++    public void setPotionParticles(boolean enabled) {
++        this.potionParticles = enabled;
++        if(enabled) {
++            this.getHandle().updateEffects = true;
++        } else {
++            this.getHandle().clearPotionEffectMetadata();
++        }
++    }
++
++    public boolean getPotionParticles() {
++        return this.potionParticles;
++    }
++
+     public <T extends Projectile> T launchProjectile(Class<? extends T> projectile) {
+         return launchProjectile(projectile, null);
+     }
+-- 
+2.6.4
+

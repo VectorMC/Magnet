@@ -1,0 +1,278 @@
+From 8da614be06b5dc4335b0b3f6ec15ee3bae98f050 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 15:17:57 -0500
+Subject: [PATCH] Potion effect events
+
+---
+ .../java/net/minecraft/server/EntityLiving.java    | 149 ++++++++++++---------
+ .../craftbukkit/potion/CraftPotionUtils.java       |  34 +++++
+ 2 files changed, 117 insertions(+), 66 deletions(-)
+ create mode 100644 src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
+
+diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
+index 089f971..ce3157a 100644
+--- a/src/main/java/net/minecraft/server/EntityLiving.java
++++ b/src/main/java/net/minecraft/server/EntityLiving.java
+@@ -16,11 +16,16 @@ import com.google.common.base.Function;
+ import com.google.common.collect.Lists;
+ import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.potion.CraftPotionUtils;
+ import org.bukkit.entity.LivingEntity;
+ import org.bukkit.entity.Vehicle;
+ import org.bukkit.event.entity.EntityDamageEvent;
+ import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
+ import org.bukkit.event.entity.EntityRegainHealthEvent;
++import org.bukkit.event.entity.PotionEffectAddEvent;
++import org.bukkit.event.entity.PotionEffectExpireEvent;
++import org.bukkit.event.entity.PotionEffectExtendEvent;
++import org.bukkit.event.entity.PotionEffectRemoveEvent;
+ import org.bukkit.event.vehicle.VehicleExitEvent;
+ // CraftBukkit end
+ 
+@@ -465,72 +470,74 @@ public abstract class EntityLiving extends Entity {
+         this.hurtTimestamp = nbttagcompound.getInt("HurtByTimestamp");
+     }
+ 
+-    // CraftBukkit start
+-    private boolean isTickingEffects = false;
+-    private List<Object> effectsToProcess = Lists.newArrayList();
+-    // CraftBukkit end
+-
+     protected void bi() {
+-        Iterator iterator = this.effects.keySet().iterator();
++        Iterator<Integer> iterator = com.google.common.collect.ImmutableSet.copyOf(this.effects.keySet()).iterator(); // SportBukkit - copy to allow concurrent modification
+ 
+-        isTickingEffects = true; // CraftBukkit
+         while (iterator.hasNext()) {
+-            Integer integer = (Integer) iterator.next();
+-            MobEffect mobeffect = (MobEffect) this.effects.get(integer);
++            int mobeffectlist = iterator.next();
++            if (!this.effects.keySet().contains(mobeffectlist))
++                continue; // SportBukkit - skip if effect was removed during iteration
++            MobEffect mobeffect = (MobEffect) this.effects.get(mobeffectlist);
+ 
+             if (!mobeffect.tick(this)) {
+                 if (!this.world.isClientSide) {
+-                    iterator.remove();
++                    // SportBukkit start - fire event
++                    PotionEffectExpireEvent event = new PotionEffectExpireEvent(
++                        (LivingEntity) this.getBukkitEntity(),
++                        CraftPotionUtils.toBukkit(mobeffect));
++                    this.world.getServer().getPluginManager().callEvent(event);
++                    if (event.isCancelled()) {
++                        // Duration must be extended if event is cancelled
++                        CraftPotionUtils.extendDuration(mobeffect, event.getDuration());
++                        continue;
++                    }
++                    //iterator.remove();
++                    this.effects.remove(mobeffectlist);
++                    // SportBukkit end
+                     this.b(mobeffect);
+                 }
+             } else if (mobeffect.getDuration() % 600 == 0) {
+                 this.a(mobeffect, false);
+             }
+-        }
+-        // CraftBukkit start
+-        isTickingEffects = false;
+-        for (Object e : effectsToProcess) {
+-            if (e instanceof MobEffect) {
+-                addEffect((MobEffect) e);
+-            } else {
+-                removeEffect((Integer) e);
+-            }
+-        }
+-        // CraftBukkit end
+ 
+-        if (this.updateEffects) {
+-            if (!this.world.isClientSide) {
+-                this.B();
+-            }
+-
+-            this.updateEffects = false;
+-        }
++            if (this.updateEffects) {
++                if (!this.world.isClientSide) {
++                    this.B();
++                }
+ 
+-        int i = this.datawatcher.getInt(7);
+-        boolean flag = this.datawatcher.getByte(8) > 0;
++                this.updateEffects = false;
++            }
+ 
+-        if (i > 0) {
+-            boolean flag1 = false;
++            int i = this.datawatcher.getInt(7);
++            boolean flag = this.datawatcher.getByte(8) > 0;
+ 
+-            if (!this.isInvisible()) {
+-                flag1 = this.random.nextBoolean();
+-            } else {
+-                flag1 = this.random.nextInt(15) == 0;
+-            }
++            if (i > 0) {
++                boolean flag1 = false;
+ 
+-            if (flag) {
+-                flag1 &= this.random.nextInt(5) == 0;
+-            }
++                if (!this.isInvisible()) {
++                    flag1 = this.random.nextBoolean();
++                } else {
++                    flag1 = this.random.nextInt(15) == 0;
++                }
+ 
+-            if (flag1 && i > 0) {
+-                double d0 = (double) (i >> 16 & 255) / 255.0D;
+-                double d1 = (double) (i >> 8 & 255) / 255.0D;
+-                double d2 = (double) (i >> 0 & 255) / 255.0D;
++                if (flag) {
++                    flag1 &= this.random.nextInt(5) == 0;
++                }
+ 
+-                this.world.addParticle(flag ? EnumParticle.SPELL_MOB_AMBIENT : EnumParticle.SPELL_MOB, this.locX + (this.random.nextDouble() - 0.5D) * (double) this.width, this.locY + this.random.nextDouble() * (double) this.length, this.locZ + (this.random.nextDouble() - 0.5D) * (double) this.width, d0, d1, d2, new int[0]);
++                if (flag1 && i > 0) {
++                    double d0 = (double) (i >> 16 & 255) / 255.0D;
++                    double d1 = (double) (i >> 8 & 255) / 255.0D;
++                    double d2 = (double) (i >> 0 & 255) / 255.0D;
++
++                    this.world
++                        .addParticle(flag ? EnumParticle.SPELL_MOB_AMBIENT : EnumParticle.SPELL_MOB,
++                            this.locX + (this.random.nextDouble() - 0.5D) * (double) this.width,
++                            this.locY + this.random.nextDouble() * (double) this.length,
++                            this.locZ + (this.random.nextDouble() - 0.5D) * (double) this.width, d0,
++                            d1, d2, new int[0]);
++                }
+             }
+         }
+-
+     }
+ 
+     protected void B() {
+@@ -563,16 +570,14 @@ public abstract class EntityLiving extends Entity {
+     }
+ 
+     public void removeAllEffects() {
+-        Iterator iterator = this.effects.keySet().iterator();
++        Iterator<Integer> iterator = com.google.common.collect.ImmutableSet.copyOf(this.effects.keySet()).iterator(); // SportBukkit - copy to allow concurrent modification
+ 
+         while (iterator.hasNext()) {
+-            Integer integer = (Integer) iterator.next();
+-            MobEffect mobeffect = (MobEffect) this.effects.get(integer);
+-
+-            if (!this.world.isClientSide) {
+-                iterator.remove();
+-                this.b(mobeffect);
+-            }
++            // SportBukkit start - go through method that fires event
++            this.removeEffect(iterator.next());
++            //this.b((MobEffect) iterator.next());
++            //iterator.remove();
++            // SportBukkit end
+         }
+ 
+     }
+@@ -596,17 +601,25 @@ public abstract class EntityLiving extends Entity {
+ 
+     public void addEffect(MobEffect mobeffect) {
+         org.spigotmc.AsyncCatcher.catchOp( "effect add"); // Spigot
+-        // CraftBukkit start
+-        if (isTickingEffects) {
+-            effectsToProcess.add(mobeffect);
+-            return;
+-        }
+-        // CraftBukkit end
++
+         if (this.d(mobeffect)) {
+             if (this.effects.containsKey(Integer.valueOf(mobeffect.getEffectId()))) {
++                // SportBukkit start - fire event
++                PotionEffectAddEvent event = new PotionEffectAddEvent((LivingEntity) this.getBukkitEntity(),
++                    CraftPotionUtils.toBukkit(mobeffect));
++                this.world.getServer().getPluginManager().callEvent(event);
++                if(event.isCancelled()) return;
++                // SportBukkit end
+                 ((MobEffect) this.effects.get(Integer.valueOf(mobeffect.getEffectId()))).a(mobeffect);
+                 this.a((MobEffect) this.effects.get(Integer.valueOf(mobeffect.getEffectId())), true);
+             } else {
++                // SportBukkit start - fire event
++                PotionEffectExtendEvent event = new PotionEffectExtendEvent((LivingEntity) this.getBukkitEntity(),
++                    CraftPotionUtils.toBukkit(mobeffect),
++                    CraftPotionUtils.toBukkit(this.effects.get(mobeffect.getEffectId())));
++                this.world.getServer().getPluginManager().callEvent(event);
++                if(event.isCancelled()) return;
++                // SportBukkit end
+                 this.effects.put(Integer.valueOf(mobeffect.getEffectId()), mobeffect);
+                 this.a(mobeffect);
+             }
+@@ -631,15 +644,19 @@ public abstract class EntityLiving extends Entity {
+     }
+ 
+     public void removeEffect(int i) {
+-        // CraftBukkit start
+-        if (isTickingEffects) {
+-            effectsToProcess.add(i);
+-            return;
+-        }
+-        // CraftBukkit end
+         MobEffect mobeffect = (MobEffect) this.effects.remove(Integer.valueOf(i));
+ 
+         if (mobeffect != null) {
++            // SportBukkit start
++            PotionEffectRemoveEvent event = new PotionEffectRemoveEvent((LivingEntity) this.getBukkitEntity(),
++                CraftPotionUtils.toBukkit(mobeffect));
++            this.world.getServer().getPluginManager().callEvent(event);
++            if(event.isCancelled()) {
++                this.effects.put(i, mobeffect);
++                return;
++            }
++            // SportBukkit end
++
+             this.b(mobeffect);
+         }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
+new file mode 100644
+index 0000000..a490693
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
+@@ -0,0 +1,34 @@
++package org.bukkit.craftbukkit.potion;
++
++import net.minecraft.server.MobEffect;
++import net.minecraft.server.MobEffectList;
++import org.bukkit.potion.PotionEffect;
++import org.bukkit.potion.PotionEffectType;
++
++public class CraftPotionUtils {
++  private CraftPotionUtils() {}
++
++  public static PotionEffect toBukkit(MobEffect effect) {
++    return new PotionEffect(PotionEffectType.getById(effect.getEffectId()),
++        effect.getDuration(),
++        effect.getAmplifier(),
++        effect.isAmbient(),
++        effect.isShowParticles());
++  }
++
++  public static MobEffect toNMS(PotionEffect effect) {
++    return new MobEffect(effect.getType().getId(),
++        effect.getDuration(),
++        effect.getAmplifier(),
++        effect.isAmbient(),
++        effect.hasParticles());
++  }
++
++  public static MobEffect cloneWithDuration(MobEffect effect, int duration) {
++    return new MobEffect(effect.getEffectId(), duration, effect.getAmplifier(), effect.isAmbient(), effect.isShowParticles());
++  }
++
++  public static void extendDuration(MobEffect effect, int duration) {
++    effect.a(cloneWithDuration(effect, duration));
++  }
++}
+\ No newline at end of file
+-- 
+2.6.4
+

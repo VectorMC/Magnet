@@ -1,0 +1,350 @@
+From cc460e406570a93b5fb3bbccaef0e1a14efff007 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 16:17:07 -0500
+Subject: [PATCH] Implement minecraft-api
+
+---
+ pom.xml                                               |  8 ++------
+ src/main/java/org/bukkit/Server.java                  |  3 ++-
+ src/main/java/org/bukkit/command/CommandSender.java   |  7 ++++++-
+ .../java/org/bukkit/command/ConsoleCommandSender.java |  3 ++-
+ .../java/org/bukkit/configuration/Configuration.java  |  3 ++-
+ .../bukkit/configuration/ConfigurationSection.java    |  8 +++++++-
+ .../configuration/InvalidConfigurationException.java  |  3 ++-
+ .../java/org/bukkit/configuration/MemorySection.java  | 19 ++++++++++++++++++-
+ src/main/java/org/bukkit/entity/Player.java           |  3 ++-
+ src/main/java/org/bukkit/event/Listener.java          |  2 +-
+ src/main/java/org/bukkit/permissions/Permissible.java |  3 ++-
+ src/main/java/org/bukkit/plugin/Plugin.java           |  3 ++-
+ .../java/org/bukkit/plugin/PluginDescriptionFile.java |  3 ++-
+ src/main/java/org/bukkit/plugin/PluginLogger.java     |  2 +-
+ src/main/java/org/bukkit/plugin/PluginManager.java    |  3 ++-
+ .../java/org/bukkit/plugin/SimplePluginManager.java   |  5 +++++
+ 16 files changed, 58 insertions(+), 20 deletions(-)
+
+diff --git a/pom.xml b/pom.xml
+index 6281b98..4cc9c71 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -23,12 +23,8 @@
+ 
+     <repositories>
+         <repository>
+-            <id>pa-snapshots</id>
+-            <url>https://repo.extension.ws/content/repositories/snapshots</url>
+-        </repository>
+-        <repository>
+-            <id>pa-releases</id>
+-            <url>https://repo.extension.ws/content/repositories/releases</url>
++            <id>avicus-public</id>
++            <url>https://repo.avicus.net/content/groups/public/</url>
+         </repository>
+     </repositories>
+ 
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 555883e..c09022e 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -12,6 +12,7 @@ import java.util.Set;
+ import java.util.UUID;
+ import java.util.logging.Logger;
+ 
++import net.avicus.minecraft.api.server.LocalServer;
+ import org.bukkit.Warning.WarningState;
+ import org.bukkit.command.CommandException;
+ import org.bukkit.command.CommandMap;
+@@ -47,7 +48,7 @@ import org.bukkit.inventory.meta.ItemMeta;
+ /**
+  * Represents a server implementation.
+  */
+-public interface Server extends PluginMessageRecipient {
++public interface Server extends PluginMessageRecipient, LocalServer {
+ 
+     /**
+      * Used for all administrative messages, such as an operator using a
+diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
+index 4d33f60..1969c9d 100644
+--- a/src/main/java/org/bukkit/command/CommandSender.java
++++ b/src/main/java/org/bukkit/command/CommandSender.java
+@@ -3,7 +3,7 @@ package org.bukkit.command;
+ import org.bukkit.Server;
+ import org.bukkit.permissions.Permissible;
+ 
+-public interface CommandSender extends Permissible {
++public interface CommandSender extends Permissible, net.avicus.minecraft.api.command.CommandSender {
+ 
+     /**
+      * Sends this sender a message
+@@ -77,5 +77,10 @@ public interface CommandSender extends Permissible {
+      * {@link org.bukkit.entity.Player}s to support fake names.
+      */
+     String getName(CommandSender viewer);
++
++    @Override
++    default String getName(net.avicus.minecraft.api.command.CommandSender viewer) {
++        return getName((CommandSender) viewer);
++    }
+     // Magnet end
+ }
+diff --git a/src/main/java/org/bukkit/command/ConsoleCommandSender.java b/src/main/java/org/bukkit/command/ConsoleCommandSender.java
+index f309c2e..1de7e36 100644
+--- a/src/main/java/org/bukkit/command/ConsoleCommandSender.java
++++ b/src/main/java/org/bukkit/command/ConsoleCommandSender.java
+@@ -2,5 +2,6 @@ package org.bukkit.command;
+ 
+ import org.bukkit.conversations.Conversable;
+ 
+-public interface ConsoleCommandSender extends CommandSender, Conversable {
++public interface ConsoleCommandSender extends CommandSender, Conversable,
++    net.avicus.minecraft.api.command.ConsoleCommandSender {
+ }
+diff --git a/src/main/java/org/bukkit/configuration/Configuration.java b/src/main/java/org/bukkit/configuration/Configuration.java
+index 52e3ac4..f32f1ba 100644
+--- a/src/main/java/org/bukkit/configuration/Configuration.java
++++ b/src/main/java/org/bukkit/configuration/Configuration.java
+@@ -5,7 +5,8 @@ import java.util.Map;
+ /**
+  * Represents a source of configurable options and settings
+  */
+-public interface Configuration extends ConfigurationSection {
++public interface Configuration extends ConfigurationSection,
++    net.avicus.minecraft.api.configuration.Configuration {
+     /**
+      * Sets the default value of the given path as provided.
+      * <p>
+diff --git a/src/main/java/org/bukkit/configuration/ConfigurationSection.java b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
+index 9afc1dc..f1888fb 100644
+--- a/src/main/java/org/bukkit/configuration/ConfigurationSection.java
++++ b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
+@@ -4,6 +4,7 @@ import java.util.Map;
+ import java.util.Set;
+ import java.util.List;
+ 
++import net.avicus.minecraft.api.configuration.*;
+ import org.bukkit.Color;
+ import org.bukkit.OfflinePlayer;
+ import org.bukkit.util.Vector;
+@@ -12,7 +13,8 @@ import org.bukkit.inventory.ItemStack;
+ /**
+  * Represents a section of a {@link Configuration}
+  */
+-public interface ConfigurationSection {
++public interface ConfigurationSection extends
++    net.avicus.minecraft.api.configuration.ConfigurationSection {
+     /**
+      * Gets a set containing all keys in this section.
+      * <p>
+@@ -790,6 +792,8 @@ public interface ConfigurationSection {
+      */
+     public boolean isColor(String path);
+ 
++    ConfigurationSection getSection(String path);
++
+     /**
+      * Gets the requested ConfigurationSection by path.
+      * <p>
+@@ -848,4 +852,6 @@ public interface ConfigurationSection {
+      * @throws IllegalArgumentException Thrown if path is null.
+      */
+     public void addDefault(String path, Object value);
++
++    ConfigurationSection needSection(String path) throws net.avicus.minecraft.api.configuration.InvalidConfigurationException
+ }
+diff --git a/src/main/java/org/bukkit/configuration/InvalidConfigurationException.java b/src/main/java/org/bukkit/configuration/InvalidConfigurationException.java
+index d23480e..f5258b0 100644
+--- a/src/main/java/org/bukkit/configuration/InvalidConfigurationException.java
++++ b/src/main/java/org/bukkit/configuration/InvalidConfigurationException.java
+@@ -4,7 +4,8 @@ package org.bukkit.configuration;
+  * Exception thrown when attempting to load an invalid {@link Configuration}
+  */
+ @SuppressWarnings("serial")
+-public class InvalidConfigurationException extends Exception {
++public class InvalidConfigurationException extends
++    net.avicus.minecraft.api.configuration.InvalidConfigurationException {
+ 
+     /**
+      * Creates a new instance of InvalidConfigurationException without a
+diff --git a/src/main/java/org/bukkit/configuration/MemorySection.java b/src/main/java/org/bukkit/configuration/MemorySection.java
+index 0e2b26a..a314560 100644
+--- a/src/main/java/org/bukkit/configuration/MemorySection.java
++++ b/src/main/java/org/bukkit/configuration/MemorySection.java
+@@ -9,6 +9,7 @@ import java.util.List;
+ import java.util.Map;
+ import java.util.Set;
+ 
++import net.avicus.minecraft.api.configuration.AbstractConfigurationSection;
+ import org.apache.commons.lang.Validate;
+ import org.bukkit.Color;
+ import org.bukkit.OfflinePlayer;
+@@ -18,7 +19,7 @@ import org.bukkit.util.Vector;
+ /**
+  * A type of {@link ConfigurationSection} that is stored in memory.
+  */
+-public class MemorySection implements ConfigurationSection {
++public class MemorySection extends AbstractConfigurationSection implements ConfigurationSection {
+     protected final Map<String, Object> map = new LinkedHashMap<String, Object>();
+     private final Configuration root;
+     private final ConfigurationSection parent;
+@@ -68,6 +69,11 @@ public class MemorySection implements ConfigurationSection {
+         this.fullPath = createPath(parent, path);
+     }
+ 
++    @Override
++    public java.util.Collection<String> getKeys() {
++        return getKeys(false);
++    }
++
+     public Set<String> getKeys(boolean deep) {
+         Set<String> result = new LinkedHashSet<String>();
+ 
+@@ -692,6 +698,17 @@ public class MemorySection implements ConfigurationSection {
+         return val instanceof Color;
+     }
+ 
++    @Override
++    public ConfigurationSection getSection(String path) {
++        final ConfigurationSection section = getConfigurationSection(path);
++        return section != null ? section : createSection(path);
++    }
++
++    @Override
++    public ConfigurationSection needSection(String path) throws tc.oc.minecraft.api.configuration.InvalidConfigurationException {
++        return needType(path, ConfigurationSection.class);
++    }
++
+     public ConfigurationSection getConfigurationSection(String path) {
+         Object val = get(path, null);
+         if (val != null) {
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index 8087f7d..3ac1245 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -28,7 +28,8 @@ import org.github.paperspigot.Title;
+ /**
+  * Represents a player, connected or not
+  */
+-public interface Player extends HumanEntity, Conversable, CommandSender, OfflinePlayer, PluginMessageRecipient {
++public interface Player extends HumanEntity, Conversable, CommandSender, OfflinePlayer, PluginMessageRecipient,
++    net.avicus.minecraft.api.entity.Player {
+ 
+     /**
+      * Gets the "friendly" name to display of this player. This may include
+diff --git a/src/main/java/org/bukkit/event/Listener.java b/src/main/java/org/bukkit/event/Listener.java
+index ff083e6..99ad284 100644
+--- a/src/main/java/org/bukkit/event/Listener.java
++++ b/src/main/java/org/bukkit/event/Listener.java
+@@ -3,4 +3,4 @@ package org.bukkit.event;
+ /**
+  * Simple interface for tagging all EventListeners
+  */
+-public interface Listener {}
++public interface Listener extends net.avicus.minecraft.api.event.Listener {}
+diff --git a/src/main/java/org/bukkit/permissions/Permissible.java b/src/main/java/org/bukkit/permissions/Permissible.java
+index a7c0ef5..21b95aa 100644
+--- a/src/main/java/org/bukkit/permissions/Permissible.java
++++ b/src/main/java/org/bukkit/permissions/Permissible.java
+@@ -7,7 +7,8 @@ import org.bukkit.plugin.Plugin;
+ /**
+  * Represents an object that may be assigned permissions
+  */
+-public interface Permissible extends ServerOperator {
++public interface Permissible extends ServerOperator,
++    net.avicus.minecraft.api.permissions.Permissible {
+ 
+     /**
+      * Checks if this object contains an override for the specified
+diff --git a/src/main/java/org/bukkit/plugin/Plugin.java b/src/main/java/org/bukkit/plugin/Plugin.java
+index 7bdc809..2a4b245 100644
+--- a/src/main/java/org/bukkit/plugin/Plugin.java
++++ b/src/main/java/org/bukkit/plugin/Plugin.java
+@@ -4,6 +4,7 @@ import java.io.File;
+ import java.io.InputStream;
+ import java.util.logging.Logger;
+ 
++import net.avicus.minecraft.api.configuration.Configurable;
+ import org.bukkit.Server;
+ import org.bukkit.command.TabExecutor;
+ import org.bukkit.configuration.file.FileConfiguration;
+@@ -16,7 +17,7 @@ import com.avaje.ebean.EbeanServer;
+  * <p>
+  * The use of {@link PluginBase} is recommended for actual Implementation
+  */
+-public interface Plugin extends TabExecutor {
++public interface Plugin extends TabExecutor, net.avicus.minecraft.api.plugin.Plugin, Configurable {
+     /**
+      * Returns the folder that the plugin data's files are located in. The
+      * folder may not yet exist.
+diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+index 5625360..d3e73b5 100644
+--- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
++++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+@@ -9,6 +9,7 @@ import java.util.List;
+ import java.util.Map;
+ import java.util.Set;
+ 
++import net.avicus.minecraft.api.plugin.PluginDescription;
+ import org.bukkit.command.CommandExecutor;
+ import org.bukkit.command.PluginCommand;
+ import org.bukkit.plugin.java.JavaPlugin;
+@@ -174,7 +175,7 @@ import com.google.common.collect.ImmutableSet;
+  *      inferno.burningdeaths: true
+  *</pre></blockquote>
+  */
+-public final class PluginDescriptionFile {
++public final class PluginDescriptionFile implements PluginDescription {
+     private static final ThreadLocal<Yaml> YAML = new ThreadLocal<Yaml>() {
+         @Override
+         protected Yaml initialValue() {
+diff --git a/src/main/java/org/bukkit/plugin/PluginLogger.java b/src/main/java/org/bukkit/plugin/PluginLogger.java
+index f409a28..577ad70 100644
+--- a/src/main/java/org/bukkit/plugin/PluginLogger.java
++++ b/src/main/java/org/bukkit/plugin/PluginLogger.java
+@@ -40,7 +40,7 @@ public class PluginLogger extends Logger {
+      * @param context A reference to the plugin
+      */
+     public PluginLogger(Plugin context) {
+-        super(context.getClass().getCanonicalName(), null);
++        super(context.getDescription().getMain(), null);
+         String prefix = context.getDescription().getPrefix();
+         pluginName = prefix != null ? new StringBuilder().append("[").append(prefix).append("] ").toString() : "[" + context.getDescription().getName() + "] ";
+         setParent(context.getServer().getLogger());
+diff --git a/src/main/java/org/bukkit/plugin/PluginManager.java b/src/main/java/org/bukkit/plugin/PluginManager.java
+index e5638d5..4f72c7e 100644
+--- a/src/main/java/org/bukkit/plugin/PluginManager.java
++++ b/src/main/java/org/bukkit/plugin/PluginManager.java
+@@ -3,6 +3,7 @@ package org.bukkit.plugin;
+ import java.io.File;
+ import java.util.Set;
+ 
++import net.avicus.minecraft.api.plugin.PluginFinder;
+ import org.bukkit.event.Event;
+ import org.bukkit.event.EventPriority;
+ import org.bukkit.event.Listener;
+@@ -12,7 +13,7 @@ import org.bukkit.permissions.Permission;
+ /**
+  * Handles all plugin management from the Server
+  */
+-public interface PluginManager {
++public interface PluginManager extends PluginFinder {
+ 
+     /**
+      * Registers the specified plugin loader
+diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
+index 891bac1..eb66368 100644
+--- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
++++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
+@@ -352,6 +352,11 @@ public final class SimplePluginManager implements PluginManager {
+         }
+     }
+ 
++    @Override
++    public Collection<? extends Plugin> getAllPlugins() {
++        return java.util.Arrays.asList(getPlugins());
++    }
++
+     /**
+      * Checks if the given plugin is loaded and returns it when applicable
+      * <p>
+-- 
+2.6.4
+

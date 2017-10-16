@@ -1,0 +1,328 @@
+From 9f979fa7a87c9911a9948cdcdf65444b8bd8c46b Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 17:57:55 -0500
+Subject: [PATCH] Mojang task queue access
+
+---
+ .../java/net/minecraft/server/DedicatedServer.java | 14 +++++-
+ .../java/net/minecraft/server/LoginListener.java   |  3 +-
+ .../java/net/minecraft/server/MinecraftServer.java | 57 ++++++++++++++++++++--
+ .../net/minecraft/server/PlayerConnection.java     | 10 ++--
+ .../java/org/bukkit/craftbukkit/CraftServer.java   | 50 ++++++++++++++++---
+ .../command/ConsoleCommandCompleter.java           |  2 +-
+ 6 files changed, 116 insertions(+), 20 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
+index 6cdeaa2..d6ccc46 100644
+--- a/src/main/java/net/minecraft/server/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/DedicatedServer.java
+@@ -376,7 +376,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+ 
+     public void B() { // CraftBukkit - fix decompile error
+         super.B();
+-        this.aO();
++        // this.aO();
+     }
+ 
+     public boolean getAllowNether() {
+@@ -401,6 +401,16 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+         this.l.add(new ServerCommand(s, icommandlistener));
+     }
+ 
++    // SportBukkit start
++    @Override
++    protected void processTasks() {
++        super.processTasks();
++        processCommands();
++    }
++    // SportBukkit end
++
++    public void processCommands() { aO(); } // SportBukkit - alias
++
+     public void aO() {
+         SpigotTimings.serverCommandTimer.startTiming(); // Spigot
+         while (!this.l.isEmpty()) {
+@@ -655,7 +665,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+                 return RemoteControlCommandListener.getInstance().j();
+             }
+         };
+-        processQueue.add(waitable);
++        addMainThreadTask(waitable);
+         try {
+             return waitable.get();
+         } catch (java.util.concurrent.ExecutionException e) {
+diff --git a/src/main/java/net/minecraft/server/LoginListener.java b/src/main/java/net/minecraft/server/LoginListener.java
+index 541cec7..cd34b2f 100644
+--- a/src/main/java/net/minecraft/server/LoginListener.java
++++ b/src/main/java/net/minecraft/server/LoginListener.java
+@@ -259,7 +259,7 @@ public class LoginListener implements PacketLoginInListener, IUpdatePlayerListBo
+                                         return event.getResult();
+                                     }};
+ 
+-                                LoginListener.this.server.processQueue.add(waitable);
++                                LoginListener.this.server.addMainThreadTask(waitable);
+                                 if (waitable.get() != PlayerPreLoginEvent.Result.ALLOWED) {
+                                     disconnect(event.getKickMessage());
+                                     return;
+@@ -271,6 +271,7 @@ public class LoginListener implements PacketLoginInListener, IUpdatePlayerListBo
+                                 }
+                             }
+                             // CraftBukkit end
++                            server.setSuspended(false);
+                             LoginListener.c.info("UUID of player " + LoginListener.this.i.getName() + " is " + LoginListener.this.i.getId());
+                             LoginListener.this.g = LoginListener.EnumProtocolState.READY_TO_ACCEPT;
+         }
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index cd61499..f8843c7 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -25,6 +25,7 @@ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Collections;
+ import java.util.Date;
++import java.util.Deque;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Queue;
+@@ -101,6 +102,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     private final GameProfileRepository Y;
+     private final UserCache Z;
+     protected final Queue<FutureTask<?>> j = new java.util.concurrent.ConcurrentLinkedQueue<FutureTask<?>>(); // Spigot, PAIL: Rename
++    protected final Deque<FutureTask<?>> taskQueue = (Deque<FutureTask<?>>) j; // SportBukkit - alias and downcast
+     private Thread serverThread;
+     private long ab = az();
+ 
+@@ -113,7 +115,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     public ConsoleReader reader;
+     public static int currentTick = 0; // PaperSpigot - Further improve tick loop
+     public final Thread primaryThread;
+-    public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
++    // public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
+     public int autosavePeriod;
+     // CraftBukkit end
+     protected boolean abnormalTermination;
+@@ -771,12 +773,18 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+         this.methodProfiler.a("jobs");
+         Queue queue = this.j;
+ 
++        // SportBukkit start - don't lock the task queue while running tasks
++        processTasks();
++
++        /*
+         // Spigot start
+         FutureTask<?> entry;
+         int count = this.j.size();
+         while (count-- > 0 && (entry = this.j.poll()) != null) {
+             SystemUtils.a(entry, MinecraftServer.LOGGER);
+          }
++         */
++        // SportBukkit end
+         // Spigot end
+         SpigotTimings.minecraftSchedulerTimer.stopTiming(); // Spigot
+ 
+@@ -789,9 +797,9 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+ 
+         // Run tasks that are waiting on processing
+         SpigotTimings.processQueueTimer.startTiming(); // Spigot
+-        while (!processQueue.isEmpty()) {
+-            processQueue.remove().run();
+-        }
++        // while (!processQueue.isEmpty()) {
++           // processQueue.remove().run();
++        // }
+         SpigotTimings.processQueueTimer.stopTiming(); // Spigot
+ 
+         SpigotTimings.chunkIOTickTimer.startTiming(); // Spigot
+@@ -1586,6 +1594,47 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+         return Thread.currentThread() == this.serverThread;
+     }
+ 
++    // SportBukkit start
++    public void addMainThreadTask(FutureTask<?> task) {
++        addMainThreadTask(false, task);
++    }
++
++    public void addMainThreadTask(boolean priority, FutureTask<?> task) {
++        synchronized(taskQueue) {
++            if(priority) {
++                taskQueue.addFirst(task);
++            } else {
++                taskQueue.addLast(task);
++            }
++        }
++    }
++
++    public void addMainThreadTask(Runnable task) {
++        addMainThreadTask(false, task);
++    }
++
++    public <T> ListenableFuture<T> addMainThreadTask(boolean priority, Runnable task) {
++        final ListenableFutureTask<T> future = ListenableFutureTask.create(task, null);
++        addMainThreadTask(priority, future);
++        return future;
++    }
++
++    protected void processTasks() {
++        if(!isMainThread()) throw new IllegalStateException("Tasks must be processed on the main thread");
++        for(;;) {
++            final FutureTask<?> task;
++            synchronized(taskQueue) {
++                task = taskQueue.poll();
++            }
++            if(task == null) {
++                break;
++            } else {
++                SystemUtils.a(task, MinecraftServer.LOGGER);
++            }
++        }
++    }
++    // SportBukkit end
++
+     public int aK() {
+         return 256;
+     }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index d03e49d..0d91a25 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -1077,7 +1077,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                             }
+                         };
+ 
+-                        this.minecraftServer.processQueue.add(waitable);
++                        this.minecraftServer.addMainThreadTask(waitable); // SportBukkit
+ 
+                         try {
+                             waitable.get();
+@@ -1107,7 +1107,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+             } else if (getPlayer().isConversing()) {
+                 // Spigot start
+                 final String message = s;
+-                this.minecraftServer.processQueue.add( new Waitable()
++                this.minecraftServer.addMainThreadTask( new Waitable()
+                 {
+                     @Override
+                     protected Object evaluate()
+@@ -1154,7 +1154,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                         }
+                     };
+ 
+-                    this.minecraftServer.processQueue.add(waitable);
++                    this.minecraftServer.addMainThreadTask(waitable);
+ 
+                     try {
+                         waitable.get();
+@@ -1191,7 +1191,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                         return null;
+                     }
+                 };
+-                minecraftServer.processQueue.add(wait);
++                minecraftServer.addMainThreadTask(wait);
+                 try {
+                     wait.get();
+                     return;
+@@ -1237,7 +1237,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                         return null;
+                     }};
+                 if (async) {
+-                    minecraftServer.processQueue.add(waitable);
++                    minecraftServer.addMainThreadTask(waitable);
+                 } else {
+                     waitable.run();
+                 }
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 33ab147..fb9a0ae 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -91,6 +91,7 @@ import org.bukkit.inventory.ShapedRecipe;
+ import org.bukkit.inventory.ShapelessRecipe;
+ import org.bukkit.permissions.Permissible;
+ import org.bukkit.permissions.Permission;
++import org.bukkit.plugin.IllegalPluginAccessException;
+ import org.bukkit.plugin.Plugin;
+ import org.bukkit.plugin.PluginLoadOrder;
+ import org.bukkit.plugin.PluginManager;
+@@ -688,7 +689,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+                     return dispatchCommand(fSender, fCommandLine);
+                 }
+             };
+-            net.minecraft.server.MinecraftServer.getServer().processQueue.add(wait);
++            net.minecraft.server.MinecraftServer.getServer().addMainThreadTask(wait);
+             try {
+                 return wait.get();
+             } catch (InterruptedException e) {
+@@ -1103,12 +1104,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+     @Override
+     public World getWorld(UUID uid) {
+-        for (World world : worlds.values()) {
+-            if (world.getUID().equals(uid)) {
+-                return world;
+-            }
+-        }
+-        return null;
++        return worldsById().get(uid);
+     }
+ 
+     public void addWorld(World world) {
+@@ -1914,4 +1910,44 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     public Set<Integer> getProtocolVersions() {
+         return ImmutableSet.of(47);
+     }
++
++    @Override
++    public void postToMainThread(Plugin plugin, boolean priority, Runnable task) {
++        getHandle().getServer().addMainThreadTask(priority, wrapTask(plugin, task));
++    }
++
++    @Override
++    public boolean runOnMainThread(Plugin plugin, boolean priority, Runnable task) {
++        task = wrapTask(plugin, task);
++
++        if(getHandle().getServer().isMainThread()) {
++            task.run();
++            return true;
++        } else {
++            postToMainThread(plugin, priority, task);
++            return false;
++        }
++    }
++
++    private Runnable wrapTask(final Plugin plugin, final Runnable task) {
++        if(!plugin.isEnabled()) {
++            throw new IllegalPluginAccessException("Plugin attempted to register task while disabled");
++        }
++
++        class Wrapped implements Runnable {
++            @Override public void run() {
++                try {
++                    task.run();
++                } catch(Throwable throwable) {
++                    plugin.getLogger().log(
++                        Level.SEVERE,
++                        "Exception running task from plugin " + plugin.getDescription().getFullName(),
++                        throwable
++                    );
++                }
++            }
++        }
++
++        return task instanceof Wrapped ? task : new Wrapped();
++    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java b/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java
+index 1dbcc09..117d53a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java
++++ b/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java
+@@ -23,7 +23,7 @@ public class ConsoleCommandCompleter implements Completer {
+                 return server.getCommandMap().tabComplete(server.getConsoleSender(), buffer);
+             }
+         };
+-        this.server.getServer().processQueue.add(waitable);
++        this.server.getServer().addMainThreadTask(waitable);
+         try {
+             List<String> offers = waitable.get();
+             if (offers == null) {
+-- 
+2.6.4
+

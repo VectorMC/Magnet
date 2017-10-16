@@ -1,0 +1,392 @@
+From c9eac2e893e70392cb1ec5ab06822e1754ec8b28 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 19:09:26 -0500
+Subject: [PATCH] New event API
+
+---
+ src/main/java/net/minecraft/server/PlayerList.java |  2 +-
+ .../java/org/bukkit/craftbukkit/CraftServer.java   | 65 ++++++++++++++++--
+ src/main/java/org/bukkit/craftbukkit/Main.java     | 10 +++
+ .../craftbukkit/command/ColouredConsoleSender.java | 10 +--
+ .../craftbukkit/scheduler/CraftScheduler.java      |  7 ++
+ .../craftbukkit/util/CaseInsensitiveNameMap.java   | 78 ++++++++++++++++++++++
+ 6 files changed, 155 insertions(+), 17 deletions(-)
+ create mode 100644 src/main/java/org/bukkit/craftbukkit/util/CaseInsensitiveNameMap.java
+
+diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
+index f25e0fe..b2b0990 100644
+--- a/src/main/java/net/minecraft/server/PlayerList.java
++++ b/src/main/java/net/minecraft/server/PlayerList.java
+@@ -72,7 +72,7 @@ public abstract class PlayerList {
+ 
+     public PlayerList(MinecraftServer minecraftserver) {
+         this.cserver = minecraftserver.server = new CraftServer(minecraftserver, this);
+-        minecraftserver.console = org.bukkit.craftbukkit.command.ColouredConsoleSender.getInstance();
++        this.cserver.getConsoleSender();
+         minecraftserver.reader.addCompleter(new org.bukkit.craftbukkit.command.ConsoleCommandCompleter(minecraftserver.server));
+         // CraftBukkit end
+         
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index fb9a0ae..5554922 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1,6 +1,8 @@
+ package org.bukkit.craftbukkit;
+ 
+ import com.google.common.collect.ImmutableSet;
++import com.google.inject.Guice;
++import com.google.inject.Stage;
+ import java.awt.image.BufferedImage;
+ import java.io.File;
+ import java.io.FileInputStream;
+@@ -35,6 +37,7 @@ import org.bukkit.GameMode;
+ import org.bukkit.Location;
+ import org.bukkit.OfflinePlayer;
+ import org.bukkit.Server;
++import org.bukkit.ServerInstanceModule;
+ import org.bukkit.UnsafeValues;
+ import org.bukkit.Warning.WarningState;
+ import org.bukkit.World;
+@@ -50,6 +53,7 @@ import org.bukkit.configuration.ConfigurationSection;
+ import org.bukkit.configuration.file.YamlConfiguration;
+ import org.bukkit.configuration.serialization.ConfigurationSerialization;
+ import org.bukkit.conversations.Conversable;
++import org.bukkit.craftbukkit.command.ColouredConsoleSender;
+ import org.bukkit.craftbukkit.command.VanillaCommandWrapper;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
+ import org.bukkit.craftbukkit.generator.CraftChunkData;
+@@ -74,6 +78,8 @@ import org.bukkit.craftbukkit.util.DatFileFilter;
+ import org.bukkit.craftbukkit.util.Versioning;
+ import org.bukkit.craftbukkit.util.permissions.CraftDefaultPermissions;
+ import org.bukkit.entity.Player;
++import org.bukkit.event.EventBus;
++import org.bukkit.event.SimpleEventBus;
+ import org.bukkit.event.inventory.InventoryType;
+ import org.bukkit.event.player.PlayerChatTabCompleteEvent;
+ import org.bukkit.event.world.WorldInitEvent;
+@@ -141,9 +147,13 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     private final SimpleHelpMap helpMap = new SimpleHelpMap(this);
+     private final StandardMessenger messenger = new StandardMessenger();
+     private final PluginManager pluginManager = new SimplePluginManager(this, commandMap);
++    private final EventBus eventBus;
+     protected final MinecraftServer console;
+     protected final DedicatedPlayerList playerList;
+     private final Map<String, World> worlds = new LinkedHashMap<String, World>();
++    private final Map<String, World> worldsView = new CaseInsensitiveNameMap<>(worlds.values(), World::getName);
++    private final Map<UUID, World> worldsById = new LinkedHashMap<>();
++    private final Map<UUID, World> worldsByIdView = Collections.unmodifiableMap(worldsById);
+     private YamlConfiguration configuration;
+     private YamlConfiguration commandsConfiguration;
+     private final Yaml yaml = new Yaml(new SafeConstructor());
+@@ -159,6 +169,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     public int chunkGCLoadThresh = 0;
+     private File container;
+     private WarningState warningState = WarningState.DEFAULT;
++    private boolean pluginProfiling;
+     private final BooleanWrapper online = new BooleanWrapper();
+     public CraftScoreboardManager scoreboardManager;
+     public boolean playerCommandState;
+@@ -168,6 +179,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     private final Pattern validUserPattern = Pattern.compile("^[a-zA-Z0-9_]{2,16}$");
+     private final UUID invalidUserUUID = UUID.nameUUIDFromBytes("InvalidUsername".getBytes(Charsets.UTF_8));
+     private final List<CraftPlayer> playerView;
++    private final Map<UUID, Player> playersById;
+     public int reloadCount;
+ 
+     private final class BooleanWrapper {
+@@ -181,13 +193,10 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+     public CraftServer(MinecraftServer console, PlayerList playerList) {
+         this.console = console;
++        this.eventBus = new SimpleEventBus(this.console.primaryThread, pluginManager);
+         this.playerList = (DedicatedPlayerList) playerList;
+-        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, new Function<EntityPlayer, CraftPlayer>() {
+-            @Override
+-            public CraftPlayer apply(EntityPlayer player) {
+-                return player.getBukkitEntity();
+-            }
+-        }));
++        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, EntityPlayer::getBukkitEntity));
++        this.playersById = Collections.unmodifiableMap(Maps.transformValues(playerList.playersById(), EntityPlayer::getBukkitEntity));
+         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
+         online.value = console.getPropertyManager().getBoolean("online-mode", true);
+ 
+@@ -243,7 +252,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+         saveCommandsConfig();
+         overrideAllCommandBlockCommands = commandsConfiguration.getStringList("command-block-overrides").contains("*");
+-        ((SimplePluginManager) pluginManager).useTimings(configuration.getBoolean("settings.plugin-profiling"));
++        pluginProfiling = configuration.getBoolean("settings.plugin-profiling");
+         monsterSpawn = configuration.getInt("spawn-limits.monsters");
+         animalSpawn = configuration.getInt("spawn-limits.animals");
+         waterAnimalSpawn = configuration.getInt("spawn-limits.water-animals");
+@@ -301,6 +310,17 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+         if (pluginFolder.exists()) {
+             Plugin[] plugins = pluginManager.loadPlugins(pluginFolder);
++
++            final Stage stage = console.options.valueOf(Main.GUICE_STAGE_OPTION);
++            logger.info("Creating injector in stage " + stage);
++
++            try {
++                injector = Guice.createInjector(stage, new ServerInstanceModule(this, Arrays.asList(plugins)));
++            } catch(RuntimeException ex) {
++                logger.log(Level.SEVERE, "Injector creation failed, server will shut down", ex);
++                throw ex;
++            }
++
+             for (Plugin plugin : plugins) {
+                 try {
+                     String message = String.format("Loading %s", plugin.getDescription().getFullName());
+@@ -415,6 +435,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     }
+ 
+     @Override
++    public Map<UUID, Player> playersById() {
++        return playersById;
++    }
++
++    @Override
+     @Deprecated
+     public Player getPlayer(final String name, final CommandSender viewer) { // Magnet - add viewer
+         Validate.notNull(name, "Name cannot be null");
+@@ -643,10 +668,25 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     }
+ 
+     @Override
++    public EventBus eventBus() {
++        return eventBus;
++    }
++
++    @Override
+     public List<World> getWorlds() {
+         return new ArrayList<World>(worlds.values());
+     }
+ 
++    @Override
++    public Map<String, World> worldsByName() {
++        return worldsView;
++    }
++
++    @Override
++    public Map<UUID, World> worldsById() {
++        return worldsByIdView;
++    }
++
+     public DedicatedPlayerList getHandle() {
+         return playerList;
+     }
+@@ -1061,6 +1101,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+             }
+         }
+ 
++        worldsById.remove(world.getUID());
+         worlds.remove(world.getName().toLowerCase());
+         console.worlds.remove(console.worlds.indexOf(handle));
+ 
+@@ -1113,7 +1154,9 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+             System.out.println("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");
+             return;
+         }
++        worldsById.put(world.getUID(), world);
+         worlds.put(world.getName().toLowerCase(), world);
++
+     }
+ 
+     @Override
+@@ -1527,6 +1570,9 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+     @Override
+     public ConsoleCommandSender getConsoleSender() {
++        if(console.console == null) {
++            console.console = new ColouredConsoleSender();
++        }
+         return console.console;
+     }
+ 
+@@ -1667,6 +1713,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+         return warningState;
+     }
+ 
++    @Override
++    public boolean pluginProfiling() {
++        return pluginProfiling;
++    }
++
+     public List<String> tabComplete(net.minecraft.server.ICommandListener sender, String message) {
+         return tabComplete(sender, message, null); // PaperSpigot - location tab-completes. Original code here moved below
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index c3281f3..11e55f3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -1,5 +1,6 @@
+ package org.bukkit.craftbukkit;
+ 
++import com.google.inject.Stage;
+ import java.io.File;
+ import java.io.IOException;
+ import java.text.SimpleDateFormat;
+@@ -9,10 +10,14 @@ import java.util.logging.Level;
+ import java.util.logging.Logger;
+ import joptsimple.OptionParser;
+ import joptsimple.OptionSet;
++import joptsimple.OptionSpec;
+ import net.minecraft.server.MinecraftServer;
+ import org.fusesource.jansi.AnsiConsole;
+ 
+ public class Main {
++
++    public static OptionSpec<Stage> GUICE_STAGE_OPTION;
++
+     public static boolean useJline = true;
+     public static boolean useConsole = true;
+ 
+@@ -115,6 +120,11 @@ public class Main {
+ 
+                 acceptsAll(asList("demo"), "Demo mode");
+ 
++                GUICE_STAGE_OPTION = acceptsAll(asList("stage"), "Guice run stage (development/production)")
++                    .withRequiredArg()
++                    .ofType(com.google.inject.Stage.class)
++                    .defaultsTo(com.google.inject.Stage.PRODUCTION);
++
+                 // Spigot Start
+                 acceptsAll(asList("S", "spigot-settings"), "File for spigot settings")
+                         .withRequiredArg()
+diff --git a/src/main/java/org/bukkit/craftbukkit/command/ColouredConsoleSender.java b/src/main/java/org/bukkit/craftbukkit/command/ColouredConsoleSender.java
+index 26a2fb8..799785d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/command/ColouredConsoleSender.java
++++ b/src/main/java/org/bukkit/craftbukkit/command/ColouredConsoleSender.java
+@@ -17,7 +17,7 @@ public class ColouredConsoleSender extends CraftConsoleCommandSender {
+     private final Map<ChatColor, String> replacements = new EnumMap<ChatColor, String>(ChatColor.class);
+     private final ChatColor[] colors = ChatColor.values();
+ 
+-    protected ColouredConsoleSender() {
++    public ColouredConsoleSender() {
+         super();
+         this.terminal = ((CraftServer) getServer()).getReader().getTerminal();
+ 
+@@ -63,12 +63,4 @@ public class ColouredConsoleSender extends CraftConsoleCommandSender {
+             super.sendMessage(message);
+         }
+     }
+-
+-    public static ConsoleCommandSender getInstance() {
+-        if (Bukkit.getConsoleSender() != null) {
+-            return Bukkit.getConsoleSender();
+-        } else {
+-            return new ColouredConsoleSender();
+-        }
+-    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index f036709..e6f56e8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -1,5 +1,6 @@
+ package org.bukkit.craftbukkit.scheduler;
+ 
++import java.time.Duration;
+ import java.util.ArrayList;
+ import java.util.Comparator;
+ import java.util.Iterator;
+@@ -498,4 +499,10 @@ public class CraftScheduler implements BukkitScheduler {
+     public BukkitTask runTaskTimerAsynchronously(Plugin plugin, BukkitRunnable task, long delay, long period) throws IllegalArgumentException {
+         return runTaskTimerAsynchronously(plugin, (Runnable) task, delay, period);
+     }
++
++    private static final Duration TICK = Duration.ofMillis(50);
++
++    @Override public Duration tickDuration() {
++        return TICK;
++    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CaseInsensitiveNameMap.java b/src/main/java/org/bukkit/craftbukkit/util/CaseInsensitiveNameMap.java
+new file mode 100644
+index 0000000..8cd1a16
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/util/CaseInsensitiveNameMap.java
+@@ -0,0 +1,78 @@
++package org.bukkit.craftbukkit.util;
++
++import java.util.AbstractMap;
++import java.util.AbstractSet;
++import java.util.Collection;
++import java.util.Iterator;
++import java.util.Set;
++import java.util.function.Function;
++
++import com.google.common.collect.Iterators;
++import com.google.common.collect.Maps;
++
++public class CaseInsensitiveNameMap<V> extends AbstractMap<String, V> {
++
++  private final Collection<V> values;
++  private final Function<V, String> nameGetter;
++  private final Set<Entry<String, V>> entries;
++
++  public CaseInsensitiveNameMap(Collection<V> values, Function<V, String> nameGetter) {
++    this.values = values;
++    this.nameGetter = nameGetter;
++
++    this.entries = new AbstractSet<Entry<String, V>>() {
++      @Override
++      public Iterator<Entry<String, V>> iterator() {
++        return Iterators.transform(
++            values.iterator(),
++            value -> Maps.immutableEntry(nameGetter.apply(value), value)
++        );
++      }
++
++      @Override
++      public int size() {
++        return values.size();
++      }
++    };
++  }
++
++  @Override
++  public Set<Entry<String, V>> entrySet() {
++    return entries;
++  }
++
++  @Override
++  public Collection<V> values() {
++    return values;
++  }
++
++  @Override
++  public int size() {
++    return values.size();
++  }
++
++  @Override
++  public boolean isEmpty() {
++    return values.isEmpty();
++  }
++
++  @Override
++  public boolean containsValue(Object value) {
++    return values.contains(value);
++  }
++
++  @Override
++  public boolean containsKey(Object key) {
++    return get(key) != null;
++  }
++
++  @Override
++  public V get(Object key) {
++    if(!(key instanceof String)) return null;
++    final String name = (String) key;
++    for(V value : values) {
++      if(name.equalsIgnoreCase(nameGetter.apply(value))) return value;
++    }
++    return null;
++  }
++}
+\ No newline at end of file
+-- 
+2.6.4
+

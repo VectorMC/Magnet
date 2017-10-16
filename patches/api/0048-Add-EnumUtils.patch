@@ -1,0 +1,56 @@
+From 503bf0b6dcb45d853335828b7c238793085ee02e Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 19:25:20 -0500
+Subject: [PATCH] Add EnumUtils
+
+---
+ src/main/java/org/bukkit/EntityLocation.java |  3 ++-
+ src/main/java/org/bukkit/util/EnumUtils.java | 21 +++++++++++++++++++++
+ 2 files changed, 23 insertions(+), 1 deletion(-)
+ create mode 100644 src/main/java/org/bukkit/util/EnumUtils.java
+
+diff --git a/src/main/java/org/bukkit/EntityLocation.java b/src/main/java/org/bukkit/EntityLocation.java
+index cf2f460..eba0111 100644
+--- a/src/main/java/org/bukkit/EntityLocation.java
++++ b/src/main/java/org/bukkit/EntityLocation.java
+@@ -55,7 +55,8 @@ public class EntityLocation extends Location {
+   }
+ 
+   public static EntityLocation copyOf(Location location, Vector velocity, Set<PoseFlag> poseFlags) {
+-    return new EntityLocation(location, new Vector(velocity), EnumUtils.copySet(PoseFlag.class, poseFlags));
++    return new EntityLocation(location, new Vector(velocity), EnumUtils
++        .copySet(PoseFlag.class, poseFlags));
+   }
+ 
+   public static EntityLocation copyOf(EntityLocation that) {
+diff --git a/src/main/java/org/bukkit/util/EnumUtils.java b/src/main/java/org/bukkit/util/EnumUtils.java
+new file mode 100644
+index 0000000..c181e5e
+--- /dev/null
++++ b/src/main/java/org/bukkit/util/EnumUtils.java
+@@ -0,0 +1,21 @@
++package org.bukkit.util;
++
++import java.util.Collection;
++import java.util.EnumSet;
++
++public final class EnumUtils {
++  private EnumUtils() {}
++
++  /**
++   * Create a new {@link EnumSet} of the given type, copying the initial
++   * contents from the given set.
++   *
++   * Unlike {@link EnumSet#copyOf(Collection)}, this method always works,
++   * even if the given set is empty, and is not another {@link EnumSet}.
++   */
++  public static <E extends Enum<E>> EnumSet<E> copySet(Class<E> type, Collection<E> set) {
++    final EnumSet<E> copy = EnumSet.noneOf(type);
++    copy.addAll(set);
++    return copy;
++  }
++}
+\ No newline at end of file
+-- 
+2.6.4
+

@@ -1,0 +1,79 @@
+From d314e6e0bddce92027ce65bb500601d63b8935e6 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 17:02:04 -0500
+Subject: [PATCH] Add Player.willBeOnline method
+
+---
+ src/main/java/net/minecraft/server/PlayerList.java           |  2 ++
+ src/main/java/org/bukkit/craftbukkit/CraftOfflinePlayer.java |  6 ++++++
+ src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java | 10 ++++++++++
+ 3 files changed, 18 insertions(+)
+
+diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
+index 47013d6..9df1898 100644
+--- a/src/main/java/net/minecraft/server/PlayerList.java
++++ b/src/main/java/net/minecraft/server/PlayerList.java
+@@ -26,6 +26,7 @@ import org.bukkit.craftbukkit.chunkio.ChunkIOExecutor;
+ import org.bukkit.Bukkit;
+ import org.bukkit.Location;
+ import org.bukkit.TravelAgent;
++import org.bukkit.craftbukkit.entity.CraftPlayer;
+ import org.bukkit.craftbukkit.util.CraftChatMessage;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.player.PlayerChangedWorldEvent;
+@@ -372,6 +373,7 @@ public abstract class PlayerList {
+ 
+     public String disconnect(EntityPlayer entityplayer) { // CraftBukkit - return string
+         entityplayer.b(StatisticList.f);
++        ((CraftPlayer) cserver.getPlayer(entityplayer)).startQuitting(); // SportBukkit
+ 
+         // CraftBukkit start - Quitting must be before we do final save of data, in case plugins need to modify it
+         org.bukkit.craftbukkit.event.CraftEventFactory.handleInventoryCloseEvent(entityplayer);
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftOfflinePlayer.java b/src/main/java/org/bukkit/craftbukkit/CraftOfflinePlayer.java
+index 4521786..b4ca640 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftOfflinePlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftOfflinePlayer.java
+@@ -43,6 +43,12 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
+         return getPlayer() != null;
+     }
+ 
++    @Override
++    public boolean willBeOnline() {
++        final Player player = getPlayer();
++        return player != null && player != this && player.willBeOnline();
++    }
++
+     public String getName() {
+         Player player = getPlayer();
+         if (player != null) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index e24a4e6..a227db1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -91,6 +91,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+     private final Map<org.bukkit.command.CommandSender, String> fakeDisplayNames = new java.util.WeakHashMap<>();
+     private final Map<org.bukkit.command.CommandSender, Skin> fakeSkins = new java.util.WeakHashMap<>();
+     private PlayerResourcePackStatusEvent.Status resourcePackStatus;
++    private boolean quitting;
+     // Magnet end
+ 
+     public CraftPlayer(CraftServer server, EntityPlayer entity) {
+@@ -126,6 +127,15 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+         return server.getPlayer(getUniqueId()) != null;
+     }
+ 
++    @Override
++    public boolean willBeOnline() {
++        return !quitting;
++    }
++
++    public void startQuitting() {
++        quitting = true;
++    }
++
+     public InetSocketAddress getAddress() {
+         if (getHandle().playerConnection == null) return null;
+ 
+-- 
+2.6.4
+

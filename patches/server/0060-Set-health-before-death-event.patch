@@ -1,0 +1,30 @@
+From 24b8c75b58e259d7906321dc1b9cd4057e7ef242 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 15:25:37 -0500
+Subject: [PATCH] Set health before death event
+
+---
+ src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index b4e415a..47bd3cf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -86,11 +86,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+             + (this instanceof CraftPlayer ? ", player: " + this.getName() + ')' : ')'));
+         }
+ 
++        getHandle().setHealth((float) health);
++
+         if (entity instanceof EntityPlayer && health == 0) {
+             ((EntityPlayer) entity).die(DamageSource.GENERIC);
+         }
+-
+-        getHandle().setHealth((float) health);
+     }
+ 
+     public double getMaxHealth() {
+-- 
+2.6.4
+

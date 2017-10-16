@@ -1,0 +1,36 @@
+From 8e6cc085bcf55bf373dcfb117cebf76affbb5575 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 16:58:37 -0500
+Subject: [PATCH] Better error logging on IO threads
+
+---
+ src/main/java/net/minecraft/server/NetworkManager.java | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/java/net/minecraft/server/NetworkManager.java b/src/main/java/net/minecraft/server/NetworkManager.java
+index 1822736..b1716c4 100644
+--- a/src/main/java/net/minecraft/server/NetworkManager.java
++++ b/src/main/java/net/minecraft/server/NetworkManager.java
+@@ -91,7 +91,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
+         try {
+             this.a(EnumProtocol.HANDSHAKING);
+         } catch (Throwable throwable) {
+-            NetworkManager.g.fatal(throwable);
++            NetworkManager.g.fatal("Exception setting protocol", throwable);
+         }
+ 
+     }
+@@ -111,8 +111,10 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
+ 
+         if (throwable instanceof TimeoutException) {
+             chatmessage = new ChatMessage("disconnect.timeout", new Object[0]);
++            NetworkManager.g.debug("Uncaught Exception", throwable);
+         } else {
+             chatmessage = new ChatMessage("disconnect.genericReason", new Object[] { "Internal Exception: " + throwable});
++            NetworkManager.g.fatal("Uncaught Exception", throwable);
+         }
+ 
+         this.close(chatmessage);
+-- 
+2.6.4
+

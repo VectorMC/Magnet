@@ -1,0 +1,104 @@
+From 63832c81f37a96907563e1ee1472717cb724d079 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 21:44:49 -0500
+Subject: [PATCH] Do things inside events
+
+---
+ src/main/java/net/minecraft/server/PlayerList.java | 74 ++++++++++++----------
+ 1 file changed, 39 insertions(+), 35 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
+index b2b0990..f276dfc 100644
+--- a/src/main/java/net/minecraft/server/PlayerList.java
++++ b/src/main/java/net/minecraft/server/PlayerList.java
+@@ -389,48 +389,52 @@ public abstract class PlayerList {
+         org.bukkit.craftbukkit.event.CraftEventFactory.handleInventoryCloseEvent(entityplayer);
+ 
+         PlayerQuitEvent playerQuitEvent = new PlayerQuitEvent(cserver.getPlayer(entityplayer), "\u00A7e" + entityplayer.getName() + " left the game.");
+-        cserver.getPluginManager().callEvent(playerQuitEvent);
+-        entityplayer.getBukkitEntity().disconnect(playerQuitEvent.getQuitMessage());
+-        // CraftBukkit end
+-        
+-        this.savePlayerFile(entityplayer);
+-        WorldServer worldserver = entityplayer.u();
+-
+-        if (entityplayer.vehicle != null && !(entityplayer.vehicle instanceof EntityPlayer)) { // CraftBukkit - Don't remove players
+-            worldserver.removeEntity(entityplayer.vehicle);
+-            PlayerList.f.debug("removing player mount");
+-        }
++        cserver.eventBus().callEvent(playerQuitEvent, ev -> { // SportBukkit - disconnect inside event body
++            entityplayer.getBukkitEntity().disconnect(playerQuitEvent.getQuitMessage());
++            // CraftBukkit end
+ 
+-        worldserver.kill(entityplayer);
+-        worldserver.getPlayerChunkMap().removePlayer(entityplayer);
+-        this.players.remove(entityplayer);
+-        this.playersByName.remove(entityplayer.getName()); // Spigot
+-        UUID uuid = entityplayer.getUniqueID();
+-        EntityPlayer entityplayer1 = (EntityPlayer) this.j.get(uuid);
++            this.savePlayerFile(entityplayer);
++            WorldServer worldserver = entityplayer.u();
+ 
+-        if (entityplayer1 == entityplayer) {
+-            this.j.remove(uuid);
+-            this.o.remove(uuid);
+-        }
++            if (entityplayer.vehicle != null
++                && !(entityplayer.vehicle instanceof EntityPlayer)) { // CraftBukkit - Don't remove players
++                worldserver.removeEntity(entityplayer.vehicle);
++                PlayerList.f.debug("removing player mount");
++            }
+ 
+-        // CraftBukkit start
+-        //  this.sendAll(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER, new EntityPlayer[] { entityplayer}));
+-        PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityplayer);
+-        for (int i = 0; i < players.size(); i++) {
+-            EntityPlayer entityplayer2 = (EntityPlayer) this.players.get(i);
++            worldserver.kill(entityplayer);
++            worldserver.getPlayerChunkMap().removePlayer(entityplayer);
++            this.players.remove(entityplayer);
++            this.playersByName.remove(entityplayer.getName()); // Spigot
++            UUID uuid = entityplayer.getUniqueID();
++            EntityPlayer entityplayer1 = (EntityPlayer) this.j.get(uuid);
++
++            if (entityplayer1 == entityplayer) {
++                this.j.remove(uuid);
++                this.o.remove(uuid);
++            }
+ 
+-            if (entityplayer2.getBukkitEntity().canSee(entityplayer.getBukkitEntity())) {
+-                entityplayer2.playerConnection.sendPacket(packet);
+-            } else {
+-                entityplayer2.getBukkitEntity().removeDisconnectingPlayer(entityplayer.getBukkitEntity());
++            // CraftBukkit start
++            //  this.sendAll(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER, new EntityPlayer[] { entityplayer}));
++            PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
++                PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityplayer);
++            for (int i = 0; i < players.size(); i++) {
++                EntityPlayer entityplayer2 = (EntityPlayer) this.players.get(i);
++
++                if (entityplayer2.getBukkitEntity().canSee(entityplayer.getBukkitEntity())) {
++                    entityplayer2.playerConnection.sendPacket(packet);
++                } else {
++                    entityplayer2.getBukkitEntity()
++                        .removeDisconnectingPlayer(entityplayer.getBukkitEntity());
++                }
+             }
+-        }
+-        // This removes the scoreboard (and player reference) for the specific player in the manager
+-        cserver.getScoreboardManager().removePlayer(entityplayer.getBukkitEntity());
+-        // CraftBukkit end
++            // This removes the scoreboard (and player reference) for the specific player in the manager
++            cserver.getScoreboardManager().removePlayer(entityplayer.getBukkitEntity());
++            // CraftBukkit end
+ 
+-        ChunkIOExecutor.adjustPoolSize(this.getPlayerCount()); // CraftBukkit
++            ChunkIOExecutor.adjustPoolSize(this.getPlayerCount()); // CraftBukkit
+ 
++        });
+         return playerQuitEvent.getQuitMessage(); // CraftBukkit
+     }
+ 
+-- 
+2.6.4
+

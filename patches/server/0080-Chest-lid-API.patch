@@ -1,0 +1,121 @@
+From c6190bf5994c8f7c2d2bf797b7d217d70aa2e084 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 21:52:31 -0500
+Subject: [PATCH] Chest lid API
+
+---
+ .../java/net/minecraft/server/TileEntityChest.java | 50 +++++++++++++++++++++-
+ .../org/bukkit/craftbukkit/block/CraftChest.java   | 10 +++++
+ 2 files changed, 58 insertions(+), 2 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/TileEntityChest.java b/src/main/java/net/minecraft/server/TileEntityChest.java
+index 5192d95..1155ac2 100644
+--- a/src/main/java/net/minecraft/server/TileEntityChest.java
++++ b/src/main/java/net/minecraft/server/TileEntityChest.java
+@@ -4,6 +4,7 @@ import java.util.Iterator;
+ import java.util.List;
+ 
+ // CraftBukkit start
++import org.bukkit.block.Chest;
+ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+ import org.bukkit.entity.HumanEntity;
+ // CraftBukkit end
+@@ -19,6 +20,7 @@ public class TileEntityChest extends TileEntityContainer implements IInventory {
+     public float j; // PaperSpigot - lidAngle
+     public float k;
+     public int l; // PaperSpigot - numPlayersUsing
++    public int viewerCount() { return l; } // SportBukkit - alias
+     private int n;
+     private int o = -1;
+     private String p;
+@@ -29,6 +31,44 @@ public class TileEntityChest extends TileEntityContainer implements IInventory {
+     public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
+     private int maxStack = MAX_STACK;
+ 
++    // SportBukkit start
++    private Chest.Lid lid = Chest.Lid.AUTO;
++
++    public Chest.Lid getLid() {
++        return lid;
++    }
++
++    public boolean isOpen() {
++        switch(lid) {
++            case OPEN: return true;
++            case CLOSED: return false;
++            default: return viewerCount() > 0;
++        }
++    }
++
++    public boolean setLid(Chest.Lid lid) {
++        final boolean wasOpen = isOpen();
++        this.lid = lid;
++        if(wasOpen != isOpen()) {
++            playBlockAction();
++            return true;
++        }
++        return false;
++    }
++
++    public void playBlockAction() {
++        if(this.world != null) {
++            final int count;
++            switch(lid) {
++                case OPEN: count = Math.max(1, viewerCount()); break;
++                case CLOSED: count = 0; break;
++                default: count = viewerCount(); break;
++            }
++            this.world.playBlockAction(getPosition(), this.w(), 1, count);
++        }
++    }
++    // SportBukkit end
++
+     public ItemStack[] getContents() {
+         return this.items;
+     }
+@@ -364,7 +404,10 @@ public class TileEntityChest extends TileEntityContainer implements IInventory {
+             }
+             // PaperSpigot end
+ 
+-            this.world.playBlockAction(this.position, this.w(), 1, this.l);
++            // SportBukkit start
++            //this.world.playBlockAction(this.position, this.getBlock(), 1, this.l);
++            playBlockAction();
++            // SportBukkit end
+ 
+             // CraftBukkit start - Call redstone event
+             if (this.w() == Blocks.TRAPPED_CHEST) {
+@@ -413,7 +456,10 @@ public class TileEntityChest extends TileEntityContainer implements IInventory {
+             }
+             // PaperSpigot end
+ 
+-            this.world.playBlockAction(this.position, this.w(), 1, this.l);
++            // SportBukkit start
++            //this.world.playBlockAction(this.position, this.getBlock(), 1, this.l);
++            playBlockAction();
++            // SportBukkit end
+ 
+             // CraftBukkit start - Call redstone event
+             if (this.w() == Blocks.TRAPPED_CHEST) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java b/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java
+index ce36ee4..64cb35e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java
+@@ -84,4 +84,14 @@ public class CraftChest extends CraftBlockState implements Chest {
+     public TileEntityChest getTileEntity() {
+         return chest;
+     }
++
++    @Override
++    public boolean setLid(Lid lid) {
++        return getTileEntity().setLid(lid);
++    }
++
++    @Override
++    public Lid getLid() {
++        return getTileEntity().getLid();
++    }
+ }
+-- 
+2.6.4
+

@@ -1,0 +1,97 @@
+From 4845050bc07206f6a8f04ba9fc1c7e1580f9ce0e Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 14:44:08 -0500
+Subject: [PATCH] Retrieve metadata by plugin
+
+---
+ src/main/java/org/bukkit/craftbukkit/CraftWorld.java            | 5 +++++
+ src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java      | 5 +++++
+ src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java | 6 ++++++
+ src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java    | 5 +++++
+ src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java    | 5 +++++
+ 5 files changed, 26 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index ba27541..21c0c27 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -1324,6 +1324,11 @@ public class CraftWorld implements World {
+         server.getWorldMetadata().removeMetadata(this, metadataKey, owningPlugin);
+     }
+ 
++    @Override
++    public MetadataValue getMetadata(String metadataKey, Plugin owningPlugin) {
++        return server.getWorldMetadata().getMetadata(this, metadataKey, owningPlugin);
++    }
++
+     public int getMonsterSpawnLimit() {
+         if (monsterSpawn < 0) {
+             return server.getMonsterSpawnLimit();
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
+index 5857c9b..5f84ba3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
+@@ -563,6 +563,11 @@ public class CraftBlock implements Block {
+     }
+ 
+     @Override
++    public MetadataValue getMetadata(String metadataKey, Plugin owningPlugin) {
++        return chunk.getCraftWorld().getBlockMetadata().getMetadata(this, metadataKey, owningPlugin);
++    }
++
++    @Override
+     public RayBlockIntersection rayTrace(Vector start, Vector end) {
+         net.minecraft.server.Block nms = CraftMagicNumbers.getBlock(getType());
+         if(nms == null) return null;
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
+index 4a8c814..869cfd7 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
+@@ -265,6 +265,12 @@ public class CraftBlockState implements BlockState {
+     }
+ 
+     @Override
++    public MetadataValue getMetadata(String metadataKey, Plugin owningPlugin) {
++        requirePlaced();
++        return chunk.getCraftWorld().getBlockMetadata().getMetadata(getBlock(), metadataKey, owningPlugin);
++    }
++
++    @Override
+     public boolean isPlaced() {
+         return world != null;
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index 8ce963e..af7dea8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -421,6 +421,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         server.getEntityMetadata().setMetadata(this, metadataKey, newMetadataValue);
+     }
+ 
++    @Override
++    public MetadataValue getMetadata(String metadataKey, Plugin owningPlugin) {
++        return server.getEntityMetadata().getMetadata(this, metadataKey, owningPlugin);
++    }
++
+     public List<MetadataValue> getMetadata(String metadataKey) {
+         return server.getEntityMetadata().getMetadata(this, metadataKey);
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 45339b3..8adf02a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -1244,6 +1244,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+     }
+ 
+     @Override
++    public MetadataValue getMetadata(String metadataKey, Plugin owningPlugin) {
++        return server.getPlayerMetadata().getMetadata(this, metadataKey, owningPlugin);
++    }
++
++    @Override
+     public List<MetadataValue> getMetadata(String metadataKey) {
+         return server.getPlayerMetadata().getMetadata(this, metadataKey);
+     }
+-- 
+2.6.4
+

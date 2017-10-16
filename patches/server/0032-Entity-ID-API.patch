@@ -1,0 +1,42 @@
+From a0ac51ee970f638994e2c307025e989667f53247 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 23:03:27 -0500
+Subject: [PATCH] Entity ID API
+
+---
+ src/main/java/net/minecraft/server/Entity.java        | 2 +-
+ src/main/java/org/bukkit/craftbukkit/CraftServer.java | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
+index 5fa68bc..d4da211 100644
+--- a/src/main/java/net/minecraft/server/Entity.java
++++ b/src/main/java/net/minecraft/server/Entity.java
+@@ -48,7 +48,7 @@ public abstract class Entity implements ICommandListener {
+     // CraftBukikt end
+ 
+     private static final AxisAlignedBB a = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+-    private static int entityCount;
++    public static int entityCount; // SportBukkit - private -> public
+     private int id;
+     public double j;
+     public boolean k;
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 5c4eeff..46474e2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1741,6 +1741,11 @@ public final class CraftServer implements Server {
+     }
+ 
+     @Override
++    public int allocateEntityId() {
++        return net.minecraft.server.Entity.entityCount++;
++    }
++
++    @Override
+     public CraftIconCache getServerIcon() {
+         return icon;
+     }
+-- 
+2.6.4
+

@@ -1,0 +1,32 @@
+From 02b8e2d6794b3be3b4670abba4a1efcd88cb5fe2 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 13:45:06 -0500
+Subject: [PATCH] Add getHostname to Player
+
+---
+ src/main/java/org/bukkit/entity/Player.java | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index 91aa7ae..ac07490 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -1491,5 +1491,15 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+      * @see #sendSignChange(Location, String[])
+      */
+     void sendSignChange(Location loc, net.md_5.bungee.api.chat.BaseComponent[] lines);
++
++    /**
++     * Gets the hostname (an IP or a DNS domain) and port the client has used
++     * to connect to this server. This is generated client-side, and it may
++     * return a blank string if the client didn't send it, or an invalid
++     * hostname, as the server doesn't check it.
++     *
++     * @return The hostname and port
++     */
++    public String getHostname();
+     // Magnet end
+ }
+-- 
+2.6.4
+

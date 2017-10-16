@@ -1,0 +1,67 @@
+From e31d06786f2bf98f42917b467ee049ec62cfb0fd Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 14:44:16 -0500
+Subject: [PATCH] Call onDisable before disabling the plugin
+
+---
+ .../java/org/bukkit/plugin/SimplePluginManager.java  | 12 ++++++++++++
+ src/main/java/org/bukkit/plugin/java/JavaPlugin.java | 20 ++++++++++++++------
+ 2 files changed, 26 insertions(+), 6 deletions(-)
+
+diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
+index 66b3e9e..891bac1 100644
+--- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
++++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
+@@ -398,6 +398,18 @@ public final class SimplePluginManager implements PluginManager {
+ 
+     public void enablePlugin(final Plugin plugin) {
+         if (!plugin.isEnabled()) {
++            boolean dependenciesEnabled = true;
++            for(String dependency : plugin.getDescription().getDepend()) {
++                if(!this.isPluginEnabled(dependency)) {
++                    dependenciesEnabled = false;
++                    plugin.getLogger().warning(
++                        "Cannot enable " + plugin.getDescription().getFullName() +
++                            " because dependency " + dependency + " is not enabled"
++                    );
++                }
++            }
++            if(!dependenciesEnabled) return;
++
+             List<Command> pluginCommands = PluginCommandYamlParser.parse(plugin);
+ 
+             if (!pluginCommands.isEmpty()) {
+diff --git a/src/main/java/org/bukkit/plugin/java/JavaPlugin.java b/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
+index c961b18..ac4f62e 100644
+--- a/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
++++ b/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
+@@ -315,12 +315,20 @@ public abstract class JavaPlugin extends PluginBase {
+      */
+     protected final void setEnabled(final boolean enabled) {
+         if (isEnabled != enabled) {
+-            isEnabled = enabled;
+-
+-            if (isEnabled) {
+-                onEnable();
+-            } else {
+-                onDisable();
++            if(!isEnabled && enabled) {
++                isEnabled = true;
++                try {
++                    onEnable();
++                } catch(RuntimeException e) {
++                    isEnabled = false;
++                    throw e;
++                }
++            } else if(isEnabled && !enabled) {
++                try {
++                    onDisable();
++                } finally {
++                    isEnabled = false;
++                }
+             }
+         }
+     }
+-- 
+2.6.4
+

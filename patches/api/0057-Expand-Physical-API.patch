@@ -1,0 +1,162 @@
+From 84fc3e87bc29a43a0f48c03c4cb4a517fd17a96c Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 21:34:31 -0500
+Subject: [PATCH] Expand Physical API
+
+---
+ src/main/java/org/bukkit/Location.java         | 22 +++++++++++++++--
+ src/main/java/org/bukkit/Physical.java         | 34 ++++++++++++++++++++++++--
+ src/main/java/org/bukkit/World.java            |  5 ++++
+ src/main/java/org/bukkit/block/BlockState.java |  2 +-
+ 4 files changed, 58 insertions(+), 5 deletions(-)
+
+diff --git a/src/main/java/org/bukkit/Location.java b/src/main/java/org/bukkit/Location.java
+index 6a0b39b..79a003c 100644
+--- a/src/main/java/org/bukkit/Location.java
++++ b/src/main/java/org/bukkit/Location.java
+@@ -3,6 +3,7 @@ package org.bukkit;
+ import java.util.HashMap;
+ import java.util.Map;
+ 
++import java.util.UUID;
+ import org.bukkit.block.Block;
+ import org.bukkit.configuration.serialization.ConfigurationSerializable;
+ import org.bukkit.util.NumberConversions;
+@@ -11,8 +12,9 @@ import org.bukkit.util.Vector;
+ /**
+  * Represents a 3-dimensional position in a world
+  */
+-public class Location implements Cloneable, ConfigurationSerializable, Physical {
++public class Location implements Cloneable, ConfigurationSerializable, Locatable {
+     private World world;
++    private UUID worldId;
+     private double x;
+     private double y;
+     private double z;
+@@ -48,6 +50,16 @@ public class Location implements Cloneable, ConfigurationSerializable, Physical
+         this.z = z;
+         this.pitch = pitch;
+         this.yaw = yaw;
++        this.worldId = world.getWorldId();
++    }
++
++    public void setWorldId(UUID worldId) {
++        this.worldId = worldId;
++    }
++
++    @Override
++    public UUID getWorldId() {
++        return worldId;
+     }
+ 
+     /**
+@@ -56,7 +68,7 @@ public class Location implements Cloneable, ConfigurationSerializable, Physical
+      * @param world New world that this location resides in
+      */
+     public void setWorld(World world) {
+-        this.world = world;
++        setWorldId(world.getUID());
+     }
+ 
+     /**
+@@ -64,10 +76,16 @@ public class Location implements Cloneable, ConfigurationSerializable, Physical
+      *
+      * @return World that contains this location
+      */
++    @Override
+     public World getWorld() {
+         return world;
+     }
+ 
++    @Override
++    public Location getLocation() {
++        return this;
++    }
++
+     /**
+      * Gets the chunk at the represented location
+      *
+diff --git a/src/main/java/org/bukkit/Physical.java b/src/main/java/org/bukkit/Physical.java
+index b16fd2e..8e9fe95 100644
+--- a/src/main/java/org/bukkit/Physical.java
++++ b/src/main/java/org/bukkit/Physical.java
+@@ -1,5 +1,8 @@
+ package org.bukkit;
+ 
++import java.util.UUID;
++import javax.annotation.Nullable;
++
+ /**
+  * Common interface for any type of object that can be associated with a specific world.
+  * This interface makes no guarantees about the mutability or nullability of the world.
+@@ -7,8 +10,35 @@ package org.bukkit;
+ public interface Physical {
+ 
+   /**
+-   * Return the world this object is associated with. May return null if the world
+-   * is not available (i.e. not loaded), or this object does not have a world.
++   * Return the {@link UUID} of the {@link World} this object is associated with.
++   *
++   * Some types may make this value available even when the world is not
++   * e.g. because it is not currently loaded.
++   *
++   * May throw {@link IllegalStateException} if this particular object is
++   * not associated with any world.
++   */
++  default UUID getWorldId() {
++    return getWorld().getWorldId();
++  }
++
++  /**
++   * Return the same {@link UUID} as {@link #getWorldId()}, if it is available,
++   * otherwise return null.
++   *
++   * The default implementation just calls {@link #getWorldId()}, assuming
++   * that it never fails. If it can fail, then this method must be
++   * overridden to return null in that case.
++   */
++  default @Nullable UUID tryWorldId() {
++    return getWorldId();
++  }
++
++  /**
++   * Return the {@link World} this object is associated with.
++   *
++   * May throw an {@link IllegalStateException} if the world is unloaded,
++   * or unavailable for some other reason.
+    */
+   World getWorld();
+ }
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index 4a256a9..c9c7b4e 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -506,6 +506,11 @@ public interface World extends PluginMessageRecipient, Metadatable, Physical {
+      */
+     public UUID getUID();
+ 
++    @Override
++    default UUID getWorldId() {
++        return getUID();
++    }
++
+     /**
+      * Gets the default spawn {@link Location} of this world
+      *
+diff --git a/src/main/java/org/bukkit/block/BlockState.java b/src/main/java/org/bukkit/block/BlockState.java
+index 94340f7..36ff2ba 100644
+--- a/src/main/java/org/bukkit/block/BlockState.java
++++ b/src/main/java/org/bukkit/block/BlockState.java
+@@ -62,7 +62,7 @@ public interface BlockState extends Metadatable, Locatable {
+      * @return World containing this block
+      */
+     World getWorld();
+-
++    
+     /**
+      * Gets the x-coordinate of this block
+      *
+-- 
+2.6.4
+

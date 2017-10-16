@@ -1,0 +1,25 @@
+From 3e4d7486e2b805d26752b18f9b5d73a744045fdf Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 13:18:02 -0500
+Subject: [PATCH] Agree to EULA
+
+---
+ src/main/java/net/minecraft/server/DedicatedServer.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
+index 088beb2..8db48c8 100644
+--- a/src/main/java/net/minecraft/server/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/DedicatedServer.java
+@@ -132,7 +132,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+             System.err.println( "If you do not agree to the above EULA please stop your server and remove this flag immediately." );
+         }
+         // Spigot End
+-        if (!this.p.a() && !eulaAgreed) { // Spigot
++        if (!this.p.a() && !eulaAgreed && false) { // Spigot -> NOPE
+             DedicatedServer.LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
+             this.p.b();
+             return false;
+-- 
+2.6.4
+

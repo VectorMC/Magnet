@@ -1,0 +1,38 @@
+From f0667780068c7ac3b31868c602aa9dec120520a1 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 19:26:36 -0500
+Subject: [PATCH] Pause entity API
+
+---
+ src/main/java/org/bukkit/entity/Entity.java | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
+index 945ab95..9ef41a3 100644
+--- a/src/main/java/org/bukkit/entity/Entity.java
++++ b/src/main/java/org/bukkit/entity/Entity.java
+@@ -371,4 +371,21 @@ public interface Entity extends Metadatable, CommandSender, Locatable {
+ 
+     Spigot spigot();
+     // Spigot End
++
++    /**
++     * Pause/unpause this entity.
++     *
++     * Pausing an entity prevents various dynamic properties from advancing.
++     * The set of affected properties may expand in the future.
++     *
++     * Currently, only potion effect durations are affected.
++     */
++    void setPaused(boolean paused);
++
++    /**
++     * Is this entity paused?
++     *
++     * @see #setPaused
++     */
++    boolean isPaused();
+ }
+-- 
+2.6.4
+

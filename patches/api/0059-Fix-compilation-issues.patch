@@ -1,0 +1,502 @@
+From acac01bd8bb55978518d372175284d12e188a554 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 21:47:53 -0500
+Subject: [PATCH] Fix compilation issues
+
+---
+ src/main/java/org/bukkit/Bukkit.java               |   8 -
+ src/main/java/org/bukkit/BukkitModule.java         |  24 ---
+ src/main/java/org/bukkit/EntityLocation.java       |   2 +-
+ src/main/java/org/bukkit/Location.java             |  10 ++
+ src/main/java/org/bukkit/Server.java               |  16 +-
+ src/main/java/org/bukkit/ServerModule.java         |   2 +
+ src/main/java/org/bukkit/block/BlockState.java     |   2 +-
+ .../bukkit/configuration/ConfigurationSection.java |   2 +-
+ .../org/bukkit/configuration/MemorySection.java    |   2 +-
+ .../org/bukkit/plugin/PluginDescriptionFile.java   |   3 +-
+ src/test/java/org/bukkit/LocationTest.java         |   3 +-
+ .../java/org/bukkit/event/SyntheticEventTest.java  |  49 ------
+ src/test/java/org/bukkit/potion/PotionTest.java    | 170 ---------------------
+ 13 files changed, 31 insertions(+), 262 deletions(-)
+ delete mode 100644 src/test/java/org/bukkit/event/SyntheticEventTest.java
+ delete mode 100644 src/test/java/org/bukkit/potion/PotionTest.java
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index b4eade1..322fdb2 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -13,7 +13,6 @@ import java.util.UUID;
+ import java.util.logging.Logger;
+ 
+ import org.bukkit.Warning.WarningState;
+-import org.bukkit.block.BlockFactory;
+ import org.bukkit.command.CommandException;
+ import org.bukkit.command.CommandMap;
+ import org.bukkit.command.CommandSender;
+@@ -384,13 +383,6 @@ public final class Bukkit {
+     }
+ 
+     /**
+-     * Should plugins be able to access classes from other plugins that are not explicit dependencies?
+-     */
+-    public static boolean getIsolatePlugins() {
+-        return server.getIsolatePlugins();
+-    }
+-
+-    /**
+      * @see Server#getFetchSkulls()
+      */
+     public static boolean getFetchSkulls() {
+diff --git a/src/main/java/org/bukkit/BukkitModule.java b/src/main/java/org/bukkit/BukkitModule.java
+index b69aff1..fd3fb4b 100644
+--- a/src/main/java/org/bukkit/BukkitModule.java
++++ b/src/main/java/org/bukkit/BukkitModule.java
+@@ -2,11 +2,7 @@ package org.bukkit;
+ 
+ import com.google.inject.Provides;
+ import net.avicus.inject.SingletonModule;
+-import org.bukkit.block.BlockFactory;
+-import org.bukkit.geometry.VectorFactory;
+ import org.bukkit.inventory.ItemFactory;
+-import org.bukkit.potion.PotionBrewRegistry;
+-import org.bukkit.potion.PotionEffectRegistry;
+ 
+ /**
+  * Bindings for global things that would be shared between servers,
+@@ -18,27 +14,7 @@ public class BukkitModule extends SingletonModule {
+   protected void configure() {}
+ 
+   @Provides
+-  VectorFactory vectorFactory(BukkitRuntime bukkit) {
+-    return bukkit.vectors();
+-  }
+-
+-  @Provides
+-  BlockFactory blockFactory(BukkitRuntime bukkit) {
+-    return bukkit.blocks();
+-  }
+-
+-  @Provides
+   ItemFactory itemFactory(BukkitRuntime bukkit) {
+     return bukkit.getItemFactory();
+   }
+-
+-  @Provides
+-  PotionEffectRegistry potionEffectRegistry(BukkitRuntime bukkit) {
+-    return bukkit.potionEffectRegistry();
+-  }
+-
+-  @Provides
+-  PotionBrewRegistry potionBrewRegistry(BukkitRuntime bukkit) {
+-    return bukkit.potionRegistry();
+-  }
+ }
+\ No newline at end of file
+diff --git a/src/main/java/org/bukkit/EntityLocation.java b/src/main/java/org/bukkit/EntityLocation.java
+index eba0111..1509914 100644
+--- a/src/main/java/org/bukkit/EntityLocation.java
++++ b/src/main/java/org/bukkit/EntityLocation.java
+@@ -55,7 +55,7 @@ public class EntityLocation extends Location {
+   }
+ 
+   public static EntityLocation copyOf(Location location, Vector velocity, Set<PoseFlag> poseFlags) {
+-    return new EntityLocation(location, new Vector(velocity), EnumUtils
++    return new EntityLocation(location, new Vector(velocity.getX(), velocity.getY(), velocity.getZ()), EnumUtils
+         .copySet(PoseFlag.class, poseFlags));
+   }
+ 
+diff --git a/src/main/java/org/bukkit/Location.java b/src/main/java/org/bukkit/Location.java
+index 79a003c..199665e 100644
+--- a/src/main/java/org/bukkit/Location.java
++++ b/src/main/java/org/bukkit/Location.java
+@@ -21,6 +21,16 @@ public class Location implements Cloneable, ConfigurationSerializable, Locatable
+     private float pitch;
+     private float yaw;
+ 
++    public Location(UUID uuid, final double x, final double y, final double z) {
++        this.world = null;
++        this.x = x;
++        this.y = y;
++        this.z = z;
++        this.pitch = 0;
++        this.yaw = 0;
++        this.worldId = uuid;
++    }
++
+     /**
+      * Constructs a new Location with the given coordinates
+      *
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 9f05e19..d9542e3 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -137,6 +137,12 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+     Map<UUID, Player> playersById();
+ 
+     /**
++     * If the server is currently empty of players, return the {@link Instant}
++     * that the last player disconnected. If the server is not empty, return null.
++     */
++    @Nullable Instant emptySince();
++
++    /**
+      * Time to wait before automatically suspending an empty server.
+      *
+      * @see #setSuspended(boolean)
+@@ -299,11 +305,6 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+     public long getConnectionThrottle();
+ 
+     /**
+-     * Should plugins be able to access classes from other plugins that are not explicit dependencies?
+-     */
+-    public boolean getIsolatePlugins();
+-
+-    /**
+      * Should player skulls with missing skin data be fetched from Mojang?
+      */
+     public boolean getFetchSkulls();
+@@ -666,6 +667,11 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+      */
+     public void shutdown();
+ 
++    @Override
++    default void stop() {
++        shutdown();
++    }
++
+     /**
+      * Broadcasts the specified message to every user with the given
+      * permission name.
+diff --git a/src/main/java/org/bukkit/ServerModule.java b/src/main/java/org/bukkit/ServerModule.java
+index b62e327..9ada9a2 100644
+--- a/src/main/java/org/bukkit/ServerModule.java
++++ b/src/main/java/org/bukkit/ServerModule.java
+@@ -8,6 +8,7 @@ import com.google.inject.Provides;
+ import net.avicus.inject.SingletonModule;
+ import net.avicus.minecraft.api.plugin.PluginFinder;
+ import net.avicus.minecraft.api.server.LocalServer;
++import net.avicus.minecraft.api.server.MinecraftServerModule;
+ import org.bukkit.command.CommandMap;
+ import org.bukkit.command.ConsoleCommandSender;
+ import org.bukkit.entity.Player;
+@@ -31,6 +32,7 @@ public class ServerModule extends SingletonModule {
+   @Override
+   protected void configure() {
+     install(new BukkitModule());
++    install(new MinecraftServerModule());
+ 
+     bind(net.avicus.minecraft.api.server.Server.class).to(LocalServer.class);
+     bind(LocalServer.class).to(Server.class);
+diff --git a/src/main/java/org/bukkit/block/BlockState.java b/src/main/java/org/bukkit/block/BlockState.java
+index 36ff2ba..94340f7 100644
+--- a/src/main/java/org/bukkit/block/BlockState.java
++++ b/src/main/java/org/bukkit/block/BlockState.java
+@@ -62,7 +62,7 @@ public interface BlockState extends Metadatable, Locatable {
+      * @return World containing this block
+      */
+     World getWorld();
+-    
++
+     /**
+      * Gets the x-coordinate of this block
+      *
+diff --git a/src/main/java/org/bukkit/configuration/ConfigurationSection.java b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
+index f1888fb..e801886 100644
+--- a/src/main/java/org/bukkit/configuration/ConfigurationSection.java
++++ b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
+@@ -853,5 +853,5 @@ public interface ConfigurationSection extends
+      */
+     public void addDefault(String path, Object value);
+ 
+-    ConfigurationSection needSection(String path) throws net.avicus.minecraft.api.configuration.InvalidConfigurationException
++    ConfigurationSection needSection(String path) throws net.avicus.minecraft.api.configuration.InvalidConfigurationException;
+ }
+diff --git a/src/main/java/org/bukkit/configuration/MemorySection.java b/src/main/java/org/bukkit/configuration/MemorySection.java
+index a314560..6657813 100644
+--- a/src/main/java/org/bukkit/configuration/MemorySection.java
++++ b/src/main/java/org/bukkit/configuration/MemorySection.java
+@@ -705,7 +705,7 @@ public class MemorySection extends AbstractConfigurationSection implements Confi
+     }
+ 
+     @Override
+-    public ConfigurationSection needSection(String path) throws tc.oc.minecraft.api.configuration.InvalidConfigurationException {
++    public ConfigurationSection needSection(String path) throws net.avicus.minecraft.api.configuration.InvalidConfigurationException {
+         return needType(path, ConfigurationSection.class);
+     }
+ 
+diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+index d3e73b5..4f5c4ca 100644
+--- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
++++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
+@@ -9,6 +9,7 @@ import java.util.List;
+ import java.util.Map;
+ import java.util.Set;
+ 
++import net.avicus.collection.ConcatenatedList;
+ import net.avicus.minecraft.api.plugin.PluginDescription;
+ import org.bukkit.command.CommandExecutor;
+ import org.bukkit.command.PluginCommand;
+@@ -956,7 +957,7 @@ public final class PluginDescriptionFile implements PluginDescription {
+             classLoaderOf = map.get("class-loader-of").toString();
+         }
+ 
+-        depend = makePluginNameList(map, "depend");
++        depend = ConcatenatedList.of(makePluginNameList(map, "depend"));
+         softDepend = makePluginNameList(map, "softdepend");
+         loadBefore = makePluginNameList(map, "loadbefore");
+ 
+diff --git a/src/test/java/org/bukkit/LocationTest.java b/src/test/java/org/bukkit/LocationTest.java
+index fa24776..d9acc89 100644
+--- a/src/test/java/org/bukkit/LocationTest.java
++++ b/src/test/java/org/bukkit/LocationTest.java
+@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
+ import java.util.List;
+ import java.util.Random;
+ 
++import java.util.UUID;
+ import org.bukkit.util.Vector;
+ import org.junit.Test;
+ import org.junit.runner.RunWith;
+@@ -184,7 +185,7 @@ public class LocationTest {
+     }
+ 
+     private static Location getEmptyLocation() {
+-        return new Location(null, 0, 0, 0);
++        return new Location(new UUID(0, 0), 0, 0, 0);
+     }
+ 
+     private Location getLocation() {
+diff --git a/src/test/java/org/bukkit/event/SyntheticEventTest.java b/src/test/java/org/bukkit/event/SyntheticEventTest.java
+deleted file mode 100644
+index df6cf00..0000000
+--- a/src/test/java/org/bukkit/event/SyntheticEventTest.java
++++ /dev/null
+@@ -1,49 +0,0 @@
+-package org.bukkit.event;
+-
+-import org.bukkit.TestServer;
+-import org.bukkit.plugin.PluginLoader;
+-import org.bukkit.plugin.SimplePluginManager;
+-import org.bukkit.plugin.TestPlugin;
+-import org.bukkit.plugin.java.JavaPluginLoader;
+-import org.junit.Assert;
+-import org.junit.Test;
+-
+-public class SyntheticEventTest {
+-    @SuppressWarnings("deprecation")
+-    @Test
+-    public void test() {
+-        final JavaPluginLoader loader = new JavaPluginLoader(TestServer.getInstance());
+-        TestPlugin plugin = new TestPlugin(getClass().getName()) {
+-            @Override
+-            public PluginLoader getPluginLoader() {
+-                return loader;
+-            }
+-        };
+-        SimplePluginManager pluginManager = new SimplePluginManager(TestServer.getInstance(), null);
+-
+-        TestEvent event = new TestEvent(false);
+-        Impl impl = new Impl();
+-
+-        pluginManager.registerEvents(impl, plugin);
+-        pluginManager.callEvent(event);
+-
+-        Assert.assertEquals(1, impl.callCount);
+-    }
+-
+-    public static abstract class Base<E extends Event> implements Listener {
+-        int callCount = 0;
+-
+-        public void accept(E evt) {
+-            System.out.println("Invk " + evt);
+-            callCount++;
+-        }
+-    }
+-
+-    public static class Impl extends Base<TestEvent> {
+-        @Override
+-        @EventHandler
+-        public void accept(TestEvent evt) {
+-            super.accept(evt);
+-        }
+-    }
+-}
+diff --git a/src/test/java/org/bukkit/potion/PotionTest.java b/src/test/java/org/bukkit/potion/PotionTest.java
+deleted file mode 100644
+index 9ea901d..0000000
+--- a/src/test/java/org/bukkit/potion/PotionTest.java
++++ /dev/null
+@@ -1,170 +0,0 @@
+-package org.bukkit.potion;
+-
+-import static org.junit.Assert.*;
+-import static org.hamcrest.Matchers.is;
+-
+-import org.bukkit.Material;
+-import org.bukkit.entity.LivingEntity;
+-import org.bukkit.inventory.ItemStack;
+-import org.junit.BeforeClass;
+-import org.junit.Test;
+-
+-public class PotionTest {
+-
+-    @BeforeClass
+-    public static void setup() {
+-        PotionEffectType.registerPotionEffectType(new PotionEffectType(19){
+-            @Override
+-            public double getDurationModifier() {
+-                return 1;
+-            }
+-
+-            @Override
+-            public String getName() {
+-                return "Poison";
+-            }
+-
+-            @Override
+-            public boolean isInstant() {
+-                return false;
+-            }
+-        });
+-        PotionEffectType.registerPotionEffectType(new PotionEffectType(6){
+-            @Override
+-            public double getDurationModifier() {
+-                return 1;
+-            }
+-
+-            @Override
+-            public String getName() {
+-                return "Heal";
+-            }
+-
+-            @Override
+-            public boolean isInstant() {
+-                return false;
+-            }
+-        });
+-    }
+-
+-    @Test
+-    public void applyToItemStack() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        ItemStack stack = new ItemStack(Material.POTION, 1);
+-        potion.apply(stack);
+-        assertTrue(stack.getDurability() == potion.toDamageValue());
+-    }
+-
+-    @Test
+-    public void fromDamage() {
+-        Potion potion = Potion.fromDamage(PotionType.POISON.getDamageValue());
+-        assertTrue(potion.getType() == PotionType.POISON);
+-        potion = Potion.fromDamage(PotionType.POISON.getDamageValue() | SPLASH_BIT);
+-        assertTrue(potion.getType() == PotionType.POISON && potion.isSplash());
+-        potion = Potion.fromDamage(0x25 /* Potion of Healing II */);
+-        assertTrue(potion.getType() == PotionType.INSTANT_HEAL && potion.getLevel() == 2);
+-    }
+-
+-    @Test(expected = IllegalArgumentException.class)
+-    public void illegalApplyToItemStack() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        potion.apply(new ItemStack(Material.AIR, 1));
+-    }
+-
+-    @Test
+-    public void ItemStackConversion() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        ItemStack itemstack = potion.toItemStack(1);
+-        assertThat(itemstack.getType(), is(Material.POTION));
+-        assertTrue(itemstack.getAmount() == 1);
+-        assertTrue(itemstack.getDurability() == potion.toDamageValue());
+-    }
+-
+-    @Test
+-    public void setExtended() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        assertFalse(potion.hasExtendedDuration());
+-        potion.setHasExtendedDuration(true);
+-        assertTrue(potion.hasExtendedDuration());
+-        assertTrue((potion.toDamageValue() & EXTENDED_BIT) != 0);
+-    }
+-
+-    @Test
+-    public void setSplash() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        assertFalse(potion.isSplash());
+-        potion.setSplash(true);
+-        assertTrue(potion.isSplash());
+-        assertTrue((potion.toDamageValue() & SPLASH_BIT) != 0);
+-    }
+-
+-    @Test
+-    public void setLevel() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        assertEquals(1, potion.getLevel());
+-        potion.setLevel(2);
+-        assertEquals(2, potion.getLevel());
+-        assertTrue((potion.toDamageValue() & 0x3F) == (PotionType.POISON.getDamageValue() | 0x20));
+-    }
+-
+-    @Test(expected=IllegalArgumentException.class)
+-    public void nullType() {
+-        new Potion(null, 2);
+-    }
+-
+-    @Test(expected=IllegalArgumentException.class)
+-    public void maxLevelConstruct() {
+-        new Potion(PotionType.POISON, 3);
+-    }
+-
+-    @Test(expected=IllegalArgumentException.class)
+-    public void maxLevelSet() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        potion.setLevel(3);
+-    }
+-
+-    @Test(expected=IllegalArgumentException.class)
+-    public void nullStack() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        potion.apply((ItemStack) null);
+-    }
+-
+-    @Test(expected=IllegalArgumentException.class)
+-    public void nullEntity() {
+-        Potion potion = new Potion(PotionType.POISON);
+-        potion.apply((LivingEntity) null);
+-    }
+-
+-    @Test
+-    public void water() {
+-        Potion potion = new Potion(PotionType.WATER);
+-        assertEquals(0, potion.getLevel());
+-        assertFalse(potion.isSplash());
+-        assertFalse(potion.hasExtendedDuration());
+-        assertEquals(0, potion.toDamageValue());
+-    }
+-
+-    @Test
+-    public void mundane() {
+-        Potion potion = new Potion(0);
+-        assertFalse(potion.getType() == PotionType.WATER);
+-        assertFalse(potion.toDamageValue() == 0);
+-        assertEquals(8192, potion.toDamageValue());
+-        Potion potion2 = Potion.fromDamage(8192);
+-        assertEquals(potion, potion2);
+-        assertEquals(0, potion.getLevel());
+-    }
+-
+-    @Test
+-    public void awkward() {
+-        Potion potion = new Potion(16);
+-        assertEquals(16, potion.getNameId());
+-        assertFalse(potion.isSplash());
+-        assertFalse(potion.hasExtendedDuration());
+-        assertNull(potion.getType());
+-        assertEquals(16, potion.toDamageValue());
+-    }
+-
+-    private static final int EXTENDED_BIT = 0x40;
+-    private static final int SPLASH_BIT = 0x4000;
+-}
+-- 
+2.6.4
+

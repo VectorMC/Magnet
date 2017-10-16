@@ -1,0 +1,60 @@
+From 82d5b44f8fbff34b7f771257aef45591b6c2bb42 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 22:57:55 -0500
+Subject: [PATCH] Update POM
+
+---
+ pom.xml | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/pom.xml b/pom.xml
+index f5aa732..cb3d654 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -26,6 +26,13 @@
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
++    <repositories>
++        <repository>
++            <id>avicus-public</id>
++            <url>https://repo.avicus.net/content/groups/public/</url>
++        </repository>
++    </repositories>
++
+     <dependencies>
+         <dependency>
+             <groupId>net.sf.trove4j</groupId>
+@@ -74,6 +81,16 @@
+             <type>jar</type>
+             <scope>compile</scope>
+         </dependency>
++        <dependency>
++            <groupId>com.google.code.gson</groupId>
++            <artifactId>gson</artifactId>
++            <version>2.2.4</version>
++        </dependency>
++        <dependency>
++            <groupId>com.google.code.findbugs</groupId>
++            <artifactId>findbugs</artifactId>
++            <version>3.0.0</version>
++        </dependency>
+         <!-- testing -->
+         <dependency>
+             <groupId>junit</groupId>
+@@ -87,6 +104,12 @@
+             <version>1.3</version>
+             <scope>test</scope>
+         </dependency>
++        <dependency>
++            <groupId>tc.oc</groupId>
++            <artifactId>test-util</artifactId>
++            <version>1.0-SNAPSHOT</version>
++            <scope>test</scope>
++        </dependency>
+     </dependencies>
+ 
+     <!-- required until fixed plexus-compiler-eclipse is deployed -->
+-- 
+2.6.4
+

@@ -1,0 +1,124 @@
+From 432a30c44b69d2ea42242606de6b7f97dc705ab1 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 21:09:12 -0500
+Subject: [PATCH] Pause entity API
+
+---
+ .../java/net/minecraft/server/EntityLiving.java    | 47 ++++++++++++----------
+ .../java/net/minecraft/server/EntityPlayer.java    | 12 ++++++
+ .../org/bukkit/craftbukkit/entity/CraftEntity.java | 11 +++++
+ 3 files changed, 48 insertions(+), 22 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
+index 241ceec..1e2ee14 100644
+--- a/src/main/java/net/minecraft/server/EntityLiving.java
++++ b/src/main/java/net/minecraft/server/EntityLiving.java
+@@ -474,30 +474,33 @@ public abstract class EntityLiving extends Entity {
+         Iterator<Integer> iterator = com.google.common.collect.ImmutableSet.copyOf(this.effects.keySet()).iterator(); // SportBukkit - copy to allow concurrent modification
+ 
+         while (iterator.hasNext()) {
+-            int mobeffectlist = iterator.next();
+-            if (!this.effects.keySet().contains(mobeffectlist))
+-                continue; // SportBukkit - skip if effect was removed during iteration
+-            MobEffect mobeffect = (MobEffect) this.effects.get(mobeffectlist);
+-
+-            if (!mobeffect.tick(this)) {
+-                if (!this.world.isClientSide) {
+-                    // SportBukkit start - fire event
+-                    PotionEffectExpireEvent event = new PotionEffectExpireEvent(
+-                        (LivingEntity) this.getBukkitEntity(),
+-                        CraftPotionUtils.toBukkit(mobeffect));
+-                    this.world.getServer().getPluginManager().callEvent(event);
+-                    if (event.isCancelled()) {
+-                        // Duration must be extended if event is cancelled
+-                        CraftPotionUtils.extendDuration(mobeffect, event.getDuration());
+-                        continue;
++            if(!getBukkitEntity().isPaused()) { // SportBukkit - don't tick effects while paused
++                int mobeffectlist = iterator.next();
++                if (!this.effects.keySet().contains(mobeffectlist))
++                    continue; // SportBukkit - skip if effect was removed during iteration
++                MobEffect mobeffect = (MobEffect) this.effects.get(mobeffectlist);
++
++                if (!mobeffect.tick(this)) {
++                    if (!this.world.isClientSide) {
++                        // SportBukkit start - fire event
++                        PotionEffectExpireEvent event = new PotionEffectExpireEvent(
++                            (LivingEntity) this.getBukkitEntity(),
++                            CraftPotionUtils.toBukkit(mobeffect));
++                        this.world.getServer().getPluginManager().callEvent(event);
++                        if (event.isCancelled()) {
++                            // Duration must be extended if event is cancelled
++                            CraftPotionUtils.extendDuration(mobeffect, event.getDuration());
++                            continue;
++                        }
++                        //iterator.remove();
++                        this.effects.remove(mobeffectlist);
++                        // SportBukkit end
++                        this.b(mobeffect);
+                     }
+-                    //iterator.remove();
+-                    this.effects.remove(mobeffectlist);
+-                    // SportBukkit end
+-                    this.b(mobeffect);
++                } else if (mobeffect.getDuration() % 600 == 0) {
++                    this.a(mobeffect, false);
+                 }
+-            } else if (mobeffect.getDuration() % 600 == 0) {
+-                this.a(mobeffect, false);
++
+             }
+ 
+             if (this.updateEffects) {
+diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
+index 6de375f..7393a25 100644
+--- a/src/main/java/net/minecraft/server/EntityPlayer.java
++++ b/src/main/java/net/minecraft/server/EntityPlayer.java
+@@ -941,6 +941,18 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+         this.playerConnection.sendPacket(new PacketPlayOutRemoveEntityEffect(this.getId(), mobeffect));
+     }
+ 
++    // SportBukkit start - refresh effects while paused to keep time in sync
++    @Override
++    protected void bi() {
++        if(getBukkitEntity().isPaused() && ticksLived % 10 == 0) {
++            for(MobEffect effect : this.getEffects()) {
++                this.playerConnection.sendPacket(new PacketPlayOutEntityEffect(this.getId(), effect));
++            }
++        }
++        super.bi();
++    }
++    // SportBukkit end
++
+     public void enderTeleportTo(double d0, double d1, double d2) {
+         this.playerConnection.a(d0, d1, d2, this.yaw, this.pitch);
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index f9262bb..c97cbf0 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -48,6 +48,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+     protected final CraftServer server;
+     protected Entity entity;
+     private EntityDamageEvent lastDamageEvent;
++    private boolean paused = false;
+ 
+     public CraftEntity(final CraftServer server, final Entity entity) {
+         this.server = server;
+@@ -683,4 +684,14 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return this.getName();
+     }
+     // Magnet end
++
++    @Override
++    public void setPaused(boolean paused) {
++        this.paused = paused;
++    }
++
++    @Override
++    public boolean isPaused() {
++        return paused;
++    }
+ }
+-- 
+2.6.4
+

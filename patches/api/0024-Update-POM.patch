@@ -1,0 +1,42 @@
+From 7142a1c17bf88ed16f5b5a2ede7fe887311c579b Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 13:31:00 -0500
+Subject: [PATCH] Update POM
+
+---
+ pom.xml | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/pom.xml b/pom.xml
+index 0c3fe9e..6281b98 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -87,9 +87,9 @@
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>tc.oc</groupId>
+-            <artifactId>bungeecord-chat</artifactId>
+-            <version>1.11-SNAPSHOT</version>
++            <groupId>net.avicus</groupId>
++            <artifactId>minecraft-api</artifactId>
++            <version>1.12-SNAPSHOT</version>
+             <type>jar</type>
+             <scope>compile</scope>
+         </dependency>
+@@ -107,6 +107,12 @@
+             <version>1.3</version>
+             <scope>test</scope>
+         </dependency>
++        <dependency>
++            <groupId>tc.oc</groupId>
++            <artifactId>test-util</artifactId>
++            <version>1.0-SNAPSHOT</version>
++            <scope>test</scope>
++        </dependency>
+     </dependencies>
+ 
+     <build>
+-- 
+2.6.4
+

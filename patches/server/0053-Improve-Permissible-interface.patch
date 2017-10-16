@@ -1,0 +1,400 @@
+From f6debd45733d30f9f96d8a0293059c94711a72be Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 14:38:12 -0500
+Subject: [PATCH] Improve Permissible interface
+
+---
+ .../command/ProxiedNativeCommandSender.java        | 61 ++++++++++++++++++++++
+ .../craftbukkit/command/ServerCommandSender.java   | 61 ++++++++++++++++++++++
+ .../org/bukkit/craftbukkit/entity/CraftEntity.java | 60 +++++++++++++++++++++
+ .../craftbukkit/entity/CraftHumanEntity.java       | 61 ++++++++++++++++++++++
+ .../craftbukkit/entity/CraftMinecartCommand.java   | 61 ++++++++++++++++++++++
+ 5 files changed, 304 insertions(+)
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
+index 78b9895..26662ef 100644
+--- a/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
++++ b/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
+@@ -1,6 +1,7 @@
+ 
+ package org.bukkit.craftbukkit.command;
+ 
++import java.util.Collection;
+ import java.util.Set;
+ import net.minecraft.server.ICommandListener;
+ 
+@@ -114,6 +115,66 @@ public class ProxiedNativeCommandSender implements ProxiedCommandSender {
+     }
+ 
+     @Override
++    public boolean removeAttachments(Plugin plugin) {
++        return getCaller().removeAttachments(plugin);
++    }
++
++    @Override
++    public boolean removeAttachments(String name) {
++        return getCaller().removeAttachments(name);
++    }
++
++    @Override
++    public boolean removeAttachments(Permission permission) {
++        return getCaller().removeAttachments(permission);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, String name) {
++        return getCaller().removeAttachments(plugin, name);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, Permission permission) {
++        return getCaller().removeAttachments(plugin, permission);
++    }
++
++    @Override
++    public PermissionAttachmentInfo getEffectivePermission(String name) {
++        return getCaller().getEffectivePermission(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments() {
++        return getCaller().getAttachments();
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin) {
++        return getCaller().getAttachments(plugin);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(String name) {
++        return getCaller().getAttachments(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Permission permission) {
++        return getCaller().getAttachments(permission);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, String name) {
++        return getCaller().getAttachments(plugin, name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, Permission permission) {
++        return getCaller().getAttachments(plugin, permission);
++    }
++
++    @Override
+     public boolean isOp() {
+         return getCaller().isOp();
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
+index 5c53210..9238ca4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
++++ b/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
+@@ -1,5 +1,6 @@
+ package org.bukkit.craftbukkit.command;
+ 
++import java.util.Collection;
+ import org.bukkit.Bukkit;
+ import org.bukkit.Server;
+ import org.bukkit.command.CommandSender;
+@@ -70,6 +71,66 @@ public abstract class ServerCommandSender implements CommandSender {
+         return perm.getEffectivePermissions();
+     }
+ 
++    @Override
++    public boolean removeAttachments(Plugin plugin) {
++        return perm.removeAttachments(plugin);
++    }
++
++    @Override
++    public boolean removeAttachments(String name) {
++        return perm.removeAttachments(name);
++    }
++
++    @Override
++    public boolean removeAttachments(Permission permission) {
++        return perm.removeAttachments(permission);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, String name) {
++        return perm.removeAttachments(plugin, name);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, Permission permission) {
++        return perm.removeAttachments(plugin, permission);
++    }
++
++    @Override
++    public PermissionAttachmentInfo getEffectivePermission(String name) {
++        return perm.getEffectivePermission(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments() {
++        return perm.getAttachments();
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin) {
++        return perm.getAttachments(plugin);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(String name) {
++        return perm.getAttachments(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Permission permission) {
++        return perm.getAttachments(permission);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, String name) {
++        return perm.getAttachments(plugin, name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, Permission permission) {
++        return perm.getAttachments(plugin, permission);
++    }
++
+     public boolean isPlayer() {
+         return false;
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index 038ace0..8ce963e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -555,6 +555,66 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+     }
+ 
+     @Override
++    public boolean removeAttachments(Plugin plugin) {
++        return perm.removeAttachments(plugin);
++    }
++
++    @Override
++    public boolean removeAttachments(String name) {
++        return perm.removeAttachments(name);
++    }
++
++    @Override
++    public boolean removeAttachments(Permission permission) {
++        return perm.removeAttachments(permission);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, String name) {
++        return perm.removeAttachments(plugin, name);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, Permission permission) {
++        return perm.removeAttachments(plugin, permission);
++    }
++
++    @Override
++    public PermissionAttachmentInfo getEffectivePermission(String name) {
++        return perm.getEffectivePermission(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments() {
++        return perm.getAttachments();
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin) {
++        return perm.getAttachments(plugin);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(String name) {
++        return perm.getAttachments(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Permission permission) {
++        return perm.getAttachments(permission);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, String name) {
++        return perm.getAttachments(plugin, name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, Permission permission) {
++        return perm.getAttachments(plugin, permission);
++    }
++
++    @Override
+     public boolean isOp() {
+         return perm.isOp();
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index f1c6608..2ea3368 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -1,5 +1,6 @@
+ package org.bukkit.craftbukkit.entity;
+ 
++import java.util.Collection;
+ import java.util.Set;
+ 
+ import com.google.common.base.Preconditions;
+@@ -160,6 +161,66 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+         return perm.getEffectivePermissions();
+     }
+ 
++    @Override
++    public boolean removeAttachments(Plugin plugin) {
++        return perm.removeAttachments(plugin);
++    }
++
++    @Override
++    public boolean removeAttachments(String name) {
++        return perm.removeAttachments(name);
++    }
++
++    @Override
++    public boolean removeAttachments(Permission permission) {
++        return perm.removeAttachments(permission);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, String name) {
++        return perm.removeAttachments(plugin, name);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, Permission permission) {
++        return perm.removeAttachments(plugin, permission);
++    }
++
++    @Override
++    public PermissionAttachmentInfo getEffectivePermission(String name) {
++        return perm.getEffectivePermission(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments() {
++        return perm.getAttachments();
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin) {
++        return perm.getAttachments(plugin);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(String name) {
++        return perm.getAttachments(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Permission permission) {
++        return perm.getAttachments(permission);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, String name) {
++        return perm.getAttachments(plugin, name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, Permission permission) {
++        return perm.getAttachments(plugin, permission);
++    }
++
+     public GameMode getGameMode() {
+         return mode;
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
+index 2f6623c..643961d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
+@@ -1,5 +1,6 @@
+ package org.bukkit.craftbukkit.entity;
+ 
++import java.util.Collection;
+ import java.util.Set;
+ 
+ import net.minecraft.server.EntityMinecartCommandBlock;
+@@ -121,6 +122,66 @@ public class CraftMinecartCommand extends CraftMinecart implements CommandMineca
+     }
+ 
+     @Override
++    public boolean removeAttachments(Plugin plugin) {
++        return perm.removeAttachments(plugin);
++    }
++
++    @Override
++    public boolean removeAttachments(String name) {
++        return perm.removeAttachments(name);
++    }
++
++    @Override
++    public boolean removeAttachments(Permission permission) {
++        return perm.removeAttachments(permission);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, String name) {
++        return perm.removeAttachments(plugin, name);
++    }
++
++    @Override
++    public boolean removeAttachments(Plugin plugin, Permission permission) {
++        return perm.removeAttachments(plugin, permission);
++    }
++
++    @Override
++    public PermissionAttachmentInfo getEffectivePermission(String name) {
++        return perm.getEffectivePermission(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments() {
++        return perm.getAttachments();
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin) {
++        return perm.getAttachments(plugin);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(String name) {
++        return perm.getAttachments(name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Permission permission) {
++        return perm.getAttachments(permission);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, String name) {
++        return perm.getAttachments(plugin, name);
++    }
++
++    @Override
++    public Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, Permission permission) {
++        return perm.getAttachments(plugin, permission);
++    }
++
++    @Override
+     public Server getServer() {
+         return Bukkit.getServer();
+     }
+-- 
+2.6.4
+

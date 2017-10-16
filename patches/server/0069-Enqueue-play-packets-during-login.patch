@@ -1,0 +1,121 @@
+From b854bacb57a7f144be9ebddfd2688a5cfcdacaad Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 17:09:11 -0500
+Subject: [PATCH] Enqueue play packets during login
+
+---
+ .../net/minecraft/server/PlayerConnection.java     | 37 ++++++++++++++++++++--
+ src/main/java/net/minecraft/server/PlayerList.java | 12 ++++++-
+ 2 files changed, 45 insertions(+), 4 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index a1e2f21..239ddf9 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.server;
+ 
++import static net.minecraft.server.MinecraftServer.LOGGER;
++
+ import com.google.common.collect.Lists;
+ import com.google.common.primitives.Doubles;
+ import com.google.common.primitives.Floats;
+@@ -77,10 +79,31 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+     private boolean checkMovement = true;
+     private boolean processedDisconnect; // CraftBukkit - added
+ 
++    // SportBukkit start - queue packets sent before play state
++    private final java.util.Deque<Packet<?>> initialPackets = new java.util.ArrayDeque<Packet<?>>();
++    public void activate() {
++        if(networkManager.getPacketListener() == this) return;
++        networkManager.a(this);
++    }
++
++    public void sendInitialPackets() {
++        if(networkManager.getPacketListener() != this) return;
++        while(!initialPackets.isEmpty()) {
++            final Packet<?> packet = initialPackets.remove();
++            try {
++                sendPacket(packet);
++            } catch(RuntimeException e) {
++                LOGGER.error("Exception sending initial " + packet.getClass().getName(), e);
++            }
++        }
++    }
++    // SportBukkit end
++
++
+     public PlayerConnection(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer entityplayer) {
+         this.minecraftServer = minecraftserver;
+         this.networkManager = networkmanager;
+-        networkmanager.a((PacketListener) this);
++        // networkmanager.a((PacketListener) this);
+         this.player = entityplayer;
+         entityplayer.playerConnection = this;
+ 
+@@ -896,6 +919,14 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+     }
+ 
+     public void sendPacket(final Packet packet) {
++        // SportBukkit - queue packets sent before play state
++        if(packet == null) return;
++        if(!equals(networkManager.getPacketListener())) {
++            initialPackets.add(packet);
++            return;
++        }
++        // SportBukkit end
++
+         Packet replacedPacket = packet; // Magnet
+ 
+         if (packet instanceof PacketPlayOutChat) {
+@@ -1146,8 +1177,8 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+             // PaperSpigot Start
+             if (!org.bukkit.Bukkit.isPrimaryThread()) {
+                 final String fCommandLine = s;
+-                MinecraftServer.LOGGER.log(org.apache.logging.log4j.Level.ERROR, "Command Dispatched Async: " + fCommandLine);
+-                MinecraftServer.LOGGER.log(org.apache.logging.log4j.Level.ERROR, "Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
++                LOGGER.log(org.apache.logging.log4j.Level.ERROR, "Command Dispatched Async: " + fCommandLine);
++                LOGGER.log(org.apache.logging.log4j.Level.ERROR, "Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
+                 Waitable wait = new Waitable() {
+                     @Override
+                     protected Object evaluate() {
+diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
+index 9df1898..86217b7 100644
+--- a/src/main/java/net/minecraft/server/PlayerList.java
++++ b/src/main/java/net/minecraft/server/PlayerList.java
+@@ -144,7 +144,12 @@ public abstract class PlayerList {
+         BlockPosition blockposition = worldserver.getSpawn();
+ 
+         this.a(entityplayer, (EntityPlayer) null, worldserver);
+-        PlayerConnection playerconnection = new PlayerConnection(this.server, networkmanager, entityplayer);
++        // SportBukkit start - activate previously created PlayerConnection
++        // PlayerConnection playerconnection = new PlayerConnection(this.server, networkmanager, entityplayer);
++        PlayerConnection playerconnection = entityplayer.playerConnection;
++        playerconnection.activate();
++        // SportBukkit end
++
+ 
+         playerconnection.sendPacket(new PacketPlayOutLogin(entityplayer.getId(), entityplayer.playerInteractManager.getGameMode(), worlddata.isHardcore(), worldserver.worldProvider.getDimension(), worldserver.getDifficulty(), Math.min(this.getMaxPlayers(), 60), worlddata.getType(), worldserver.getGameRules().getBoolean("reducedDebugInfo"))); // CraftBukkit - cap player list to 60
+         entityplayer.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
+@@ -157,6 +162,9 @@ public abstract class PlayerList {
+         entityplayer.getStatisticManager().updateStatistics(entityplayer);
+         this.sendScoreboard((ScoreboardServer) worldserver.getScoreboard(), entityplayer);
+         this.server.aH();
++        // SportBukkit - Send packets that were queued before activation.
++        // Doing this as late as possible maximizes the number of things that will work properly.
++        playerconnection.sendInitialPackets();
+         // CraftBukkit start - login message is handled in the event
+         // ChatMessage chatmessage;
+ 
+@@ -453,6 +461,8 @@ public abstract class PlayerList {
+         SocketAddress socketaddress = loginlistener.networkManager.getSocketAddress();
+ 
+         EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), gameprofile, new PlayerInteractManager(server.getWorldServer(0)));
++        entity.playerConnection = new PlayerConnection(server, loginlistener.networkManager, entity); // SportBukkit - create this right away so it's never null
++
+         entity.hostname = hostname;
+         entity.protocolVersion = loginlistener.networkManager.protocolVersion; // Can't reach NetworkManager through CraftPlayer at this point, so copy the value
+         Player player = entity.getBukkitEntity();
+-- 
+2.6.4
+

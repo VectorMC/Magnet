@@ -1,0 +1,54 @@
+From 175620a03799c4f29b322b8413bd655762d40e74 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 22:48:30 -0500
+Subject: [PATCH] Fix player leak through map items
+
+---
+ src/main/java/net/minecraft/server/World.java    | 10 ++++++++++
+ src/main/java/net/minecraft/server/WorldMap.java |  9 +++++++++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
+index 4b37fb6..c1c44ee 100644
+--- a/src/main/java/net/minecraft/server/World.java
++++ b/src/main/java/net/minecraft/server/World.java
+@@ -1105,6 +1105,16 @@ public abstract class World implements IBlockAccess {
+             ((IWorldAccess) this.u.get(i)).b(entity);
+         }
+ 
++        // SportBukkit start - clean up players from maps
++        if(entity instanceof EntityHuman) {
++            for(PersistentBase map : this.worldMaps.a.values()) {
++                if(map instanceof WorldMap) {
++                    ((WorldMap) map).remove((EntityHuman) entity);
++                }
++            }
++        }
++        // SportBukkit end
++
+         entity.valid = false; // CraftBukkit
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/WorldMap.java b/src/main/java/net/minecraft/server/WorldMap.java
+index 162b3a3..31e5644 100644
+--- a/src/main/java/net/minecraft/server/WorldMap.java
++++ b/src/main/java/net/minecraft/server/WorldMap.java
+@@ -32,6 +32,15 @@ public class WorldMap extends PersistentBase {
+     private UUID uniqueId = null;
+     // CraftBukkit end
+ 
++    // SportBukkit start
++    public void remove(EntityHuman player) {
++        final WorldMapHumanTracker tracker = i.remove(player);
++        if(tracker != null) {
++            g.remove(tracker);
++        }
++    }
++    // SportBukkit end
++
+     public WorldMap(String s) {
+         super(s);
+         // CraftBukkit start
+-- 
+2.6.4
+

@@ -1,0 +1,441 @@
+From 47e61183dab65c908be040f6169c0d777824c766 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 17:41:37 -0500
+Subject: [PATCH] Add PoseFlag and EntityLocation
+
+---
+ src/main/java/net/minecraft/server/Entity.java     | 13 ++++++
+ .../java/net/minecraft/server/EntityHuman.java     |  6 ++-
+ .../net/minecraft/server/PlayerConnection.java     | 12 +++++-
+ src/main/java/net/minecraft/server/PlayerList.java |  4 ++
+ .../org/bukkit/craftbukkit/entity/CraftEntity.java | 25 +++++++++++-
+ .../craftbukkit/entity/CraftHumanEntity.java       | 10 +++++
+ .../craftbukkit/entity/CraftLivingEntity.java      |  9 +++++
+ .../org/bukkit/craftbukkit/entity/CraftPlayer.java | 11 +++++
+ .../craftbukkit/event/CraftEventFactory.java       | 47 ++++++++++++++++++++++
+ 9 files changed, 133 insertions(+), 4 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
+index d4da211..f61be63 100644
+--- a/src/main/java/net/minecraft/server/Entity.java
++++ b/src/main/java/net/minecraft/server/Entity.java
+@@ -8,13 +8,16 @@ import java.util.concurrent.Callable;
+ 
+ // CraftBukkit start
+ import org.bukkit.Bukkit;
++import org.bukkit.EntityLocation;
+ import org.bukkit.Location;
++import org.bukkit.PoseFlag;
+ import org.bukkit.Server;
+ import org.bukkit.TravelAgent;
+ import org.bukkit.block.BlockFace;
+ import org.bukkit.entity.Hanging;
+ import org.bukkit.entity.LivingEntity;
+ import org.bukkit.entity.Painting;
++import org.bukkit.entity.Player;
+ import org.bukkit.entity.Vehicle;
+ import co.aikar.timings.SpigotTimings; // Spigot
+ import co.aikar.timings.Timing; // Spigot
+@@ -1577,6 +1580,9 @@ public abstract class Entity implements ICommandListener {
+                     VehicleExitEvent event = new VehicleExitEvent((Vehicle) this.vehicle.getBukkitEntity(), (LivingEntity) this.bukkitEntity);
+                     pluginManager.callEvent(event);
+ 
++                    if(getBukkitEntity() instanceof Player) {
++                        CraftEventFactory.callPlayerPoseFlagEvent((Player) getBukkitEntity(), PoseFlag.RIDING, false, event);
++                    }
+                     if (event.isCancelled() || vehicle != originalVehicle) {
+                         return;
+                     }
+@@ -1609,6 +1615,13 @@ public abstract class Entity implements ICommandListener {
+                 VehicleEnterEvent event = new VehicleEnterEvent((Vehicle) entity.getBukkitEntity(), this.bukkitEntity);
+                 pluginManager.callEvent(event);
+ 
++                if(getBukkitEntity() instanceof Player) {
++                    final Player player = (Player) getBukkitEntity();
++                    final EntityLocation newLocation = player.getEntityLocation();
++                    newLocation.copyLocation(entity.getBukkitEntity().getLocation());
++                    CraftEventFactory.callPlayerPoseFlagEvent(player, PoseFlag.RIDING, true, newLocation, event);
++                }
++
+                 // If a plugin messes with the vehicle or the vehicle's passenger
+                 if (event.isCancelled() || this.vehicle != originalVehicle || (this.vehicle != null && this.vehicle.passenger != originalPassenger)) {
+                     // If we only cancelled the enterevent then we need to put the player in a decent position.
+diff --git a/src/main/java/net/minecraft/server/EntityHuman.java b/src/main/java/net/minecraft/server/EntityHuman.java
+index edc6c47..5252ac9 100644
+--- a/src/main/java/net/minecraft/server/EntityHuman.java
++++ b/src/main/java/net/minecraft/server/EntityHuman.java
+@@ -9,8 +9,10 @@ import java.util.List;
+ import java.util.UUID;
+ 
+ // CraftBukkit start
++import org.bukkit.PoseFlag;
+ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+ import org.bukkit.craftbukkit.entity.CraftItem;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.craftbukkit.inventory.CraftItemStack;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.entity.EntityCombustByEntityEvent;
+@@ -1175,10 +1177,11 @@ public abstract class EntityHuman extends EntityLiving {
+         if (this.getBukkitEntity() instanceof Player) {
+             Player player = (Player) this.getBukkitEntity();
+             org.bukkit.block.Block bed = this.world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
+-
+             PlayerBedEnterEvent event = new PlayerBedEnterEvent(player, bed);
+             this.world.getServer().getPluginManager().callEvent(event);
+ 
++            CraftEventFactory.callPlayerPoseFlagEvent(player, PoseFlag.SLEEPING, true, event);
++
+             if (event.isCancelled()) {
+                 return EnumBedResult.OTHER_PROBLEM;
+             }
+@@ -1281,6 +1284,7 @@ public abstract class EntityHuman extends EntityLiving {
+ 
+             PlayerBedLeaveEvent event = new PlayerBedLeaveEvent(player, bed);
+             this.world.getServer().getPluginManager().callEvent(event);
++            CraftEventFactory.callPlayerPoseFlagEvent(player, PoseFlag.SLEEPING, false, null);
+         }
+         // CraftBukkit end
+ 
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 239ddf9..d03e49d 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+ import java.util.HashSet;
+ 
++import org.bukkit.EntityLocation;
++import org.bukkit.PoseFlag;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+@@ -127,6 +129,8 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+     private boolean justTeleported = false;
+     private boolean hasMoved; // Spigot
+ 
++    private Set<PoseFlag> lastPose = java.util.EnumSet.noneOf(PoseFlag.class); // SportBukkit
++
+     public CraftPlayer getPlayer() {
+         return (this.player == null) ? null : (CraftPlayer) this.player.getBukkitEntity();
+     }
+@@ -249,8 +253,8 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                     hasMoved = true;
+                 }
+                 // Spigot End
+-                Location from = new Location(player.getWorld(), lastPosX, lastPosY, lastPosZ, lastYaw, lastPitch); // Get the Players previous Event location.
+-                Location to = player.getLocation().clone(); // Start off the To location as the Players current location.
++                EntityLocation from = new EntityLocation(player.getWorld(), lastPosX, lastPosY, lastPosZ, lastYaw, lastPitch, player.getVelocity(), lastPose); // Get the Player's previous Event location.
++                EntityLocation to = player.getEntityLocation(); // Start off the To location as the Players current location.
+ 
+                 boolean wasOnGroud = this.player.onGround;
+ 
+@@ -277,6 +281,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                     this.lastPosZ = to.getZ();
+                     this.lastYaw = to.getYaw();
+                     this.lastPitch = to.getPitch();
++                    this.lastPose = to.poseFlags();
+ 
+                     // Skip the first time we do this
+                     if (true) { // Spigot - don't skip any move events
+@@ -1350,6 +1355,8 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+                 PlayerToggleSprintEvent e2 = new PlayerToggleSprintEvent(this.getPlayer(), packetplayinentityaction.b() == PacketPlayInEntityAction.EnumPlayerAction.START_SPRINTING);
+                 this.server.getPluginManager().callEvent(e2);
+ 
++                CraftEventFactory.callPlayerPoseFlagEvent(this.getPlayer(), PoseFlag.SPRINTING, e2.isSprinting(), e2);
++
+                 if (e2.isCancelled()) {
+                     return;
+                 }
+@@ -2037,6 +2044,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+         if (this.player.abilities.canFly && this.player.abilities.isFlying != packetplayinabilities.isFlying()) {
+             PlayerToggleFlightEvent event = new PlayerToggleFlightEvent(this.server.getPlayer(this.player), packetplayinabilities.isFlying());
+             this.server.getPluginManager().callEvent(event);
++            CraftEventFactory.callPlayerPoseFlagEvent(this.getPlayer(), PoseFlag.FLYING, event.isFlying(), event);
+             if (!event.isCancelled()) {
+                 this.player.abilities.isFlying = packetplayinabilities.isFlying(); // Actually set the player's flying status
+             } else {
+diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
+index 86217b7..f25e0fe 100644
+--- a/src/main/java/net/minecraft/server/PlayerList.java
++++ b/src/main/java/net/minecraft/server/PlayerList.java
+@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ 
+ // CraftBukkit start
++import org.bukkit.PoseFlag;
+ import org.bukkit.craftbukkit.CraftServer;
+ import org.bukkit.craftbukkit.CraftWorld;
+ import org.bukkit.craftbukkit.chunkio.ChunkIOExecutor;
+@@ -27,6 +28,7 @@ import org.bukkit.Bukkit;
+ import org.bukkit.Location;
+ import org.bukkit.TravelAgent;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.craftbukkit.util.CraftChatMessage;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.player.PlayerChangedWorldEvent;
+@@ -682,6 +684,8 @@ public abstract class PlayerList {
+             this.savePlayerFile(entityplayer);
+         }
+         // CraftBukkit end
++        CraftEventFactory
++            .callPlayerPoseFlagEvent(entityplayer1.getBukkitEntity(), PoseFlag.DEAD, false, null); // SportBukkit
+         return entityplayer1;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index dce50f4..f9262bb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -3,6 +3,7 @@ package org.bukkit.craftbukkit.entity;
+ import com.google.common.base.Preconditions;
+ import java.util.ArrayList;
+ import java.util.Collection;
++import java.util.EnumSet;
+ import java.util.List;
+ import java.util.Set;
+ import java.util.UUID;
+@@ -11,7 +12,9 @@ import net.md_5.bungee.api.chat.BaseComponent;
+ import net.minecraft.server.*;
+ 
+ import org.bukkit.EntityEffect;
++import org.bukkit.EntityLocation;
+ import org.bukkit.Location;
++import org.bukkit.PoseFlag;
+ import org.bukkit.Server;
+ import org.bukkit.World;
+ import org.bukkit.craftbukkit.CraftServer;
+@@ -186,7 +189,12 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+     }
+ 
+     public Location getLocation() {
+-        return new Location(getWorld(), entity.locX, entity.locY, entity.locZ, entity.yaw, entity.pitch);
++        return getEntityLocation();
++    }
++
++    @Override
++    public EntityLocation getEntityLocation() {
++        return new EntityLocation(getWorld(), entity.locX, entity.locY, entity.locZ, entity.yaw, entity.pitch, getVelocity(), getPoseFlags());
+     }
+ 
+     public Location getLocation(Location loc) {
+@@ -197,11 +205,26 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+             loc.setZ(entity.locZ);
+             loc.setYaw(entity.yaw);
+             loc.setPitch(entity.pitch);
++
++            if(loc instanceof EntityLocation) {
++                final Set<PoseFlag> flags = ((EntityLocation) loc).poseFlags();
++                flags.clear();
++                flags.addAll(getPoseFlags());
++            }
+         }
+ 
+         return loc;
+     }
+ 
++    @Override
++    public EnumSet<PoseFlag> getPoseFlags() {
++        final EnumSet<PoseFlag> flags = EnumSet.noneOf(PoseFlag.class);
++        if(isOnGround()) flags.add(PoseFlag.GROUNDED);
++        if(isDead()) flags.add(PoseFlag.DEAD);
++        if(isInsideVehicle()) flags.add(PoseFlag.RIDING);
++        return flags;
++    }
++
+     /**
+      * Passively set location (internal use only)
+      */
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index 2ea3368..ddc7b56 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -1,6 +1,7 @@
+ package org.bukkit.craftbukkit.entity;
+ 
+ import java.util.Collection;
++import java.util.EnumSet;
+ import java.util.Set;
+ 
+ import com.google.common.base.Preconditions;
+@@ -9,6 +10,7 @@ import net.minecraft.server.*;
+ import org.bukkit.GameMode;
+ import org.bukkit.Location;
+ import org.bukkit.Material;
++import org.bukkit.PoseFlag;
+ import org.bukkit.entity.HumanEntity;
+ import org.bukkit.entity.Villager;
+ import org.bukkit.event.inventory.InventoryType;
+@@ -470,4 +472,12 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+     public int getExpToLevel() {
+         return getHandle().getExpToLevel();
+     }
++
++    @Override
++    public EnumSet<PoseFlag> getPoseFlags() {
++        final EnumSet<PoseFlag> flags = super.getPoseFlags();
++        if(isSleeping()) flags.add(PoseFlag.SLEEPING);
++        if(isBlocking()) flags.add(PoseFlag.BLOCKING);
++        return flags;
++    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index 27907cc..d21af00 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.entity;
+ 
+ import java.util.ArrayList;
+ import java.util.Collection;
++import java.util.EnumSet;
+ import java.util.HashSet;
+ import java.util.Iterator;
+ import java.util.List;
+@@ -33,6 +34,7 @@ import net.minecraft.server.MobEffectList;
+ import org.apache.commons.lang.Validate;
+ import org.bukkit.Location;
+ import org.bukkit.Material;
++import org.bukkit.PoseFlag;
+ import org.bukkit.block.Block;
+ import org.bukkit.craftbukkit.CraftServer;
+ import org.bukkit.craftbukkit.CraftWorld;
+@@ -527,4 +529,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+     public void _INVALID_setMaxHealth(int health) {
+         setMaxHealth(health);
+     }
++
++    @Override
++    public EnumSet<PoseFlag> getPoseFlags() {
++        final EnumSet<PoseFlag> flags = super.getPoseFlags();
++        if(isLeashed()) flags.add(PoseFlag.LEASHED);
++        return flags;
++    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index a227db1..944a0a7 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
+ import java.net.SocketAddress;
+ import java.util.ArrayList;
+ import java.util.Collection;
++import java.util.EnumSet;
+ import java.util.HashSet;
+ import java.util.LinkedHashMap;
+ import java.util.List;
+@@ -2068,4 +2069,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+     public int getProtocolVersion() {
+         return getHandle().protocolVersion;
+     }
++
++    @Override
++    public EnumSet<PoseFlag> getPoseFlags() {
++        final EnumSet<PoseFlag> flags = super.getPoseFlags();
++        if(isSneaking()) flags.add(PoseFlag.SNEAKING);
++        if(isSprinting()) flags.add(PoseFlag.SPRINTING);
++        if(isDigging()) flags.add(PoseFlag.DIGGING);
++        if(isFlying()) flags.add(PoseFlag.FLYING);
++        return flags;
++    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+index 3d6c2e9..f67acf0 100644
+--- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
++++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+@@ -12,7 +12,9 @@ import com.google.common.base.Functions;
+ import net.minecraft.server.*;
+ 
+ import org.bukkit.Bukkit;
++import org.bukkit.EntityLocation;
+ import org.bukkit.Material;
++import org.bukkit.PoseFlag;
+ import org.bukkit.Server;
+ import org.bukkit.Statistic.Type;
+ import org.bukkit.block.Block;
+@@ -263,6 +265,8 @@ public class CraftEventFactory {
+         BlockDamageEvent event = new BlockDamageEvent(player, blockClicked, itemInHand, instaBreak);
+         craftServer.getPluginManager().callEvent(event);
+ 
++        callPlayerPoseFlagEvent(player, PoseFlag.DIGGING, true, event);
++
+         return event;
+     }
+ 
+@@ -271,6 +275,8 @@ public class CraftEventFactory {
+         BlockUndamageEvent event = new BlockUndamageEvent(player, player.getWorld().getBlockAt(x, y, z));
+         player.getServer().getPluginManager().callEvent(event);
+ 
++        callPlayerPoseFlagEvent(player, PoseFlag.DIGGING, false, null);
++
+         return event;
+     }
+ 
+@@ -403,6 +409,8 @@ public class CraftEventFactory {
+         org.bukkit.World world = entity.getWorld();
+         Bukkit.getServer().getPluginManager().callEvent(event);
+ 
++        callPlayerPoseFlagEvent(entity, PoseFlag.DEAD, true, null);
++
+         victim.keepLevel = event.getKeepLevel();
+         victim.newLevel = event.getNewLevel();
+         victim.newTotalExp = event.getNewTotalExp();
+@@ -917,12 +925,22 @@ public class CraftEventFactory {
+     public static PlayerUnleashEntityEvent callPlayerUnleashEntityEvent(EntityInsentient entity, EntityHuman player) {
+         PlayerUnleashEntityEvent event = new PlayerUnleashEntityEvent(entity.getBukkitEntity(), (Player) player.getBukkitEntity());
+         entity.world.getServer().getPluginManager().callEvent(event);
++
++        if(entity.getBukkitEntity() instanceof Player) {
++            callPlayerPoseFlagEvent((Player) entity.getBukkitEntity(), PoseFlag.LEASHED, false, event);
++        }
++
+         return event;
+     }
+ 
+     public static PlayerLeashEntityEvent callPlayerLeashEntityEvent(EntityInsentient entity, Entity leashHolder, EntityHuman player) {
+         PlayerLeashEntityEvent event = new PlayerLeashEntityEvent(entity.getBukkitEntity(), leashHolder.getBukkitEntity(), (Player) player.getBukkitEntity());
+         entity.world.getServer().getPluginManager().callEvent(event);
++
++        if(entity.getBukkitEntity() instanceof Player) {
++            callPlayerPoseFlagEvent((Player) entity.getBukkitEntity(), PoseFlag.LEASHED, true, event);
++        }
++
+         return event;
+     }
+ 
+@@ -987,4 +1005,33 @@ public class CraftEventFactory {
+         return event;
+     }
+     // PaperSpigot end
++
++    public static PlayerMoveEvent callPlayerPoseFlagEvent(Player player, PoseFlag flag, boolean newState, Cancellable priorEvent) {
++        return callPlayerPoseFlagEvent(player, flag, newState, player.getEntityLocation(), priorEvent);
++    }
++
++    public static PlayerMoveEvent callPlayerPoseFlagEvent(Player player, PoseFlag flag, boolean newState, EntityLocation to, Cancellable priorEvent) {
++        final EntityLocation from = player.getEntityLocation();
++
++        if(newState) {
++            from.poseFlags().remove(flag);
++            to.poseFlags().add(flag);
++        } else {
++            from.poseFlags().add(flag);
++            to.poseFlags().remove(flag);
++        }
++
++        final PlayerMoveEvent moveEvent = new PlayerMoveEvent(player, from, to);
++        if(priorEvent != null) {
++            moveEvent.setCancelled(priorEvent.isCancelled());
++        }
++
++        player.getServer().getPluginManager().callEvent(moveEvent);
++
++        if(priorEvent != null) {
++            priorEvent.setCancelled(moveEvent.isCancelled());
++        }
++
++        return moveEvent;
++    }
+ }
+-- 
+2.6.4
+

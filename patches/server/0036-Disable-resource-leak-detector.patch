@@ -1,0 +1,24 @@
+From 3ecb92b24799dcbce430931079098e8039f45dab Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sun, 15 Oct 2017 23:19:52 -0500
+Subject: [PATCH] Disable resource leak detector
+
+---
+ src/main/java/net/minecraft/server/MinecraftServer.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index a7c8cba..f325cd5 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -123,6 +123,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+         MinecraftServer.l = this;
+         // this.universe = file; // CraftBukkit
+         // this.q = new ServerConnection(this); // Spigot
++        io.netty.util.ResourceLeakDetector.setEnabled(false);
+         this.Z = new UserCache(this, file1);
+         this.b = this.h();
+         // this.convertable = new WorldLoaderServer(file); // CraftBukkit - moved to DedicatedServer.init
+-- 
+2.6.4
+

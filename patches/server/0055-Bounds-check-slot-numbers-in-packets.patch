@@ -1,0 +1,69 @@
+From fb6ada63fafd5506f02ad7edfc93d193de224692 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 14:56:41 -0500
+Subject: [PATCH] Bounds check slot numbers in packets
+
+---
+ src/main/java/net/minecraft/server/Container.java                  | 7 ++++++-
+ src/main/java/net/minecraft/server/PlayerConnection.java           | 5 +++--
+ .../java/org/bukkit/craftbukkit/inventory/CraftInventoryView.java  | 3 ++-
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/Container.java b/src/main/java/net/minecraft/server/Container.java
+index 7fc4957..30646ce 100644
+--- a/src/main/java/net/minecraft/server/Container.java
++++ b/src/main/java/net/minecraft/server/Container.java
+@@ -21,7 +21,12 @@ import org.bukkit.inventory.InventoryView;
+ public abstract class Container {
+ 
+     public List<ItemStack> b = Lists.newArrayList();
+-    public List<Slot> c = Lists.newArrayList();
++    public List<Slot> c = new ArrayList<Slot>() {
++        @Override
++        public Slot get(int index) {
++            return index < size() ? super.get(index) : null;
++        }
++    };
+     public int windowId;
+     private int dragType = -1;
+     private int g;
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index a0fd110..a1e2f21 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -857,8 +857,8 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+     // CraftBukkit start
+     public void a(PacketPlayInResourcePackStatus packetplayinresourcepackstatus) {
+         this.server.getPluginManager().callEvent(new PlayerResourcePackStatusEvent(getPlayer(), PlayerResourcePackStatusEvent.Status.values()[packetplayinresourcepackstatus.b.ordinal()]));
+-        PlayerConnectionUtils.ensureMainThread(packetplayinresourcepackstatus, this, this.player.x());
+-        final PlayerResourcePackStatusEvent.Status status = PlayerResourcePackStatusEvent.Status.values()[packetplayinresourcepackstatus.status.ordinal()];
++        PlayerConnectionUtils.ensureMainThread(packetplayinresourcepackstatus, this, this.player.server);
++        final PlayerResourcePackStatusEvent.Status status = PlayerResourcePackStatusEvent.Status.values()[packetplayinresourcepackstatus.b.ordinal()];
+         this.getPlayer().setResourcePackStatus(status);
+         this.server.getPluginManager().callEvent(new PlayerResourcePackStatusEvent(getPlayer(), status));
+     }
+@@ -1507,6 +1507,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+     public void a(PacketPlayInWindowClick packetplayinwindowclick) {
+         if (this.player.dead) return; // CraftBukkit
+         PlayerConnectionUtils.ensureMainThread(packetplayinwindowclick, this, this.player.u());
++        if(packetplayinwindowclick.b() >= 0 && this.player.activeContainer.getSlot(packetplayinwindowclick.b()) == null) return; // SportBukkit - ignore packets with invalid slot
+         this.player.resetIdleTimer();
+         if (this.player.activeContainer.windowId == packetplayinwindowclick.a() && this.player.activeContainer.c(this.player)) {
+             boolean cancelled = this.player.isSpectator(); // CraftBukkit - see below if
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventoryView.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventoryView.java
+index ae47a0e..5c159eb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventoryView.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventoryView.java
+@@ -62,7 +62,8 @@ public class CraftInventoryView extends InventoryView {
+         if (slot == -999) {
+             return null;
+         }
+-        return CraftItemStack.asCraftMirror(container.getSlot(slot).getItem());
++        net.minecraft.server.Slot nmsSlot = container.getSlot(slot);
++        return nmsSlot == null ? null : CraftItemStack.asCraftMirror(nmsSlot.getItem());
+     }
+ 
+     public boolean isInTop(int rawSlot) {
+-- 
+2.6.4
+

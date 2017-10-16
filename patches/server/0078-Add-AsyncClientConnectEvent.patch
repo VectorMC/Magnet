@@ -1,0 +1,69 @@
+From 59e24f05c37cefcb8b6471e802e012042888bb27 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 21:40:08 -0500
+Subject: [PATCH] Add AsyncClientConnectEvent
+
+---
+ .../net/minecraft/server/ServerConnection.java     |  3 +-
+ .../craftbukkit/event/AsyncClientConnectEvent.java | 34 ++++++++++++++++++++++
+ 2 files changed, 36 insertions(+), 1 deletion(-)
+ create mode 100644 src/main/java/org/bukkit/craftbukkit/event/AsyncClientConnectEvent.java
+
+diff --git a/src/main/java/net/minecraft/server/ServerConnection.java b/src/main/java/net/minecraft/server/ServerConnection.java
+index d6cb83b..88b7615 100644
+--- a/src/main/java/net/minecraft/server/ServerConnection.java
++++ b/src/main/java/net/minecraft/server/ServerConnection.java
+@@ -97,7 +97,8 @@ public class ServerConnection {
+ 
+                     ServerConnection.this.h.add(networkmanager);
+                     channel.pipeline().addLast("packet_handler", networkmanager);
+-                    networkmanager.a((PacketListener) (new HandshakeListener(ServerConnection.this.f, networkmanager)));
++                  networkmanager.a((PacketListener) (new HandshakeListener(ServerConnection.this.f, networkmanager)));
++                  f.server.eventBus().callEvent(new org.bukkit.craftbukkit.event.AsyncClientConnectEvent(channel, networkmanager)); // SportBukkit
+                 }
+             }).group((EventLoopGroup) lazyinitvar.c()).localAddress(inetaddress, i)).bind().syncUninterruptibly());
+         }
+diff --git a/src/main/java/org/bukkit/craftbukkit/event/AsyncClientConnectEvent.java b/src/main/java/org/bukkit/craftbukkit/event/AsyncClientConnectEvent.java
+new file mode 100644
+index 0000000..6eb1c81
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/event/AsyncClientConnectEvent.java
+@@ -0,0 +1,34 @@
++package org.bukkit.craftbukkit.event;
++
++import io.netty.channel.Channel;
++import net.minecraft.server.NetworkManager;
++import org.bukkit.event.Event;
++import org.bukkit.event.HandlerList;
++
++/**
++ * Called right after a new client connection is initialized,
++ * before any packets have been exchanged.
++ *
++ * Obviously, this is quite hacky. Please use for good and not evil.
++ */
++public class AsyncClientConnectEvent extends Event {
++
++  private final Channel channel;
++  private final NetworkManager networkManager;
++
++  public AsyncClientConnectEvent(Channel channel, NetworkManager networkManager) {
++    super(true);
++    this.channel = channel;
++    this.networkManager = networkManager;
++  }
++
++  public Channel channel() {
++    return channel;
++  }
++
++  public NetworkManager networkManager() {
++    return networkManager;
++  }
++
++  private static final HandlerList<AsyncClientConnectEvent> handlers = new HandlerList<>();
++}
+\ No newline at end of file
+-- 
+2.6.4
+

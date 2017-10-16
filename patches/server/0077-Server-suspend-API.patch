@@ -1,0 +1,389 @@
+From ce7a247039c53065e969fb074b2d60756fa87a3c Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Mon, 16 Oct 2017 21:31:32 -0500
+Subject: [PATCH] Server suspend API
+
+---
+ .../java/net/minecraft/server/DedicatedServer.java |   4 +-
+ .../java/net/minecraft/server/MinecraftServer.java | 102 +++++++++++++++++++--
+ .../net/minecraft/server/ServerConnection.java     |   6 ++
+ .../java/net/minecraft/server/ThreadWatchdog.java  |   9 ++
+ .../java/org/bukkit/craftbukkit/CraftServer.java   |  76 ++++++++++++++-
+ 5 files changed, 188 insertions(+), 9 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
+index d6ccc46..683b66d 100644
+--- a/src/main/java/net/minecraft/server/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/DedicatedServer.java
+@@ -303,12 +303,13 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+             }
+         }
+ 
+-                if (false && this.aS() > 0L) {  // Spigot - disable
++                if (this.aS() > 0L) {  // Spigot - disable
+                     Thread thread1 = new Thread(new ThreadWatchdog(this));
+ 
+                     thread1.setName("Server Watchdog");
+                     thread1.setDaemon(true);
+                     thread1.start();
++                    watchdogThread = thread1; // SportBukkit
+                 }
+ 
+                 return true;
+@@ -399,6 +400,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+ 
+     public void issueCommand(String s, ICommandListener icommandlistener) {
+         this.l.add(new ServerCommand(s, icommandlistener));
++        interrupt(); // SportBukkit
+     }
+ 
+     // SportBukkit start
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index f8843c7..a25f2d6 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -21,6 +21,7 @@ import java.io.IOException;
+ import java.net.Proxy;
+ import java.security.KeyPair;
+ import java.text.SimpleDateFormat;
++import java.time.Instant;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Collections;
+@@ -34,6 +35,8 @@ import java.util.UUID;
+ import java.util.concurrent.Callable;
+ import java.util.concurrent.Executors;
+ import java.util.concurrent.FutureTask;
++import java.util.concurrent.atomic.AtomicBoolean;
++import javax.annotation.Nullable;
+ import javax.imageio.ImageIO;
+ import org.apache.commons.lang3.Validate;
+ import org.apache.logging.log4j.LogManager;
+@@ -47,6 +50,8 @@ import joptsimple.OptionSet;
+ 
+ import org.bukkit.craftbukkit.Main;
+ import co.aikar.timings.SpigotTimings; // Spigot
++import org.bukkit.event.EventBody;
++import org.bukkit.event.server.ServerSuspendEvent;
+ // CraftBukkit end
+ 
+ public abstract class MinecraftServer implements Runnable, ICommandListener, IAsyncTaskHandler, IMojangStatistics {
+@@ -119,6 +124,10 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     public int autosavePeriod;
+     // CraftBukkit end
+     protected boolean abnormalTermination;
++    private final AtomicBoolean suspended = new AtomicBoolean(false);
++    private @Nullable Instant suspendedAt;
++    private int interruptions;
++    protected Thread watchdogThread;
+ 
+     public MinecraftServer(OptionSet options, Proxy proxy, File file1) {
+         io.netty.util.ResourceLeakDetector.setEnabled( false ); // Spigot - disable
+@@ -510,9 +519,81 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     }
+ 
+     public void safeShutdown() {
+-        this.isRunning = false;
++        setSuspended(false); // SportBukkit
+     }
+ 
++    // SportBukkit start
++    public boolean isSuspended() {
++        return isRunning() && suspended.get();
++    }
++
++    public boolean canSuspend() {
++        return isRunning() && !();
++    }
++
++    public boolean setSuspended(boolean suspend) {
++        if(suspend && !canSuspend()) return false;
++
++        if(suspended.compareAndSet(!suspend, suspend)) {
++            if(!isMainThread() && !suspend) {
++                synchronized(suspended) {
++                    suspended.notifyAll();
++                }
++            }
++            return true;
++        }
++
++        return false;
++    }
++
++    public @Nullable Instant suspendedAt() {
++        return suspendedAt;
++    }
++
++    public int interruptions() {
++        return interruptions;
++    }
++
++    private boolean doSuspension() {
++        if(isSuspended()) {
++            server.eventBus().callEvent(new ServerSuspendEvent(), (EventBody<ServerSuspendEvent, RuntimeException>) ev -> { // Cast needed due to javac bug
++                server.getLogger().info("Suspending server");
++                suspendedAt = Instant.now();
++                interruptions = 0;
++
++                if(watchdogThread != null) watchdogThread.interrupt();
++
++                while(isSuspended()) {
++                    processTasks(); // Empty the task queue
++                    synchronized(suspended) {
++                        if(isSuspended()) { // Check suspended state again, in case a task resumed
++                            try { suspended.wait(); }
++                            catch(InterruptedException ignored) {}
++                            interruptions++;
++                        }
++                    }
++                }
++
++                if(watchdogThread != null) watchdogThread.interrupt();
++
++                interruptions = 0;
++                suspendedAt = null;
++                server.getLogger().info("Resuming server");
++            });
++            return true;
++        }
++        return false;
++    }
++
++    public void interrupt() {
++        if(!isMainThread()) {
++            synchronized(suspended) {
++                if(suspended.get()) {
++                    suspended.notifyAll();
++                }
++            }
++        }    }
++
+     // PaperSpigot start - Further improve tick loop
+     private static final int TPS = 20;
+     private static final long SEC_IN_NANO = 1000000000;
+@@ -594,13 +675,18 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+                             catchupTime -= catchupTime;
+                         }
+                     }
+-                    if (wait > 0) {
+-                        Thread.sleep(wait / 1000000);
++
++                    if(wait < 0) {
++                        catchupTime = Math.min(1000000000, Math.abs(wait));
++                    } else {
+                         wait = TICK_TIME - (curTime - lastTick);
++                        if(doSuspension()) {
++                            tickSection = lastTick = curTime - TICK_TIME;
++                        } else {
++                            Thread.sleep(wait / 1000000);
++                        }
+                     }
+-
+-                    catchupTime = Math.min(MAX_CATCHUP_BUFFER, catchupTime - wait);
+-
++                    
+                     if ( ++MinecraftServer.currentTick % SAMPLE_INTERVAL == 0 )
+                     {
+                         final long diff = curTime - tickSection;
+@@ -775,6 +861,8 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+ 
+         // SportBukkit start - don't lock the task queue while running tasks
+         processTasks();
++        this.server.checkEmpty();
++        if(suspended.get()) return;
+ 
+         /*
+         // Spigot start
+@@ -1574,6 +1662,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+ 
+             // Spigot start
+             this.j.add(listenablefuturetask);
++            interrupt(); // SportBukkit
+             return listenablefuturetask;
+             // Spigot end
+         } else {
+@@ -1607,6 +1696,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+                 taskQueue.addLast(task);
+             }
+         }
++        interrupt();
+     }
+ 
+     public void addMainThreadTask(Runnable task) {
+diff --git a/src/main/java/net/minecraft/server/ServerConnection.java b/src/main/java/net/minecraft/server/ServerConnection.java
+index f13182c..d6cb83b 100644
+--- a/src/main/java/net/minecraft/server/ServerConnection.java
++++ b/src/main/java/net/minecraft/server/ServerConnection.java
+@@ -183,4 +183,10 @@ public class ServerConnection {
+     public MinecraftServer d() {
+         return this.f;
+     }
++
++    // SportBukkit start
++    public boolean hasClientConnections() {
++        return !h.isEmpty();
++    }
++    // SportBukkit end
+ }
+diff --git a/src/main/java/net/minecraft/server/ThreadWatchdog.java b/src/main/java/net/minecraft/server/ThreadWatchdog.java
+index 8a56c23..04859b6 100644
+--- a/src/main/java/net/minecraft/server/ThreadWatchdog.java
++++ b/src/main/java/net/minecraft/server/ThreadWatchdog.java
+@@ -22,8 +22,17 @@ public class ThreadWatchdog implements Runnable {
+         this.c = dedicatedserver.aS();
+     }
+ 
++    // SportBukkit start
++    synchronized private void doSuspension() {
++        while(this.b.isSuspended()) {
++            try { wait(); } catch(InterruptedException ignored) {}
++        }
++    }
++    // SportBukkit end
++
+     public void run() {
+         while (this.b.isRunning()) {
++            doSuspension(); // SportBukkit
+             long i = this.b.aL();
+             long j = MinecraftServer.az();
+             long k = j - i;
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 5554922..e8d0a69 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1,6 +1,7 @@
+ package org.bukkit.craftbukkit;
+ 
+ import com.google.common.collect.ImmutableSet;
++import com.google.common.collect.Maps;
+ import com.google.inject.Guice;
+ import com.google.inject.Stage;
+ import java.awt.image.BufferedImage;
+@@ -9,6 +10,8 @@ import java.io.FileInputStream;
+ import java.io.FileNotFoundException;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
++import java.time.Duration;
++import java.time.Instant;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Collections;
+@@ -24,6 +27,7 @@ import java.util.logging.Level;
+ import java.util.logging.Logger;
+ import java.util.regex.Pattern;
+ 
++import javax.annotation.Nullable;
+ import javax.imageio.ImageIO;
+ 
+ import net.avicus.minecraft.api.plugin.PluginFinder;
+@@ -50,6 +54,7 @@ import org.bukkit.command.ConsoleCommandSender;
+ import org.bukkit.command.PluginCommand;
+ import org.bukkit.command.SimpleCommandMap;
+ import org.bukkit.configuration.ConfigurationSection;
++import org.bukkit.configuration.InvalidConfigurationException;
+ import org.bukkit.configuration.file.YamlConfiguration;
+ import org.bukkit.configuration.serialization.ConfigurationSerialization;
+ import org.bukkit.conversations.Conversable;
+@@ -181,6 +186,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     private final List<CraftPlayer> playerView;
+     private final Map<UUID, Player> playersById;
+     public int reloadCount;
++    private @Nullable Instant emptySince;
+ 
+     private final class BooleanWrapper {
+         private boolean value = true;
+@@ -193,10 +199,17 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+     public CraftServer(MinecraftServer console, PlayerList playerList) {
+         this.console = console;
+-        this.eventBus = new SimpleEventBus(this.console.primaryThread, pluginManager);
++        this.eventBus = new SimpleEventBus(this.console.primaryThread, task -> {
++            if(console.isMainThread()) {
++                task.run();
++            } else {
++                console.addMainThreadTask(task);
++            }
++        });
+         this.playerList = (DedicatedPlayerList) playerList;
+         this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, EntityPlayer::getBukkitEntity));
+-        this.playersById = Collections.unmodifiableMap(Maps.transformValues(playerList.playersById(), EntityPlayer::getBukkitEntity));
++        this.playersById = Collections.unmodifiableMap(
++            Maps.transformValues(playerList.playersById(), EntityPlayer::getBukkitEntity));
+         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
+         online.value = console.getPropertyManager().getBoolean("online-mode", true);
+ 
+@@ -648,6 +661,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+     }
+ 
+     @Override
++    public @Nullable Duration getEmptyServerSuspendDelay() {
++        try {
++            return this.configuration.getDuration("settings.empty-server-suspend");
++        } catch(InvalidConfigurationException e) {
++            getLogger().log(Level.SEVERE, "Invalid configuration value", e);
++            return null;
++        }
++    }
++
++    @Override
+     public PluginManager getPluginManager() {
+         return pluginManager;
+     }
+@@ -2001,4 +2024,53 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+ 
+         return task instanceof Wrapped ? task : new Wrapped();
+     }
++
++    @Override
++    public boolean isSuspended() {
++        return getServer().isSuspended();
++    }
++
++    @Override
++    public boolean canSuspend() {
++        return getServer().canSuspend();
++    }
++
++    @Override
++    public boolean setSuspended(boolean suspend) {
++        return getServer().setSuspended(suspend);
++    }
++
++    @Override
++    public @Nullable Instant suspendedAt() {
++        return getServer().suspendedAt();
++    }
++
++    @Override
++    public int interruptions() {
++        return getServer().interruptions();
++    }
++
++    @Override
++    public @Nullable Instant emptySince() {
++        if(getOnlinePlayers().isEmpty()) {
++            if(emptySince == null) {
++                emptySince = Instant.now();
++            }
++        } else {
++            emptySince = null;
++        }
++        return emptySince;
++    }
++
++    public void checkEmpty() {
++        final Instant since = emptySince();
++        if(since == null) {
++            setSuspended(false);
++        } else {
++            final Duration delay = getEmptyServerSuspendDelay();
++            if(delay != null && canSuspend() && !since.plus(delay).isAfter(Instant.now())) {
++                setSuspended(true);
++            }
++        }
++    }
+ }
+-- 
+2.6.4
+
