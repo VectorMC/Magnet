@@ -1,4 +1,4 @@
-From e5174ba3b3d4afee30bb2c6025937e3422c5c459 Mon Sep 17 00:00:00 2001
+From e0e7bfa801f02d8216e38a124dd83555a8ae83fb Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 23:26:03 -0500
 Subject: [PATCH] Fix compile issues

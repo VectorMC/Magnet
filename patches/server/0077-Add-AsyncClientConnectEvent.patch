@@ -1,4 +1,4 @@
-From 59e24f05c37cefcb8b6471e802e012042888bb27 Mon Sep 17 00:00:00 2001
+From 653266d4650883a0b9359df32191f69c6fd4ea96 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 21:40:08 -0500
 Subject: [PATCH] Add AsyncClientConnectEvent

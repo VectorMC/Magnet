@@ -1,4 +1,4 @@
-From 8e6cc085bcf55bf373dcfb117cebf76affbb5575 Mon Sep 17 00:00:00 2001
+From c305a7ef8e07811211e38f842fdbb478d1b808fb Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 16:58:37 -0500
 Subject: [PATCH] Better error logging on IO threads

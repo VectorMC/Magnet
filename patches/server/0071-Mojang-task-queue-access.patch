@@ -1,4 +1,4 @@
-From 9f979fa7a87c9911a9948cdcdf65444b8bd8c46b Mon Sep 17 00:00:00 2001
+From 790b0eddf3f095d1e76f8363bc036abea9e4f8c2 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 17:57:55 -0500
 Subject: [PATCH] Mojang task queue access

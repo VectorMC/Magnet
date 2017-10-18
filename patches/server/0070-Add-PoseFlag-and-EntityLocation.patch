@@ -1,4 +1,4 @@
-From 47e61183dab65c908be040f6169c0d777824c766 Mon Sep 17 00:00:00 2001
+From a7930dca6b99df10bb325c9102dad2523458333a Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 17:41:37 -0500
 Subject: [PATCH] Add PoseFlag and EntityLocation
@@ -280,7 +280,7 @@ index 2ea3368..ddc7b56 100644
 +    }
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index 27907cc..d21af00 100644
+index 1838421..21968ab 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 @@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.entity;

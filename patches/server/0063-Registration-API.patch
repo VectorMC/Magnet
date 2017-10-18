@@ -1,4 +1,4 @@
-From 1cc0b1a577e477b9dd2f12ff0d319a85444cfa74 Mon Sep 17 00:00:00 2001
+From e986d1c578a3fb2506fffb602c80102e1281ae2a Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:48:29 -0500
 Subject: [PATCH] Registration API

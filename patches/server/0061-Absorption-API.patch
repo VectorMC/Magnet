@@ -1,4 +1,4 @@
-From 09eddfc8d7bd76b335054e78461f75334a064a22 Mon Sep 17 00:00:00 2001
+From 4923f6d6b07423cf18f2913408692c9850b78f5e Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:35:13 -0500
 Subject: [PATCH] Absorption API
@@ -8,7 +8,7 @@ Subject: [PATCH] Absorption API
  1 file changed, 10 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index 47bd3cf..27907cc 100644
+index b4e415a..1838421 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 @@ -275,6 +275,16 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {

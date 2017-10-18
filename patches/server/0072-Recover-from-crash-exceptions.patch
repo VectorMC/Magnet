@@ -1,4 +1,4 @@
-From 6d70d99930a6f28dd93e17deda1cf5b76154e582 Mon Sep 17 00:00:00 2001
+From ed639c6b0058a2ae57efff8d9167d4142df108f4 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 18:51:55 -0500
 Subject: [PATCH] Recover from crash exceptions

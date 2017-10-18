@@ -1,4 +1,4 @@
-From ba78b8ce07354657c30aa9ea53b12ae649015634 Mon Sep 17 00:00:00 2001
+From 8ace621fb39b42e5b04d8dad9fbc97a40b608345 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Tue, 17 Oct 2017 16:01:29 -0500
 Subject: [PATCH] Remove paper tick loop changes

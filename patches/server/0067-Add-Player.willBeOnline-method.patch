@@ -1,4 +1,4 @@
-From d314e6e0bddce92027ce65bb500601d63b8935e6 Mon Sep 17 00:00:00 2001
+From 69a6e3c21b10abd7622764b2252150f65603108e Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 17:02:04 -0500
 Subject: [PATCH] Add Player.willBeOnline method

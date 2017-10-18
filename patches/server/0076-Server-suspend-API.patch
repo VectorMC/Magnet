@@ -1,4 +1,4 @@
-From ce7a247039c53065e969fb074b2d60756fa87a3c Mon Sep 17 00:00:00 2001
+From 7db8852ea7204e70115f1a417af7ff2079cd5ff5 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 21:31:32 -0500
 Subject: [PATCH] Server suspend API

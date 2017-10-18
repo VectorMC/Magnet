@@ -1,4 +1,4 @@
-From bcb1187f40d812eaef2a7143e12d892c202fd866 Mon Sep 17 00:00:00 2001
+From 8b6cc5e71126c3961bfb93951d707f8c7a67695e Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:32:41 -0500
 Subject: [PATCH] Implement minecraft-api

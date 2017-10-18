@@ -1,4 +1,4 @@
-From 07ae63670d953dc9a76e8b70ac356da7c4762b64 Mon Sep 17 00:00:00 2001
+From 0bf12cf1a41899b78ece1826e2dfdf6536a03b55 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 22:08:15 -0500
 Subject: [PATCH] Don't tick empty worlds

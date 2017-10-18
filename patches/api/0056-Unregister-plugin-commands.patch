@@ -1,4 +1,4 @@
-From ed790fe0530a4505da81e02c84a40f771cb8ffde Mon Sep 17 00:00:00 2001
+From c5d00e0dcb8d9c61cdcd758c99ab05b50656bac1 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:08:25 -0500
 Subject: [PATCH] Unregister plugin commands
@@ -68,7 +68,7 @@ index 10d0711..acf594a 100644
       * {@inheritDoc}
       */
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index f05456a..4f9e37a 100644
+index a5d4543..153e3a0 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 @@ -22,6 +22,7 @@ import org.apache.commons.lang.Validate;
@@ -78,8 +78,8 @@ index f05456a..4f9e37a 100644
 +import org.bukkit.command.PluginIdentifiableCommand;
  import org.bukkit.command.SimpleCommandMap;
  import org.bukkit.configuration.serialization.ConfigurationSerialization;
- import org.bukkit.event.Event;
-@@ -482,6 +483,13 @@ public final class SimplePluginManager implements PluginManager {
+ import org.bukkit.event.BoundEventHandler;
+@@ -483,6 +484,13 @@ public final class SimplePluginManager implements PluginManager {
              } catch (Throwable ex) {
                  server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering serializables " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
              }

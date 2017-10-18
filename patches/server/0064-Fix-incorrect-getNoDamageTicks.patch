@@ -1,4 +1,4 @@
-From 5b6638f3c1fb12f4123d344cdbf4745b096a0a97 Mon Sep 17 00:00:00 2001
+From 9dc1a1c6a7b2a5025d951e1d12c9d6d4ccbf37be Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 16:21:08 -0500
 Subject: [PATCH] Fix incorrect getNoDamageTicks

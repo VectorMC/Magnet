@@ -1,4 +1,4 @@
-From b716eab218e8aa4a7f1b6ef867dee0cdacec3bb9 Mon Sep 17 00:00:00 2001
+From 4f868f5b9709fbcf9e8ce2cbee5a437f9bdd6aa5 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 20:51:08 -0500
 Subject: [PATCH] New event API
@@ -36,7 +36,7 @@ Subject: [PATCH] New event API
  src/main/java/org/bukkit/plugin/PluginModule.java  |  54 ++++
  .../java/org/bukkit/plugin/PluginScheduler.java    |  33 +++
  .../java/org/bukkit/plugin/RegisteredListener.java |  67 ++---
- .../org/bukkit/plugin/SimplePluginManager.java     | 121 +--------
+ .../org/bukkit/plugin/SimplePluginManager.java     | 123 +--------
  .../org/bukkit/plugin/TimedRegisteredListener.java |  10 +-
  .../java/org/bukkit/plugin/java/JavaPlugin.java    |  28 ++-
  .../org/bukkit/plugin/java/JavaPluginLoader.java   |  92 +------
@@ -54,7 +54,7 @@ Subject: [PATCH] New event API
  .../org/bukkit/exception/TestExceptionHandler.java |  10 +
  .../java/org/bukkit/plugin/PluginManagerTest.java  |   4 +-
  src/test/java/org/bukkit/plugin/TestPlugin.java    |  37 ++-
- 50 files changed, 2313 insertions(+), 339 deletions(-)
+ 50 files changed, 2315 insertions(+), 339 deletions(-)
  create mode 100644 src/main/java/org/bukkit/BukkitModule.java
  create mode 100644 src/main/java/org/bukkit/ServerInstanceModule.java
  create mode 100644 src/main/java/org/bukkit/ServerModule.java
@@ -2232,18 +2232,20 @@ index 9dd0b7a..4b26a8e 100644
 +    public boolean isIgnoringCancelled() { return meta().ignoreCancelled(); }
  }
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index eb66368..f05456a 100644
+index eb66368..a5d4543 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-@@ -25,6 +25,7 @@ import org.bukkit.command.PluginCommandYamlParser;
+@@ -24,7 +24,9 @@ import org.bukkit.command.Command;
+ import org.bukkit.command.PluginCommandYamlParser;
  import org.bukkit.command.SimpleCommandMap;
  import org.bukkit.configuration.serialization.ConfigurationSerialization;
++import org.bukkit.event.BoundEventHandler;
  import org.bukkit.event.Event;
 +import org.bukkit.event.EventHandlerMeta;
  import org.bukkit.event.EventPriority;
  import org.bukkit.event.HandlerList;
  import org.bukkit.event.Listener;
-@@ -52,7 +53,6 @@ public final class SimplePluginManager implements PluginManager {
+@@ -52,7 +54,6 @@ public final class SimplePluginManager implements PluginManager {
      private final Map<Boolean, Set<Permission>> defaultPerms = new LinkedHashMap<Boolean, Set<Permission>>();
      private final Map<String, Map<Permissible, Boolean>> permSubs = new HashMap<String, Map<Permissible, Boolean>>();
      private final Map<Boolean, Map<Permissible, Boolean>> defSubs = new HashMap<Boolean, Map<Permissible, Boolean>>();
@@ -2251,7 +2253,7 @@ index eb66368..f05456a 100644
  
      public SimplePluginManager(Server instance, SimpleCommandMap commandMap) {
          server = instance;
-@@ -505,74 +505,13 @@ public final class SimplePluginManager implements PluginManager {
+@@ -505,74 +506,13 @@ public final class SimplePluginManager implements PluginManager {
          }
      }
  
@@ -2329,7 +2331,7 @@ index eb66368..f05456a 100644
      }
  
      public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin) {
-@@ -592,46 +531,7 @@ public final class SimplePluginManager implements PluginManager {
+@@ -592,46 +532,8 @@ public final class SimplePluginManager implements PluginManager {
       *     cancelled
       */
      public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
@@ -2373,11 +2375,12 @@ index eb66368..f05456a 100644
 -                throw new IllegalPluginAccessException("Unable to find handler list for event " + clazz.getName() + ". Static getHandlerList method required!");
 -            }
 -        }
-+        plugin.eventRegistry().bindHandler(new EventHandlerMeta<>(event, priority, ignoreCancelled), listener, new EventExecutorAdapter<>(executor));
++        BoundEventHandler handler = plugin.eventRegistry().bindHandler(new EventHandlerMeta<>(event, priority, ignoreCancelled), listener, new EventExecutorAdapter<>(executor));
++        Event.register(handler);
      }
  
      public Permission getPermission(String name) {
-@@ -763,15 +663,6 @@ public final class SimplePluginManager implements PluginManager {
+@@ -763,15 +665,6 @@ public final class SimplePluginManager implements PluginManager {
      }
  
      public boolean useTimings() {
