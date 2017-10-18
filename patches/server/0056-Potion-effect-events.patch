@@ -1,4 +1,4 @@
-From 8da614be06b5dc4335b0b3f6ec15ee3bae98f050 Mon Sep 17 00:00:00 2001
+From 27b9972284b529be2dc3beeed5c320e05b0a5d4c Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:17:57 -0500
 Subject: [PATCH] Potion effect events
@@ -10,7 +10,7 @@ Subject: [PATCH] Potion effect events
  create mode 100644 src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
 
 diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
-index 089f971..ce3157a 100644
+index 089f971..b2ca798 100644
 --- a/src/main/java/net/minecraft/server/EntityLiving.java
 +++ b/src/main/java/net/minecraft/server/EntityLiving.java
 @@ -16,11 +16,16 @@ import com.google.common.base.Function;
@@ -188,8 +188,9 @@ index 089f971..ce3157a 100644
          if (this.d(mobeffect)) {
              if (this.effects.containsKey(Integer.valueOf(mobeffect.getEffectId()))) {
 +                // SportBukkit start - fire event
-+                PotionEffectAddEvent event = new PotionEffectAddEvent((LivingEntity) this.getBukkitEntity(),
-+                    CraftPotionUtils.toBukkit(mobeffect));
++                PotionEffectExtendEvent event = new PotionEffectExtendEvent((LivingEntity) this.getBukkitEntity(),
++                    CraftPotionUtils.toBukkit(mobeffect),
++                    CraftPotionUtils.toBukkit(this.effects.get(Integer.valueOf(mobeffect.getEffectId()))));
 +                this.world.getServer().getPluginManager().callEvent(event);
 +                if(event.isCancelled()) return;
 +                // SportBukkit end
@@ -197,9 +198,8 @@ index 089f971..ce3157a 100644
                  this.a((MobEffect) this.effects.get(Integer.valueOf(mobeffect.getEffectId())), true);
              } else {
 +                // SportBukkit start - fire event
-+                PotionEffectExtendEvent event = new PotionEffectExtendEvent((LivingEntity) this.getBukkitEntity(),
-+                    CraftPotionUtils.toBukkit(mobeffect),
-+                    CraftPotionUtils.toBukkit(this.effects.get(mobeffect.getEffectId())));
++                PotionEffectAddEvent event = new PotionEffectAddEvent((LivingEntity) this.getBukkitEntity(),
++                    CraftPotionUtils.toBukkit(mobeffect));
 +                this.world.getServer().getPluginManager().callEvent(event);
 +                if(event.isCancelled()) return;
 +                // SportBukkit end
