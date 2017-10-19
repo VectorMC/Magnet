@@ -1,4 +1,4 @@
-From e0e7bfa801f02d8216e38a124dd83555a8ae83fb Mon Sep 17 00:00:00 2001
+From 88ad1aabf2b66617e8c290e32d8712ea82ea6160 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 23:26:03 -0500
 Subject: [PATCH] Fix compile issues
@@ -6,22 +6,23 @@ Subject: [PATCH] Fix compile issues
 ---
  .../java/net/minecraft/server/DedicatedServer.java |   8 ++
  src/main/java/net/minecraft/server/Entity.java     |   3 +-
+ .../java/net/minecraft/server/LoginListener.java   |   1 -
  .../java/net/minecraft/server/MinecraftServer.java |   4 +-
- .../net/minecraft/server/ServerConnection.java     |  16 ++++
+ .../net/minecraft/server/ServerConnection.java     |  16 +++
  .../java/net/minecraft/server/TileEntitySkull.java |   2 +-
  .../java/net/minecraft/server/WorldNBTStorage.java |   9 ++
  .../org/bukkit/craftbukkit/CraftOfflinePlayer.java |  26 ++++-
  .../craftbukkit/CraftOfflinePlayerFactory.java     |  51 ++++++++++
- .../java/org/bukkit/craftbukkit/CraftServer.java   | 106 ++++++++++-----------
+ .../java/org/bukkit/craftbukkit/CraftServer.java   | 112 ++++++++++-----------
  .../org/bukkit/craftbukkit/CraftServerModule.java  |  56 +++++++++++
  .../craftbukkit/entity/CraftFallingSand.java       |  10 ++
  .../org/bukkit/craftbukkit/entity/CraftPlayer.java |   4 +
- .../event/CraftServerEventRegistry.java            |  16 ++++
+ .../event/CraftServerEventRegistry.java            |  16 +++
  .../craftbukkit/scheduler/CraftScheduler.java      |   4 +-
  .../bukkit/craftbukkit/user/MojangUserSource.java  |  68 +++++++++++++
  .../craftbukkit/user/UserUpdateListener.java       |  41 ++++++++
  src/main/java/org/spigotmc/RestartCommand.java     |   2 +-
- 17 files changed, 364 insertions(+), 62 deletions(-)
+ 18 files changed, 369 insertions(+), 64 deletions(-)
  create mode 100644 src/main/java/org/bukkit/craftbukkit/CraftOfflinePlayerFactory.java
  create mode 100644 src/main/java/org/bukkit/craftbukkit/CraftServerModule.java
  create mode 100644 src/main/java/org/bukkit/craftbukkit/event/CraftServerEventRegistry.java
@@ -29,7 +30,7 @@ Subject: [PATCH] Fix compile issues
  create mode 100644 src/main/java/org/bukkit/craftbukkit/user/UserUpdateListener.java
 
 diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
-index 683b66d..ab0c88b 100644
+index d6ccc46..ea413cf 100644
 --- a/src/main/java/net/minecraft/server/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/DedicatedServer.java
 @@ -189,6 +189,10 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
@@ -68,11 +69,23 @@ index f61be63..cb0b542 100644
                      CraftEventFactory.callPlayerPoseFlagEvent(player, PoseFlag.RIDING, true, newLocation, event);
                  }
  
+diff --git a/src/main/java/net/minecraft/server/LoginListener.java b/src/main/java/net/minecraft/server/LoginListener.java
+index cd34b2f..84657e2 100644
+--- a/src/main/java/net/minecraft/server/LoginListener.java
++++ b/src/main/java/net/minecraft/server/LoginListener.java
+@@ -271,7 +271,6 @@ public class LoginListener implements PacketLoginInListener, IUpdatePlayerListBo
+                                 }
+                             }
+                             // CraftBukkit end
+-                            server.setSuspended(false);
+                             LoginListener.c.info("UUID of player " + LoginListener.this.i.getName() + " is " + LoginListener.this.i.getId());
+                             LoginListener.this.g = LoginListener.EnumProtocolState.READY_TO_ACCEPT;
+         }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 17b8364..864cba1 100644
+index 9ae45ac..ead66ac 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -106,7 +106,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+@@ -101,7 +101,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
      private long X = 0L;
      private final GameProfileRepository Y;
      private final UserCache Z;
@@ -81,7 +94,7 @@ index 17b8364..864cba1 100644
      protected final Deque<FutureTask<?>> taskQueue = (Deque<FutureTask<?>>) j; // SportBukkit - alias and downcast
      private Thread serverThread;
      private long ab = az();
-@@ -279,6 +279,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+@@ -270,6 +270,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
  
                  world.a(worldsettings);
                  this.server.scoreboardManager = new org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager(this, world.getScoreboard());
@@ -89,7 +102,7 @@ index 17b8364..864cba1 100644
              } else {
                  String dim = "DIM" + dimension;
  
-@@ -1142,6 +1143,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+@@ -1054,6 +1055,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
          return this.serverIp;
      }
  
@@ -98,7 +111,7 @@ index 17b8364..864cba1 100644
          return this.u;
      }
 diff --git a/src/main/java/net/minecraft/server/ServerConnection.java b/src/main/java/net/minecraft/server/ServerConnection.java
-index 88b7615..8bd58b9 100644
+index 6ba304a..b9ca779 100644
 --- a/src/main/java/net/minecraft/server/ServerConnection.java
 +++ b/src/main/java/net/minecraft/server/ServerConnection.java
 @@ -62,6 +62,20 @@ public class ServerConnection {
@@ -285,29 +298,33 @@ index 0000000..889eebf
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index b66754d..203d0c9 100644
+index 74d0359..f8c9010 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -3,6 +3,7 @@ package org.bukkit.craftbukkit;
+@@ -1,7 +1,9 @@
+ package org.bukkit.craftbukkit;
+ 
  import com.google.common.collect.ImmutableSet;
- import com.google.common.collect.Maps;
++import com.google.common.collect.Maps;
  import com.google.inject.Guice;
 +import com.google.inject.Inject;
  import com.google.inject.Stage;
  import java.awt.image.BufferedImage;
  import java.io.File;
-@@ -10,6 +11,9 @@ import java.io.FileInputStream;
+@@ -9,6 +11,11 @@ import java.io.FileInputStream;
  import java.io.FileNotFoundException;
  import java.io.IOException;
  import java.io.InputStreamReader;
 +import java.net.InetSocketAddress;
 +import java.nio.file.*;
 +import java.nio.file.Path;
- import java.time.Duration;
- import java.time.Instant;
++import java.time.Duration;
++import java.time.Instant;
  import java.util.ArrayList;
-@@ -30,7 +34,10 @@ import java.util.regex.Pattern;
- import javax.annotation.Nullable;
+ import java.util.Arrays;
+ import java.util.Collections;
+@@ -26,7 +33,10 @@ import java.util.regex.Pattern;
+ 
  import javax.imageio.ImageIO;
  
 +import javax.inject.Provider;
@@ -317,7 +334,7 @@ index b66754d..203d0c9 100644
  import net.minecraft.server.*;
  
  import org.bukkit.BanList;
-@@ -148,7 +155,8 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -143,7 +153,8 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
      private final ServicesManager servicesManager = new SimpleServicesManager();
@@ -327,7 +344,7 @@ index b66754d..203d0c9 100644
      private final SimpleCommandMap commandMap = new SimpleCommandMap(this);
      private final SimpleHelpMap helpMap = new SimpleHelpMap(this);
      private final StandardMessenger messenger = new StandardMessenger();
-@@ -156,6 +164,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -151,6 +162,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      private final EventBus eventBus;
      protected final MinecraftServer console;
      protected final DedicatedPlayerList playerList;
@@ -335,7 +352,7 @@ index b66754d..203d0c9 100644
      private final Map<String, World> worlds = new LinkedHashMap<String, World>();
      private final Map<String, World> worldsView = new CaseInsensitiveNameMap<>(worlds.values(), World::getName);
      private final Map<UUID, World> worldsById = new LinkedHashMap<>();
-@@ -163,7 +172,6 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -158,7 +170,6 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      private YamlConfiguration configuration;
      private YamlConfiguration commandsConfiguration;
      private final Yaml yaml = new Yaml(new SafeConstructor());
@@ -343,7 +360,7 @@ index b66754d..203d0c9 100644
      private final EntityMetadataStore entityMetadata = new EntityMetadataStore();
      private final PlayerMetadataStore playerMetadata = new PlayerMetadataStore();
      private final WorldMetadataStore worldMetadata = new WorldMetadataStore();
-@@ -182,12 +190,12 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -177,11 +188,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      private boolean printSaveWarning;
      private CraftIconCache icon;
      private boolean overrideAllCommandBlockCommands = false;
@@ -352,20 +369,25 @@ index b66754d..203d0c9 100644
      private final List<CraftPlayer> playerView;
      private final Map<UUID, Player> playersById;
      public int reloadCount;
-     private @Nullable Instant emptySince;
 +    private final java.nio.file.Path root;
  
      private final class BooleanWrapper {
          private boolean value = true;
-@@ -200,6 +208,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -194,10 +205,12 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
  
      public CraftServer(MinecraftServer console, PlayerList playerList) {
          this.console = console;
 +        this.root = Paths.get(".").toAbsolutePath();
-         this.eventBus = new SimpleEventBus(this.console.primaryThread, task -> {
-             if(console.isMainThread()) {
-                 task.run();
-@@ -329,7 +338,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+         this.eventBus = new SimpleEventBus(this.console.primaryThread, pluginManager);
+         this.playerList = (DedicatedPlayerList) playerList;
+         this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, EntityPlayer::getBukkitEntity));
+-        this.playersById = Collections.unmodifiableMap(Maps.transformValues(playerList.playersById(), EntityPlayer::getBukkitEntity));
++        this.playersById = Collections.unmodifiableMap(
++            Maps.transformValues(playerList.playersById(), EntityPlayer::getBukkitEntity));
+         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
+         online.value = console.getPropertyManager().getBoolean("online-mode", true);
+ 
+@@ -316,7 +329,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
              logger.info("Creating injector in stage " + stage);
  
              try {
@@ -378,7 +400,7 @@ index b66754d..203d0c9 100644
              } catch(RuntimeException ex) {
                  logger.log(Level.SEVERE, "Injector creation failed, server will shut down", ex);
                  throw ex;
-@@ -550,7 +563,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -537,7 +554,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      // so if that changes this will need to as well
      @Override
      public int getPort() {
@@ -387,7 +409,7 @@ index b66754d..203d0c9 100644
      }
  
      @Override
-@@ -560,7 +573,12 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -547,7 +564,12 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
  
      @Override
      public String getIp() {
@@ -401,7 +423,7 @@ index b66754d..203d0c9 100644
      }
  
      @Override
-@@ -636,6 +654,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -623,6 +645,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      // End Temporary calls
  
      @Override
@@ -413,7 +435,7 @@ index b66754d..203d0c9 100644
      public String getUpdateFolder() {
          return this.configuration.getString("settings.update-folder", "update");
      }
-@@ -693,7 +716,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -670,7 +697,7 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
  
      @Override
      public CraftScheduler getScheduler() {
@@ -422,7 +444,7 @@ index b66754d..203d0c9 100644
      }
  
      @Override
-@@ -1433,6 +1456,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -1410,6 +1437,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      }
  
      @Override
@@ -434,7 +456,7 @@ index b66754d..203d0c9 100644
      public int broadcast(String message, String permission) {
          int count = 0;
          Set<Permissible> permissibles = getPluginManager().getPermissionSubscriptions(permission);
-@@ -1467,55 +1495,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -1444,55 +1476,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      @Override
      @Deprecated
      public OfflinePlayer getOfflinePlayer(String name) {
@@ -493,7 +515,7 @@ index b66754d..203d0c9 100644
      }
  
      @Override
-@@ -1643,12 +1632,9 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -1620,12 +1613,9 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      }
  
      @Override
@@ -509,7 +531,7 @@ index b66754d..203d0c9 100644
              try {
                  players.add(getOfflinePlayer(UUID.fromString(file.substring(0, file.length() - 4))));
              } catch (IllegalArgumentException ex) {
-@@ -1657,7 +1643,12 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -1634,7 +1624,12 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
          }
  
          players.addAll(getOnlinePlayers());
@@ -522,7 +544,7 @@ index b66754d..203d0c9 100644
          return players.toArray(new OfflinePlayer[players.size()]);
      }
  
-@@ -2004,6 +1995,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -1981,6 +1976,11 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      }
  
      @Override

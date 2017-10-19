@@ -1,4 +1,4 @@
-From 06ed19562e6bbd32724d33350ba09e7e5b320745 Mon Sep 17 00:00:00 2001
+From 2496e07f442d1902b4335a9cfc524602c314a55d Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:35:21 -0500
 Subject: [PATCH] Add id specific map API
@@ -8,10 +8,10 @@ Subject: [PATCH] Add id specific map API
  1 file changed, 10 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 272da00..9f05e19 100644
+index c906801..545427b 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -513,6 +513,16 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+@@ -503,6 +503,16 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
      public MapView createMap(World world);
  
      /**

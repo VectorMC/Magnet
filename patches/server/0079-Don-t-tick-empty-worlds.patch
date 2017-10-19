@@ -1,4 +1,4 @@
-From 0bf12cf1a41899b78ece1826e2dfdf6536a03b55 Mon Sep 17 00:00:00 2001
+From a5a8e39c8a4b3b46be653050049439c0c8bcfdcf Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 22:08:15 -0500
 Subject: [PATCH] Don't tick empty worlds
@@ -36,19 +36,19 @@ index c4dab42..b79846e 100644
          return !this.world.savingDisabled;
      }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index a25f2d6..17b8364 100644
+index f8843c7..9ae45ac 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -528,7 +528,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+@@ -512,7 +512,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+     public void safeShutdown() {
+         this.isRunning = false;
      }
- 
-     public boolean canSuspend() {
--        return isRunning() && !();
-+        return isRunning() && !(q.hasClientConnections());
-     }
- 
-     public boolean setSuspended(boolean suspend) {
-@@ -911,6 +911,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+-
++    
+     // PaperSpigot start - Further improve tick loop
+     private static final int TPS = 20;
+     private static final long SEC_IN_NANO = 1000000000;
+@@ -823,6 +823,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
  
              // if (i == 0 || this.getAllowNether()) {
                  WorldServer worldserver = this.worlds.get(i);
@@ -91,10 +91,10 @@ index 7728f57..1e6eb70 100644
      DispenserRegistry.c();
    }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index e8d0a69..9050a4c 100644
+index 5554922..df602fd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -77,6 +77,7 @@ import org.bukkit.craftbukkit.metadata.WorldMetadataStore;
+@@ -72,6 +72,7 @@ import org.bukkit.craftbukkit.metadata.WorldMetadataStore;
  import org.bukkit.craftbukkit.potion.CraftPotionBrewer;
  import org.bukkit.craftbukkit.scheduler.CraftScheduler;
  import org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager;
@@ -102,7 +102,7 @@ index e8d0a69..9050a4c 100644
  import org.bukkit.craftbukkit.util.CraftIconCache;
  import org.bukkit.craftbukkit.util.CraftMagicNumbers;
  import org.bukkit.craftbukkit.util.DatFileFilter;
-@@ -583,6 +584,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -570,6 +571,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
      }
  
      @Override

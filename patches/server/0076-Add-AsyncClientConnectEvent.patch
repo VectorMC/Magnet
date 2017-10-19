@@ -1,4 +1,4 @@
-From 653266d4650883a0b9359df32191f69c6fd4ea96 Mon Sep 17 00:00:00 2001
+From b5ca8e3abcfbc03da5c266ea8934a23d63c5d28d Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 21:40:08 -0500
 Subject: [PATCH] Add AsyncClientConnectEvent
@@ -10,7 +10,7 @@ Subject: [PATCH] Add AsyncClientConnectEvent
  create mode 100644 src/main/java/org/bukkit/craftbukkit/event/AsyncClientConnectEvent.java
 
 diff --git a/src/main/java/net/minecraft/server/ServerConnection.java b/src/main/java/net/minecraft/server/ServerConnection.java
-index d6cb83b..88b7615 100644
+index f13182c..6ba304a 100644
 --- a/src/main/java/net/minecraft/server/ServerConnection.java
 +++ b/src/main/java/net/minecraft/server/ServerConnection.java
 @@ -97,7 +97,8 @@ public class ServerConnection {

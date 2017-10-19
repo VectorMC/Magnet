@@ -1,4 +1,4 @@
-From 9e4c26063c01bff2524af2dc3215f004c751c709 Mon Sep 17 00:00:00 2001
+From e4665278acb8d8eadfd00a5b46be655979e7cc1c Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:05:15 -0500
 Subject: [PATCH] Don't tick empty worlds
@@ -9,10 +9,10 @@ Subject: [PATCH] Don't tick empty worlds
  2 files changed, 12 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index d9bf0e3..272da00 100644
+index c32ca44..c906801 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -202,6 +202,10 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+@@ -192,6 +192,10 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
       */
      public boolean getGenerateStructures();
  

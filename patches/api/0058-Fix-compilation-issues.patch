@@ -1,4 +1,4 @@
-From acac01bd8bb55978518d372175284d12e188a554 Mon Sep 17 00:00:00 2001
+From 41207b4b6599f94fe6c44d8feab1a460c23540cc Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:47:53 -0500
 Subject: [PATCH] Fix compilation issues
@@ -8,7 +8,7 @@ Subject: [PATCH] Fix compilation issues
  src/main/java/org/bukkit/BukkitModule.java         |  24 ---
  src/main/java/org/bukkit/EntityLocation.java       |   2 +-
  src/main/java/org/bukkit/Location.java             |  10 ++
- src/main/java/org/bukkit/Server.java               |  16 +-
+ src/main/java/org/bukkit/Server.java               |  10 +-
  src/main/java/org/bukkit/ServerModule.java         |   2 +
  src/main/java/org/bukkit/block/BlockState.java     |   2 +-
  .../bukkit/configuration/ConfigurationSection.java |   2 +-
@@ -17,7 +17,7 @@ Subject: [PATCH] Fix compilation issues
  src/test/java/org/bukkit/LocationTest.java         |   3 +-
  .../java/org/bukkit/event/SyntheticEventTest.java  |  49 ------
  src/test/java/org/bukkit/potion/PotionTest.java    | 170 ---------------------
- 13 files changed, 31 insertions(+), 262 deletions(-)
+ 13 files changed, 25 insertions(+), 262 deletions(-)
  delete mode 100644 src/test/java/org/bukkit/event/SyntheticEventTest.java
  delete mode 100644 src/test/java/org/bukkit/potion/PotionTest.java
 
@@ -127,23 +127,10 @@ index 79a003c..199665e 100644
       * Constructs a new Location with the given coordinates
       *
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 9f05e19..d9542e3 100644
+index 545427b..ac5379b 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -137,6 +137,12 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
-     Map<UUID, Player> playersById();
- 
-     /**
-+     * If the server is currently empty of players, return the {@link Instant}
-+     * that the last player disconnected. If the server is not empty, return null.
-+     */
-+    @Nullable Instant emptySince();
-+
-+    /**
-      * Time to wait before automatically suspending an empty server.
-      *
-      * @see #setSuspended(boolean)
-@@ -299,11 +305,6 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+@@ -289,11 +289,6 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
      public long getConnectionThrottle();
  
      /**
@@ -155,7 +142,7 @@ index 9f05e19..d9542e3 100644
       * Should player skulls with missing skin data be fetched from Mojang?
       */
      public boolean getFetchSkulls();
-@@ -666,6 +667,11 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+@@ -656,6 +651,11 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
       */
      public void shutdown();
  
