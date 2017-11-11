@@ -1,0 +1,52 @@
+From 4e7ee57086b0f42cd811a8111f585d81a956352b Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Sat, 11 Nov 2017 14:36:15 -0600
+Subject: [PATCH] Increase horizontal knockback
+
+---
+ src/main/java/net/minecraft/server/EntityLiving.java | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
+index 7e32ce3..c7a6b3d 100644
+--- a/src/main/java/net/minecraft/server/EntityLiving.java
++++ b/src/main/java/net/minecraft/server/EntityLiving.java
+@@ -1365,8 +1365,8 @@ public abstract class EntityLiving extends Entity {
+                 f3 = 0.8F;
+                 f4 = 0.02F;
+                 f2 = (float) EnchantmentManager.b(this);
+-                if (f2 > 3.0F) {
+-                    f2 = 3.0F;
++                if (f2 > 2.4F) {
++                    f2 = 2.4F;
+                 }
+ 
+                 if (!this.onGround) {
+@@ -1399,10 +1399,10 @@ public abstract class EntityLiving extends Entity {
+                     this.motY = 0.30000001192092896D;
+                 }
+             } else {
+-                float f5 = 0.91F;
++                float f5 = 0.96F;
+ 
+                 if (this.onGround) {
+-                    f5 = this.world.getType(new BlockPosition(MathHelper.floor(this.locX), MathHelper.floor(this.getBoundingBox().b) - 1, MathHelper.floor(this.locZ))).getBlock().frictionFactor * 0.91F;
++                    f5 = this.world.getType(new BlockPosition(MathHelper.floor(this.locX), MathHelper.floor(this.getBoundingBox().b) - 1, MathHelper.floor(this.locZ))).getBlock().frictionFactor * 0.96F;
+                 }
+ 
+                 float f6 = 0.16277136F / (f5 * f5 * f5);
+@@ -1414,9 +1414,9 @@ public abstract class EntityLiving extends Entity {
+                 }
+ 
+                 this.a(f, f1, f3);
+-                f5 = 0.91F;
++                f5 = 0.96F;
+                 if (this.onGround) {
+-                    f5 = this.world.getType(new BlockPosition(MathHelper.floor(this.locX), MathHelper.floor(this.getBoundingBox().b) - 1, MathHelper.floor(this.locZ))).getBlock().frictionFactor * 0.91F;
++                    f5 = this.world.getType(new BlockPosition(MathHelper.floor(this.locX), MathHelper.floor(this.getBoundingBox().b) - 1, MathHelper.floor(this.locZ))).getBlock().frictionFactor * 0.96F;
+                 }
+ 
+                 if (this.k_()) {
+-- 
+2.6.4
+
