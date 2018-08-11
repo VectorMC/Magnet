@@ -1,23 +1,23 @@
-From d0cdeb68293d98ee7fa92ab10e0850bb9d67a107 Mon Sep 17 00:00:00 2001
+From 7b4f164b9bb547bcdaf1efcd461b4e674e45d230 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 11:45:28 -0500
 Subject: [PATCH] This is magnet
 
   Also includes some legacy mc-dev imports
 ---
- pom.xml                                            |  18 +-
- .../java/net/minecraft/server/MinecraftServer.java |   2 +-
- .../server/PacketPlayOutEntityMetadata.java        |  40 ++++
- .../minecraft/server/PacketPlayOutPlayerInfo.java  | 254 +++++++++++++++++++++
- .../server/PacketPlayOutScoreboardTeam.java        | 112 +++++++++
- .../org/bukkit/craftbukkit/util/Versioning.java    |   2 +-
+ pom.xml                                       |  18 +-
+ .../net/minecraft/server/MinecraftServer.java |   2 +-
+ .../server/PacketPlayOutEntityMetadata.java   |  40 +++
+ .../server/PacketPlayOutPlayerInfo.java       | 254 ++++++++++++++++++
+ .../server/PacketPlayOutScoreboardTeam.java   | 112 ++++++++
+ .../bukkit/craftbukkit/util/Versioning.java   |   2 +-
  6 files changed, 416 insertions(+), 12 deletions(-)
  create mode 100644 src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java
  create mode 100644 src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java
  create mode 100644 src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java
 
 diff --git a/pom.xml b/pom.xml
-index 6aaba50..f5aa732 100644
+index 6aaba502..f5aa7328 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,12 +1,10 @@
@@ -69,7 +69,7 @@ index 6aaba50..f5aa732 100644
              </configuration>
              <executions>
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index b400ce0..a7c8cba 100644
+index b400ce04..a7c8cbac 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1084,7 +1084,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
@@ -83,7 +83,7 @@ index b400ce0..a7c8cba 100644
      public CrashReport b(CrashReport crashreport) {
 diff --git a/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java b/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java
 new file mode 100644
-index 0000000..c5be70f
+index 00000000..c5be70f8
 --- /dev/null
 +++ b/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java
 @@ -0,0 +1,40 @@
@@ -129,7 +129,7 @@ index 0000000..c5be70f
 +}
 diff --git a/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java b/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java
 new file mode 100644
-index 0000000..fc5ad29
+index 00000000..fc5ad291
 --- /dev/null
 +++ b/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java
 @@ -0,0 +1,254 @@
@@ -389,7 +389,7 @@ index 0000000..fc5ad29
 +}
 diff --git a/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java b/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java
 new file mode 100644
-index 0000000..4b8eb3e
+index 00000000..4b8eb3ee
 --- /dev/null
 +++ b/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java
 @@ -0,0 +1,112 @@
@@ -506,7 +506,7 @@ index 0000000..4b8eb3e
 +    }
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index 3a4b142..b820598 100644
+index 3a4b1424..b8205981 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 @@ -11,7 +11,7 @@ public final class Versioning {
@@ -519,5 +519,5 @@ index 3a4b142..b820598 100644
  
          if (stream != null) {
 -- 
-2.6.4
+2.18.0.windows.1
 

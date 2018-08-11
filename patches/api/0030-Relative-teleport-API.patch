@@ -1,4 +1,4 @@
-From 0f56b01d164396656aff6d5b7006817c59683b7b Mon Sep 17 00:00:00 2001
+From e3d1601b3dd1bff0c2fd6c277458eeadfa0d0ea7 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 13:57:55 -0500
 Subject: [PATCH] Relative teleport API
@@ -8,13 +8,14 @@ Subject: [PATCH] Relative teleport API
  1 file changed, 8 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index ac07490..937bd65 100644
+index ac074903..937bd656 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -981,6 +981,14 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+@@ -980,6 +980,14 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+      */
      public boolean canSee(Player player);
  
-     /**
++    /**
 +     * Seamlessly move the player by the given offset and rotation angles.
 +     * Because the relative calculation is applied by the client, you cannot
 +     * know the player's absolute location immediately after teleporting.
@@ -22,10 +23,9 @@ index ac07490..937bd65 100644
 +    public boolean teleportRelative(org.bukkit.util.Vector deltaPos, float deltaYaw, float deltaPitch, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause);
 +    public boolean teleportRelative(org.bukkit.util.Vector deltaPos, float deltaYaw, float deltaPitch);
 +
-+    /**
+     /**
       * Checks to see if this player is currently standing on a block. This
       * information may not be reliable, as it is a state provided by the
-      * client, and may therefore not be accurate.
 -- 
-2.6.4
+2.18.0.windows.1
 

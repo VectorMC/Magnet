@@ -1,14 +1,14 @@
-From 5d587f7b56744cfb39fbd331db70c1e5ef3c3911 Mon Sep 17 00:00:00 2001
+From 34fd7c9fd837f182c7a4bda47aeca4e458f83f88 Mon Sep 17 00:00:00 2001
 From: Jedediah Smith <jedediah@silencegreys.com>
 Date: Sun, 28 Jun 2015 03:39:14 -0400
 Subject: [PATCH] Override creation settings of existing world
 
 ---
- .../java/org/bukkit/craftbukkit/CraftServer.java   | 27 +++++++++++++++++++---
+ .../org/bukkit/craftbukkit/CraftServer.java   | 27 ++++++++++++++++---
  1 file changed, 24 insertions(+), 3 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 69485fa..6fabb5c 100644
+index 69485fa6..6fabb5c3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -833,6 +833,25 @@ public final class CraftServer implements Server {
@@ -58,5 +58,5 @@ index 69485fa..6fabb5c 100644
          worlddata.checkName(name); // CraftBukkit - Migration did not rewrite the level.dat; This forces 1.8 to take the last loaded world as respawn (in this case the end)
          WorldServer internal = (WorldServer) new WorldServer(console, sdm, worlddata, dimension, console.methodProfiler, creator.environment(), generator).b();
 -- 
-2.6.4
+2.18.0.windows.1
 

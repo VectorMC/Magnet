@@ -1,22 +1,22 @@
-From da09757bfcfdb5ea4a05b75fb60f68e1e327f816 Mon Sep 17 00:00:00 2001
+From 753b5209e7fd849904329a35d2f8aed798d26b43 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 18:48:26 -0500
 Subject: [PATCH] Add PoseFlag and EntityLocation
 
 ---
- src/main/java/org/bukkit/EntityLocation.java       | 104 +++++++++++++++++++++
- src/main/java/org/bukkit/PoseFlag.java             |  38 ++++++++
- src/main/java/org/bukkit/entity/Entity.java        |  10 ++
- .../org/bukkit/event/player/PlayerMoveEvent.java   |  33 +++++--
- .../org/bukkit/event/player/PlayerPortalEvent.java |  16 +++-
- .../bukkit/plugin/TimedRegisteredListenerTest.java |   7 +-
+ src/main/java/org/bukkit/EntityLocation.java  | 104 ++++++++++++++++++
+ src/main/java/org/bukkit/PoseFlag.java        |  38 +++++++
+ src/main/java/org/bukkit/entity/Entity.java   |  10 ++
+ .../bukkit/event/player/PlayerMoveEvent.java  |  33 ++++--
+ .../event/player/PlayerPortalEvent.java       |  16 ++-
+ .../plugin/TimedRegisteredListenerTest.java   |   7 +-
  6 files changed, 193 insertions(+), 15 deletions(-)
  create mode 100644 src/main/java/org/bukkit/EntityLocation.java
  create mode 100644 src/main/java/org/bukkit/PoseFlag.java
 
 diff --git a/src/main/java/org/bukkit/EntityLocation.java b/src/main/java/org/bukkit/EntityLocation.java
 new file mode 100644
-index 0000000..cf2f460
+index 00000000..cf2f460a
 --- /dev/null
 +++ b/src/main/java/org/bukkit/EntityLocation.java
 @@ -0,0 +1,104 @@
@@ -127,7 +127,7 @@ index 0000000..cf2f460
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/PoseFlag.java b/src/main/java/org/bukkit/PoseFlag.java
 new file mode 100644
-index 0000000..6f3f3ad
+index 00000000..6f3f3ad2
 --- /dev/null
 +++ b/src/main/java/org/bukkit/PoseFlag.java
 @@ -0,0 +1,38 @@
@@ -171,7 +171,7 @@ index 0000000..6f3f3ad
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 770fba6..945ab95 100644
+index 770fba6a..945ab95c 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
 @@ -1,8 +1,11 @@
@@ -195,20 +195,20 @@ index 770fba6..945ab95 100644
      /**
       * Stores the entity's current position in the provided Location object.
       * <p>
-@@ -38,6 +43,11 @@ public interface Entity extends Metadatable, CommandSender, Locatable {
+@@ -37,6 +42,11 @@ public interface Entity extends Metadatable, CommandSender, Locatable {
+      */
      public Location getLocation(Location loc);
  
-     /**
++    /**
 +     * The set of {@link PoseFlag}s describing this entity's current state
 +     */
 +    Set<PoseFlag> getPoseFlags();
 +
-+    /**
+     /**
       * Sets this entity's velocity
       *
-      * @param velocity New velocity to travel with
 diff --git a/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java b/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java
-index 7687667..ee25828 100644
+index 7687667a..ee25828e 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java
 @@ -1,6 +1,9 @@
@@ -289,7 +289,7 @@ index 7687667..ee25828 100644
  
      private void validateLocation(Location loc) {
 diff --git a/src/main/java/org/bukkit/event/player/PlayerPortalEvent.java b/src/main/java/org/bukkit/event/player/PlayerPortalEvent.java
-index 93752f7..ec02807 100644
+index 93752f79..ec02807f 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerPortalEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerPortalEvent.java
 @@ -1,5 +1,6 @@
@@ -332,7 +332,7 @@ index 93752f7..ec02807 100644
  
      /**
 diff --git a/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java b/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java
-index ef75e5a..9e3fb4e 100644
+index ef75e5ac..9e3fb4e6 100644
 --- a/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java
 +++ b/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java
 @@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority;
@@ -371,5 +371,5 @@ index ef75e5a..9e3fb4e 100644
      }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

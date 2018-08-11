@@ -1,14 +1,14 @@
-From a9ec589419f896cb54f5330df412e1a1ff52d83e Mon Sep 17 00:00:00 2001
+From 1af53046446310393f38525b4275810050856c2c Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 13:14:35 -0500
 Subject: [PATCH] Add log4j's exception marker to log messages with exceptions
 
 ---
- .../java/org/bukkit/craftbukkit/util/ForwardLogHandler.java | 13 ++++++++-----
+ .../bukkit/craftbukkit/util/ForwardLogHandler.java  | 13 ++++++++-----
  1 file changed, 8 insertions(+), 5 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/ForwardLogHandler.java b/src/main/java/org/bukkit/craftbukkit/util/ForwardLogHandler.java
-index 74ce4b2..fc63e6f 100644
+index 74ce4b2e..fc63e6f9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/ForwardLogHandler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/ForwardLogHandler.java
 @@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
@@ -45,5 +45,5 @@ index 74ce4b2..fc63e6f 100644
      }
  
 -- 
-2.6.4
+2.18.0.windows.1
 

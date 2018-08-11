@@ -1,16 +1,16 @@
-From 33f38b6a990cd5d0eccdc60325828491df27305f Mon Sep 17 00:00:00 2001
+From 77d18cc723ba1fae0c8d22b6023b69a8b588fbed Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 13:32:04 -0500
 Subject: [PATCH] Delete BukkitMirrorTest
 
 ---
- src/test/java/org/bukkit/BukkitMirrorTest.java | 75 --------------------------
+ .../java/org/bukkit/BukkitMirrorTest.java     | 75 -------------------
  1 file changed, 75 deletions(-)
  delete mode 100644 src/test/java/org/bukkit/BukkitMirrorTest.java
 
 diff --git a/src/test/java/org/bukkit/BukkitMirrorTest.java b/src/test/java/org/bukkit/BukkitMirrorTest.java
 deleted file mode 100644
-index 219788f..0000000
+index 219788fb..00000000
 --- a/src/test/java/org/bukkit/BukkitMirrorTest.java
 +++ /dev/null
 @@ -1,75 +0,0 @@
@@ -90,5 +90,5 @@ index 219788f..0000000
 -    }
 -}
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,21 +1,22 @@
-From e31d06786f2bf98f42917b467ee049ec62cfb0fd Mon Sep 17 00:00:00 2001
+From 42c427b4211b1467e572afb0fc1ddc24f4e936d2 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 14:44:16 -0500
 Subject: [PATCH] Call onDisable before disabling the plugin
 
 ---
- .../java/org/bukkit/plugin/SimplePluginManager.java  | 12 ++++++++++++
- src/main/java/org/bukkit/plugin/java/JavaPlugin.java | 20 ++++++++++++++------
- 2 files changed, 26 insertions(+), 6 deletions(-)
+ .../bukkit/plugin/SimplePluginManager.java    | 13 ++++++++++++
+ .../org/bukkit/plugin/java/JavaPlugin.java    | 20 +++++++++++++------
+ 2 files changed, 27 insertions(+), 6 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index 66b3e9e..891bac1 100644
+index 66b3e9e7..dab6ae61 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-@@ -398,6 +398,18 @@ public final class SimplePluginManager implements PluginManager {
+@@ -398,6 +398,19 @@ public final class SimplePluginManager implements PluginManager {
  
      public void enablePlugin(final Plugin plugin) {
          if (!plugin.isEnabled()) {
++            /* Disable this because ViaVersion plugins don't work good with them.
 +            boolean dependenciesEnabled = true;
 +            for(String dependency : plugin.getDescription().getDepend()) {
 +                if(!this.isPluginEnabled(dependency)) {
@@ -26,13 +27,13 @@ index 66b3e9e..891bac1 100644
 +                    );
 +                }
 +            }
-+            if(!dependenciesEnabled) return;
++            if(!dependenciesEnabled) return;*/
 +
              List<Command> pluginCommands = PluginCommandYamlParser.parse(plugin);
  
              if (!pluginCommands.isEmpty()) {
 diff --git a/src/main/java/org/bukkit/plugin/java/JavaPlugin.java b/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
-index c961b18..ac4f62e 100644
+index c961b18c..ac4f62e9 100644
 --- a/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
 +++ b/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
 @@ -315,12 +315,20 @@ public abstract class JavaPlugin extends PluginBase {
@@ -63,5 +64,5 @@ index c961b18..ac4f62e 100644
          }
      }
 -- 
-2.6.4
+2.18.0.windows.1
 

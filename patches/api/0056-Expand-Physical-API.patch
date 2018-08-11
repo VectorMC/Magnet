@@ -1,17 +1,17 @@
-From 5dcda88db54f6b0db711ab8f34367a6cb86c17b2 Mon Sep 17 00:00:00 2001
+From 8d68f2da8123d99f42f88baf5682ac60d3023bf3 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:34:31 -0500
 Subject: [PATCH] Expand Physical API
 
 ---
- src/main/java/org/bukkit/Location.java         | 22 +++++++++++++++--
- src/main/java/org/bukkit/Physical.java         | 34 ++++++++++++++++++++++++--
- src/main/java/org/bukkit/World.java            |  5 ++++
- src/main/java/org/bukkit/block/BlockState.java |  2 +-
+ src/main/java/org/bukkit/Location.java        | 22 ++++++++++--
+ src/main/java/org/bukkit/Physical.java        | 34 +++++++++++++++++--
+ src/main/java/org/bukkit/World.java           |  5 +++
+ .../java/org/bukkit/block/BlockState.java     |  2 +-
  4 files changed, 58 insertions(+), 5 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/Location.java b/src/main/java/org/bukkit/Location.java
-index 6a0b39b..79a003c 100644
+index 6a0b39b1..79a003c2 100644
 --- a/src/main/java/org/bukkit/Location.java
 +++ b/src/main/java/org/bukkit/Location.java
 @@ -3,6 +3,7 @@ package org.bukkit;
@@ -77,7 +77,7 @@ index 6a0b39b..79a003c 100644
       * Gets the chunk at the represented location
       *
 diff --git a/src/main/java/org/bukkit/Physical.java b/src/main/java/org/bukkit/Physical.java
-index b16fd2e..8e9fe95 100644
+index b16fd2e7..8e9fe95f 100644
 --- a/src/main/java/org/bukkit/Physical.java
 +++ b/src/main/java/org/bukkit/Physical.java
 @@ -1,5 +1,8 @@
@@ -129,7 +129,7 @@ index b16fd2e..8e9fe95 100644
  }
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 4a256a9..c9c7b4e 100644
+index 4a256a9a..c9c7b4ea 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
 @@ -506,6 +506,11 @@ public interface World extends PluginMessageRecipient, Metadatable, Physical {
@@ -145,7 +145,7 @@ index 4a256a9..c9c7b4e 100644
       * Gets the default spawn {@link Location} of this world
       *
 diff --git a/src/main/java/org/bukkit/block/BlockState.java b/src/main/java/org/bukkit/block/BlockState.java
-index 94340f7..36ff2ba 100644
+index 94340f78..36ff2baf 100644
 --- a/src/main/java/org/bukkit/block/BlockState.java
 +++ b/src/main/java/org/bukkit/block/BlockState.java
 @@ -62,7 +62,7 @@ public interface BlockState extends Metadatable, Locatable {
@@ -158,5 +158,5 @@ index 94340f7..36ff2ba 100644
       * Gets the x-coordinate of this block
       *
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,14 +1,14 @@
-From 9dc1a1c6a7b2a5025d951e1d12c9d6d4ccbf37be Mon Sep 17 00:00:00 2001
+From 93bd0f39cd9659bcc409f2d7fc5e502bbad5b8c4 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 16:21:08 -0500
 Subject: [PATCH] Fix incorrect getNoDamageTicks
 
 ---
- src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java | 7 ++-----
+ .../java/org/bukkit/craftbukkit/entity/CraftPlayer.java    | 7 ++-----
  1 file changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 5b86c7c..e24a4e6 100644
+index 5b86c7c9..e24a4e68 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -1315,11 +1315,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
@@ -26,5 +26,5 @@ index 5b86c7c..e24a4e6 100644
  
      @Override
 -- 
-2.6.4
+2.18.0.windows.1
 

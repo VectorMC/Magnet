@@ -1,16 +1,16 @@
-From 27b9972284b529be2dc3beeed5c320e05b0a5d4c Mon Sep 17 00:00:00 2001
+From 7e0ecb12aa180e037d023b69a2396770f5f0e749 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:17:57 -0500
 Subject: [PATCH] Potion effect events
 
 ---
- .../java/net/minecraft/server/EntityLiving.java    | 149 ++++++++++++---------
- .../craftbukkit/potion/CraftPotionUtils.java       |  34 +++++
+ .../net/minecraft/server/EntityLiving.java    | 149 ++++++++++--------
+ .../craftbukkit/potion/CraftPotionUtils.java  |  34 ++++
  2 files changed, 117 insertions(+), 66 deletions(-)
  create mode 100644 src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
 
 diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
-index 089f971..b2ca798 100644
+index 089f971a..b2ca7980 100644
 --- a/src/main/java/net/minecraft/server/EntityLiving.java
 +++ b/src/main/java/net/minecraft/server/EntityLiving.java
 @@ -16,11 +16,16 @@ import com.google.common.base.Function;
@@ -234,7 +234,7 @@ index 089f971..b2ca798 100644
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
 new file mode 100644
-index 0000000..a490693
+index 00000000..a490693b
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionUtils.java
 @@ -0,0 +1,34 @@
@@ -274,5 +274,5 @@ index 0000000..a490693
 +}
 \ No newline at end of file
 -- 
-2.6.4
+2.18.0.windows.1
 

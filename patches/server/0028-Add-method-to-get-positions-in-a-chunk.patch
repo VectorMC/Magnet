@@ -1,14 +1,14 @@
-From 9d26b224f0596f6d52515f3b41a42d865822b4e1 Mon Sep 17 00:00:00 2001
+From 558874104c62a39e8d0167f0fb8953acc993c7f1 Mon Sep 17 00:00:00 2001
 From: kashike <kashike@vq.lc>
 Date: Fri, 5 May 2017 19:50:49 -0700
 Subject: [PATCH] Add method to get positions in a chunk
 
 ---
- .../java/org/bukkit/craftbukkit/CraftChunk.java    | 36 ++++++++++++++++++++++
+ .../org/bukkit/craftbukkit/CraftChunk.java    | 36 +++++++++++++++++++
  1 file changed, 36 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
-index 6ebc283..ddd4d06 100644
+index 6ebc283b..ddd4d06c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
 @@ -110,6 +110,42 @@ public class CraftChunk implements Chunk {
@@ -55,5 +55,5 @@ index 6ebc283..ddd4d06 100644
  
      public Entity[] getEntities() {
 -- 
-2.6.4
+2.18.0.windows.1
 

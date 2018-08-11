@@ -1,15 +1,15 @@
-From bffb5ede30aeb995fd171c4b320dbe1e9e0217f0 Mon Sep 17 00:00:00 2001
+From a01b4d1b1e97afc4d63d6bd97d6ab5249325c31a Mon Sep 17 00:00:00 2001
 From: kashike <kashike@vq.lc>
 Date: Fri, 27 Jan 2017 20:47:55 -0800
 Subject: [PATCH] Add fast block change methods
 
 ---
- .../java/net/minecraft/server/BlockPosition.java   |  6 +++++
- .../java/org/bukkit/craftbukkit/CraftWorld.java    | 29 ++++++++++++++++++++++
+ .../net/minecraft/server/BlockPosition.java   |  6 ++++
+ .../org/bukkit/craftbukkit/CraftWorld.java    | 29 +++++++++++++++++++
  2 files changed, 35 insertions(+)
 
 diff --git a/src/main/java/net/minecraft/server/BlockPosition.java b/src/main/java/net/minecraft/server/BlockPosition.java
-index 0d0e0ab..fb91946 100644
+index 0d0e0abb..fb919462 100644
 --- a/src/main/java/net/minecraft/server/BlockPosition.java
 +++ b/src/main/java/net/minecraft/server/BlockPosition.java
 @@ -279,4 +279,10 @@ public class BlockPosition extends BaseBlockPosition {
@@ -24,7 +24,7 @@ index 0d0e0ab..fb91946 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 7640070..9fa833e 100644
+index 76400709..9fa833e3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -1507,4 +1507,33 @@ public class CraftWorld implements World {
@@ -62,5 +62,5 @@ index 7640070..9fa833e 100644
 +    // Magnet end
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

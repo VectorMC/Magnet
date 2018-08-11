@@ -1,16 +1,16 @@
-From fd38d775f78f7f115ef236f6fb925b4e20341864 Mon Sep 17 00:00:00 2001
+From a6ecfe0fee3fd651d704b1b14ff43b1b7c3fb667 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 21:09:12 -0500
 Subject: [PATCH] Pause entity API
 
 ---
- .../java/net/minecraft/server/EntityLiving.java    | 47 ++++++++++++----------
- .../java/net/minecraft/server/EntityPlayer.java    | 12 ++++++
- .../org/bukkit/craftbukkit/entity/CraftEntity.java | 11 +++++
+ .../net/minecraft/server/EntityLiving.java    | 47 ++++++++++---------
+ .../net/minecraft/server/EntityPlayer.java    | 12 +++++
+ .../craftbukkit/entity/CraftEntity.java       | 11 +++++
  3 files changed, 48 insertions(+), 22 deletions(-)
 
 diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
-index dd891ea..7e32ce3 100644
+index dd891ea5..7e32ce38 100644
 --- a/src/main/java/net/minecraft/server/EntityLiving.java
 +++ b/src/main/java/net/minecraft/server/EntityLiving.java
 @@ -474,30 +474,33 @@ public abstract class EntityLiving extends Entity {
@@ -70,7 +70,7 @@ index dd891ea..7e32ce3 100644
  
              if (this.updateEffects) {
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 6de375f..7393a25 100644
+index 6de375f7..7393a25f 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
 @@ -941,6 +941,18 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
@@ -93,7 +93,7 @@ index 6de375f..7393a25 100644
          this.playerConnection.a(d0, d1, d2, this.yaw, this.pitch);
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index f9262bb..c97cbf0 100644
+index f9262bb4..c97cbf0f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -48,6 +48,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
@@ -120,5 +120,5 @@ index f9262bb..c97cbf0 100644
 +    }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

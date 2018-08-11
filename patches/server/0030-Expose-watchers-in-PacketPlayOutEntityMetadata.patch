@@ -1,14 +1,14 @@
-From b5173cec8cd845bb994c285b210bccd5b13cdfe4 Mon Sep 17 00:00:00 2001
+From 75f03d8216a11193006642896424eeb85161e323 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Fri, 7 Jul 2017 19:48:46 -0500
 Subject: [PATCH] Expose watchers in PacketPlayOutEntityMetadata
 
 ---
- .../java/net/minecraft/server/PacketPlayOutEntityMetadata.java    | 8 ++------
+ .../net/minecraft/server/PacketPlayOutEntityMetadata.java | 8 ++------
  1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java b/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java
-index c5be70f..043ce66 100644
+index c5be70f8..043ce662 100644
 --- a/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java
 +++ b/src/main/java/net/minecraft/server/PacketPlayOutEntityMetadata.java
 @@ -5,8 +5,8 @@ import java.util.List;
@@ -32,5 +32,5 @@ index c5be70f..043ce66 100644
 -    }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

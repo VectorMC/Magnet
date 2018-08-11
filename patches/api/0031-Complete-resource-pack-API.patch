@@ -1,4 +1,4 @@
-From 51df9f2152385a3c5467251281abb1dacc689e03 Mon Sep 17 00:00:00 2001
+From 0f6e32fbe3b0a121cf75625f1d96d99f6df83795 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 14:00:40 -0500
 Subject: [PATCH] Complete resource pack API
@@ -8,7 +8,7 @@ Subject: [PATCH] Complete resource pack API
  1 file changed, 18 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index 937bd65..149b779 100644
+index 937bd656..149b7791 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
 @@ -16,6 +16,7 @@ import org.bukkit.Statistic;
@@ -19,7 +19,7 @@ index 937bd65..149b779 100644
  import org.bukkit.map.MapView;
  import org.bukkit.plugin.messaging.PluginMessageRecipient;
  import org.bukkit.scoreboard.Scoreboard;
-@@ -1102,13 +1103,30 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+@@ -1102,12 +1103,29 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
       * @param url The URL from which the client will download the resource
       *     pack. The string must contain only US-ASCII characters and should
       *     be encoded as per RFC 1738.
@@ -34,7 +34,7 @@ index 937bd65..149b779 100644
 +    @Deprecated
      public void setResourcePack(String url);
  
-     /**
++    /**
 +     * @return the most recent resource pack status received from the player,
 +     *         or null if no status has ever been received from this player.
 +     */
@@ -46,10 +46,9 @@ index 937bd65..149b779 100644
 +     */
 +    public boolean hasResourcePack();
 +
-+    /**
+     /**
       * Gets the Scoreboard displayed to this player
       *
-      * @return The current scoreboard seen by this player
 -- 
-2.6.4
+2.18.0.windows.1
 

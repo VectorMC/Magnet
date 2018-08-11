@@ -1,15 +1,15 @@
-From 7ce66f055a4aa10bb9bcc245acd52fcce86a9ac8 Mon Sep 17 00:00:00 2001
+From 5ae1766a64820ed639fe6b0a721c120b5a84252b Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 13:37:16 -0500
 Subject: [PATCH] Log unhandled plugin exceptions as errors
 
 ---
- src/main/java/org/bukkit/craftbukkit/CraftServer.java                   | 2 +-
- .../java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java    | 2 +-
+ src/main/java/org/bukkit/craftbukkit/CraftServer.java           | 2 +-
+ .../org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index c13d21a..e5b0a04 100644
+index c13d21a0..e5b0a043 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -651,7 +651,7 @@ public final class CraftServer implements Server {
@@ -22,7 +22,7 @@ index c13d21a..e5b0a04 100644
          } finally {
              this.playerCommandState = false;
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java b/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java
-index 7ef5772..1dbcc09 100644
+index 7ef57727..1dbcc092 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/ConsoleCommandCompleter.java
 @@ -38,7 +38,7 @@ public class ConsoleCommandCompleter implements Completer {
@@ -35,5 +35,5 @@ index 7ef5772..1dbcc09 100644
              Thread.currentThread().interrupt();
          }
 -- 
-2.6.4
+2.18.0.windows.1
 

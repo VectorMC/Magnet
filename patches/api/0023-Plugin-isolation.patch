@@ -1,54 +1,54 @@
-From 60b275b6fedb46eebd994b8d319df1880135dfc8 Mon Sep 17 00:00:00 2001
+From 76eaff05b449354006b46270b15bbf93f7fdae59 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sat, 14 Oct 2017 22:35:10 -0500
 Subject: [PATCH] Plugin isolation
 
 ---
- src/main/java/org/bukkit/Bukkit.java               |   7 +
- src/main/java/org/bukkit/Server.java               |   5 +
- .../serialization/ConfigurationSerialization.java  |  68 ++++++++-
- .../org/bukkit/plugin/PluginDescriptionFile.java   |  15 +-
- .../org/bukkit/plugin/SimplePluginManager.java     |   7 +
- .../org/bukkit/plugin/java/JavaPluginLoader.java   | 127 ++++++++--------
- .../org/bukkit/plugin/java/PluginClassLoader.java  | 167 ++++++++++++++++-----
+ src/main/java/org/bukkit/Bukkit.java          |   7 +
+ src/main/java/org/bukkit/Server.java          |   5 +
+ .../ConfigurationSerialization.java           |  68 ++++++-
+ .../bukkit/plugin/PluginDescriptionFile.java  |  15 +-
+ .../bukkit/plugin/SimplePluginManager.java    |   7 +
+ .../bukkit/plugin/java/JavaPluginLoader.java  | 127 +++++++------
+ .../bukkit/plugin/java/PluginClassLoader.java | 167 ++++++++++++++----
  7 files changed, 283 insertions(+), 113 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index dbf73c9..c5a28f5 100644
+index dbf73c94..c5a28f52 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -344,6 +344,13 @@ public final class Bukkit {
+@@ -343,6 +343,13 @@ public final class Bukkit {
+         return server.getConnectionThrottle();
      }
  
-     /**
++    /**
 +     * Should plugins be able to access classes from other plugins that are not explicit dependencies?
 +     */
 +    public static boolean getIsolatePlugins() {
 +        return server.getIsolatePlugins();
 +    }
 +
-+    /**
+     /**
       * Gets default ticks per animal spawns value.
       * <p>
-      * <b>Example Usage:</b>
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index a9a8110..7fd53cd 100644
+index a9a81108..7fd53cdf 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -280,6 +280,11 @@ public interface Server extends PluginMessageRecipient {
+@@ -279,6 +279,11 @@ public interface Server extends PluginMessageRecipient {
+      */
      public long getConnectionThrottle();
  
-     /**
++    /**
 +     * Should plugins be able to access classes from other plugins that are not explicit dependencies?
 +     */
 +    public boolean getIsolatePlugins();
 +
-+    /**
+     /**
       * Gets default ticks per animal spawns value.
       * <p>
-      * <b>Example Usage:</b>
 diff --git a/src/main/java/org/bukkit/configuration/serialization/ConfigurationSerialization.java b/src/main/java/org/bukkit/configuration/serialization/ConfigurationSerialization.java
-index e5ddef2..1be9f3a 100644
+index e5ddef25..1be9f3ad 100644
 --- a/src/main/java/org/bukkit/configuration/serialization/ConfigurationSerialization.java
 +++ b/src/main/java/org/bukkit/configuration/serialization/ConfigurationSerialization.java
 @@ -1,11 +1,15 @@
@@ -181,7 +181,7 @@ index e5ddef2..1be9f3a 100644
  
      /**
 diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
-index c82928e..5625360 100644
+index c82928ef..5625360a 100644
 --- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
 +++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
 @@ -227,6 +227,7 @@ public final class PluginDescriptionFile {
@@ -235,7 +235,7 @@ index c82928e..5625360 100644
  
      private static List<String> makePluginNameList(final Map<?, ?> map, final String key) throws InvalidDescriptionException {
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index ce9839e..66b3e9e 100644
+index ce9839ec..66b3e9e7 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 @@ -23,6 +23,7 @@ import org.bukkit.Server;
@@ -260,7 +260,7 @@ index ce9839e..66b3e9e 100644
      }
  
 diff --git a/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java b/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java
-index 6481213..5cfeb03 100644
+index 64812133..5cfeb03d 100644
 --- a/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java
 @@ -1,5 +1,8 @@
@@ -455,7 +455,7 @@ index 6481213..5cfeb03 100644
              }
          }
 diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-index b2cbf9e..917f324 100644
+index b2cbf9e4..917f3241 100644
 --- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 @@ -1,13 +1,19 @@
@@ -699,5 +699,5 @@ index b2cbf9e..917f324 100644
      }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

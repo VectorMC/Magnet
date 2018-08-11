@@ -1,16 +1,16 @@
-From 2000e69088df5d069cc8bf606e6e0626fabfb61d Mon Sep 17 00:00:00 2001
+From 86a08d2068f4c66be521db57ddbe4a1260b7f5ac Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:20:45 -0500
 Subject: [PATCH] Physical interface
 
 ---
- src/main/java/org/bukkit/craftbukkit/CraftWorld.java                | 5 +++++
- src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java  | 6 ++++++
- .../bukkit/craftbukkit/projectiles/CraftBlockProjectileSource.java  | 6 ++++++
+ src/main/java/org/bukkit/craftbukkit/CraftWorld.java        | 5 +++++
+ .../org/bukkit/craftbukkit/inventory/CraftInventory.java    | 6 ++++++
+ .../craftbukkit/projectiles/CraftBlockProjectileSource.java | 6 ++++++
  3 files changed, 17 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 21c0c27..2bdbd18 100644
+index 21c0c27b..2bdbd187 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -88,6 +88,11 @@ public class CraftWorld implements World {
@@ -26,7 +26,7 @@ index 21c0c27..2bdbd18 100644
          return getChunkAt(x >> 4, z >> 4).getBlock(x & 0xF, y, z & 0xF);
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java
-index e9a3c50..694da65 100644
+index e9a3c501..694da655 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftInventory.java
 @@ -17,6 +17,7 @@ import net.minecraft.server.TileEntityDropper;
@@ -50,7 +50,7 @@ index e9a3c50..694da65 100644
          return inventory.getMaxStackSize();
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/projectiles/CraftBlockProjectileSource.java b/src/main/java/org/bukkit/craftbukkit/projectiles/CraftBlockProjectileSource.java
-index b8bf754..70a1023 100644
+index b8bf7541..70a1023f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/projectiles/CraftBlockProjectileSource.java
 +++ b/src/main/java/org/bukkit/craftbukkit/projectiles/CraftBlockProjectileSource.java
 @@ -4,6 +4,7 @@ import java.util.Random;
@@ -61,18 +61,18 @@ index b8bf754..70a1023 100644
  import org.bukkit.block.Block;
  import org.bukkit.craftbukkit.inventory.CraftItemStack;
  import org.bukkit.entity.Arrow;
-@@ -52,6 +53,11 @@ public class CraftBlockProjectileSource implements BlockProjectileSource {
+@@ -51,6 +52,11 @@ public class CraftBlockProjectileSource implements BlockProjectileSource {
+         return dispenserBlock.getWorld().getWorld().getBlockAt(dispenserBlock.getPosition().getX(), dispenserBlock.getPosition().getY(), dispenserBlock.getPosition().getZ());
      }
  
-     @Override
++    @Override
 +    public World getWorld() {
 +        return getBlock().getWorld();
 +    }
 +
-+    @Override
+     @Override
      public <T extends Projectile> T launchProjectile(Class<? extends T> projectile) {
          return launchProjectile(projectile, null);
-     }
 -- 
-2.6.4
+2.18.0.windows.1
 

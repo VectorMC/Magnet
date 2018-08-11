@@ -1,19 +1,19 @@
-From a5a8e39c8a4b3b46be653050049439c0c8bcfdcf Mon Sep 17 00:00:00 2001
+From ed57c79ae97fd42d4e31e769e13c54f8b009e93a Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 22:08:15 -0500
 Subject: [PATCH] Don't tick empty worlds
 
 ---
- .../net/minecraft/server/ChunkProviderServer.java  | 12 +++++++
- .../java/net/minecraft/server/MinecraftServer.java |  3 +-
- src/main/java/net/minecraft/server/PlayerList.java |  2 +-
- src/main/java/org/bukkit/CraftBukkitRuntime.java   |  4 +++
- .../java/org/bukkit/craftbukkit/CraftServer.java   | 11 ++++++
- .../java/org/bukkit/craftbukkit/CraftWorld.java    | 39 ++++++++++++++++++++++
+ .../minecraft/server/ChunkProviderServer.java | 12 ++++++
+ .../net/minecraft/server/MinecraftServer.java |  3 +-
+ .../java/net/minecraft/server/PlayerList.java |  2 +-
+ .../java/org/bukkit/CraftBukkitRuntime.java   |  4 ++
+ .../org/bukkit/craftbukkit/CraftServer.java   | 11 ++++++
+ .../org/bukkit/craftbukkit/CraftWorld.java    | 39 +++++++++++++++++++
  6 files changed, 69 insertions(+), 2 deletions(-)
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index c4dab42..b79846e 100644
+index c4dab42b..b79846e8 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -414,6 +414,18 @@ public class ChunkProviderServer implements IChunkProvider {
@@ -36,7 +36,7 @@ index c4dab42..b79846e 100644
          return !this.world.savingDisabled;
      }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index f8843c7..9ae45ac 100644
+index f8843c72..9ae45ac1 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -512,7 +512,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
@@ -57,7 +57,7 @@ index f8843c7..9ae45ac 100644
                  this.methodProfiler.a(worldserver.getWorldData().getName());
                  /* Drop global time updates
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index f276dfc..018711f 100644
+index f276dfc4..018711f4 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
 @@ -52,7 +52,7 @@ public abstract class PlayerList {
@@ -70,7 +70,7 @@ index f276dfc..018711f 100644
      private final IpBanList l;
      private final OpList operators;
 diff --git a/src/main/java/org/bukkit/CraftBukkitRuntime.java b/src/main/java/org/bukkit/CraftBukkitRuntime.java
-index 7728f57..1e6eb70 100644
+index 7728f57e..1e6eb701 100644
 --- a/src/main/java/org/bukkit/CraftBukkitRuntime.java
 +++ b/src/main/java/org/bukkit/CraftBukkitRuntime.java
 @@ -1,5 +1,7 @@
@@ -91,7 +91,7 @@ index 7728f57..1e6eb70 100644
      DispenserRegistry.c();
    }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 5554922..df602fd 100644
+index 55549222..df602fdb 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -72,6 +72,7 @@ import org.bukkit.craftbukkit.metadata.WorldMetadataStore;
@@ -102,10 +102,11 @@ index 5554922..df602fd 100644
  import org.bukkit.craftbukkit.util.CraftIconCache;
  import org.bukkit.craftbukkit.util.CraftMagicNumbers;
  import org.bukkit.craftbukkit.util.DatFileFilter;
-@@ -570,6 +571,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+@@ -569,6 +570,16 @@ public final class CraftServer extends CraftBukkitRuntime implements Server {
+         return this.getConfigBoolean("generate-structures", true);
      }
  
-     @Override
++    @Override
 +    public boolean getKeepSpawnInMemory() {
 +        return this.configuration.getBoolean("settings.keep-spawn-loaded", true);
 +    }
@@ -115,12 +116,11 @@ index 5554922..df602fd 100644
 +        return this.configuration.getBoolean("settings.tick-empty-worlds", true);
 +    }
 +
-+    @Override
+     @Override
      public boolean getAllowEnd() {
          return this.configuration.getBoolean("settings.allow-end");
-     }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 2bdbd18..daf6d19 100644
+index 2bdbd187..daf6d198 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -86,6 +86,40 @@ public class CraftWorld implements World {
@@ -177,5 +177,5 @@ index 2bdbd18..daf6d19 100644
          unloadChunk(x, z, false, false);
  
 -- 
-2.6.4
+2.18.0.windows.1
 

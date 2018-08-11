@@ -1,18 +1,18 @@
-From 153d9dec7f0845dded661efe57e0e12898795ecb Mon Sep 17 00:00:00 2001
+From ff11922fdeccc1dcdb83d6bc8ade1bab1a8d0af0 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 14:09:42 -0500
 Subject: [PATCH] Accurate block hit checking
 
 ---
- src/main/java/org/bukkit/World.java                | 21 ++++++++++++
- src/main/java/org/bukkit/block/Block.java          | 18 ++++++++++
- src/main/java/org/bukkit/entity/Player.java        | 26 ++++++++++++++
- .../java/org/bukkit/util/RayBlockIntersection.java | 40 ++++++++++++++++++++++
+ src/main/java/org/bukkit/World.java           | 21 ++++++++++
+ src/main/java/org/bukkit/block/Block.java     | 18 +++++++++
+ src/main/java/org/bukkit/entity/Player.java   | 26 ++++++++++++
+ .../org/bukkit/util/RayBlockIntersection.java | 40 +++++++++++++++++++
  4 files changed, 105 insertions(+)
  create mode 100644 src/main/java/org/bukkit/util/RayBlockIntersection.java
 
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index dfd99a1..10b3b25 100644
+index dfd99a16..10b3b256 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
 @@ -15,6 +15,7 @@ import org.bukkit.generator.BlockPopulator;
@@ -23,10 +23,11 @@ index dfd99a1..10b3b25 100644
  import org.bukkit.util.Vector;
  
  /**
-@@ -105,6 +106,26 @@ public interface World extends PluginMessageRecipient, Metadatable {
+@@ -104,6 +105,26 @@ public interface World extends PluginMessageRecipient, Metadatable {
+      */
      public Block getHighestBlockAt(Location location);
  
-     /**
++    /**
 +     * Find the first block intersecting the given ray
 +     * @param start             Origin AND direction of the ray
 +     * @param distance          Length of the ray (so it's not strictly a ray, but whatever)
@@ -46,12 +47,11 @@ index dfd99a1..10b3b25 100644
 +     */
 +    RayBlockIntersection rayTraceBlock(Vector start, Vector end, boolean nonSolids, boolean liquids);
 +
-+    /**
+     /**
       * Gets the {@link Chunk} at the given coordinates
       *
-      * @param x X-coordinate of the chunk
 diff --git a/src/main/java/org/bukkit/block/Block.java b/src/main/java/org/bukkit/block/Block.java
-index 235c15b..6f94ce5 100644
+index 235c15bd..6f94ce51 100644
 --- a/src/main/java/org/bukkit/block/Block.java
 +++ b/src/main/java/org/bukkit/block/Block.java
 @@ -8,6 +8,8 @@ import org.bukkit.World;
@@ -85,7 +85,7 @@ index 235c15b..6f94ce5 100644
 +
  }
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index c5f2f3b..8087f7d 100644
+index c5f2f3be..8087f7d3 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
 @@ -21,6 +21,7 @@ import org.bukkit.map.MapView;
@@ -96,10 +96,11 @@ index c5f2f3b..8087f7d 100644
  import org.github.paperspigot.Title;
  // PaperSpigot end
  
-@@ -1001,6 +1002,31 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+@@ -1000,6 +1001,31 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+      */
      public org.bukkit.block.Block getDiggingBlock();
  
-     /**
++    /**
 +     * @return The distance from which the player can target blocks in their current gamemode
 +     */
 +    double getBlockReach();
@@ -124,13 +125,12 @@ index c5f2f3b..8087f7d 100644
 +     */
 +    RayBlockIntersection getTargetedBlock(boolean nonSolids, boolean liquids);
 +
-+    /**
+     /**
       * Checks to see if this player is currently standing on a block. This
       * information may not be reliable, as it is a state provided by the
-      * client, and may therefore not be accurate.
 diff --git a/src/main/java/org/bukkit/util/RayBlockIntersection.java b/src/main/java/org/bukkit/util/RayBlockIntersection.java
 new file mode 100644
-index 0000000..927c2fe
+index 00000000..927c2fe3
 --- /dev/null
 +++ b/src/main/java/org/bukkit/util/RayBlockIntersection.java
 @@ -0,0 +1,40 @@
@@ -176,5 +176,5 @@ index 0000000..927c2fe
 +}
 \ No newline at end of file
 -- 
-2.6.4
+2.18.0.windows.1
 

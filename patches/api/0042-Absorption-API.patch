@@ -1,4 +1,4 @@
-From d0d5a1ee22175632d2c7377d99eca77b951f35b5 Mon Sep 17 00:00:00 2001
+From f62577e2440ccf59bffcc87b530044a2e6d688f5 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 16:18:33 -0500
 Subject: [PATCH] Absorption API
@@ -8,13 +8,14 @@ Subject: [PATCH] Absorption API
  1 file changed, 10 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
-index 10e5146..333ee01 100644
+index 10e51467..333ee019 100644
 --- a/src/main/java/org/bukkit/entity/LivingEntity.java
 +++ b/src/main/java/org/bukkit/entity/LivingEntity.java
-@@ -253,6 +253,16 @@ public interface LivingEntity extends Entity, Damageable, ProjectileSource {
+@@ -252,6 +252,16 @@ public interface LivingEntity extends Entity, Damageable, ProjectileSource {
+      */
      public void setNoDamageTicks(int ticks);
  
-     /**
++    /**
 +     * Get the amount of absorption this entity currently has, in half-hearts.
 +     */
 +    float getAbsorption();
@@ -24,10 +25,9 @@ index 10e5146..333ee01 100644
 +     */
 +    void setAbsorption(float absorption);
 +
-+    /**
+     /**
       * Gets the player identified as the killer of the living entity.
       * <p>
-      * May be null.
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,15 +1,15 @@
-From 7a9174b6754c6811001197d01541551d0719a1d8 Mon Sep 17 00:00:00 2001
+From 3716b57f1e4f32d7c469aec7719aa212138cc3e3 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 14:14:45 -0500
 Subject: [PATCH] Improve Permissible interface
 
 ---
- .../java/org/bukkit/permissions/Permissible.java   |  67 ++++++++++++
- .../org/bukkit/permissions/PermissibleBase.java    | 115 ++++++++++++++++++++-
+ .../org/bukkit/permissions/Permissible.java   |  67 ++++++++++
+ .../bukkit/permissions/PermissibleBase.java   | 115 +++++++++++++++++-
  2 files changed, 177 insertions(+), 5 deletions(-)
 
 diff --git a/src/main/java/org/bukkit/permissions/Permissible.java b/src/main/java/org/bukkit/permissions/Permissible.java
-index 5cd3cff..a7c0ef5 100644
+index 5cd3cff0..a7c0ef58 100644
 --- a/src/main/java/org/bukkit/permissions/Permissible.java
 +++ b/src/main/java/org/bukkit/permissions/Permissible.java
 @@ -1,5 +1,6 @@
@@ -19,10 +19,11 @@ index 5cd3cff..a7c0ef5 100644
  import java.util.Set;
  import org.bukkit.plugin.Plugin;
  
-@@ -105,6 +106,38 @@ public interface Permissible extends ServerOperator {
+@@ -104,6 +105,38 @@ public interface Permissible extends ServerOperator {
+      */
      public void removeAttachment(PermissionAttachment attachment);
  
-     /**
++    /**
 +     * Remove from this object all of the {@link PermissionAttachment}s belonging to the given {@link Plugin}.
 +     * @return true if anything was removed, false if nothing changed
 +     */
@@ -54,10 +55,9 @@ index 5cd3cff..a7c0ef5 100644
 +     */
 +    boolean removeAttachments(Plugin plugin, Permission permission);
 +
-+    /**
+     /**
       * Recalculates the permissions for this object, if the attachments have
       * changed values.
-      * <p>
 @@ -119,4 +152,38 @@ public interface Permissible extends ServerOperator {
       * @return Set of currently effective permissions
       */
@@ -98,7 +98,7 @@ index 5cd3cff..a7c0ef5 100644
 +    Collection<PermissionAttachmentInfo> getAttachments(Plugin plugin, Permission permission);
  }
 diff --git a/src/main/java/org/bukkit/permissions/PermissibleBase.java b/src/main/java/org/bukkit/permissions/PermissibleBase.java
-index 3b95061..98ad60d 100644
+index 3b95061a..98ad60d8 100644
 --- a/src/main/java/org/bukkit/permissions/PermissibleBase.java
 +++ b/src/main/java/org/bukkit/permissions/PermissibleBase.java
 @@ -1,7 +1,13 @@
@@ -262,5 +262,5 @@ index 3b95061..98ad60d 100644
          private PermissionAttachment attachment;
  
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,4 +1,4 @@
-From 5c49d1aa58ec54f7990478a6349d1a8caa510cfa Mon Sep 17 00:00:00 2001
+From f090af76a4a00a4702a682b0af2358c5af1090ff Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 13:47:33 -0500
 Subject: [PATCH] Add API to disable potion particles
@@ -8,23 +8,23 @@ Subject: [PATCH] Add API to disable potion particles
  1 file changed, 7 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
-index 48e2508..10e5146 100644
+index 48e25089..10e51467 100644
 --- a/src/main/java/org/bukkit/entity/LivingEntity.java
 +++ b/src/main/java/org/bukkit/entity/LivingEntity.java
-@@ -318,6 +318,13 @@ public interface LivingEntity extends Entity, Damageable, ProjectileSource {
+@@ -317,6 +317,13 @@ public interface LivingEntity extends Entity, Damageable, ProjectileSource {
+      */
      public Collection<PotionEffect> getActivePotionEffects();
  
-     /**
++    /**
 +     * Enables or disables potion particles visible around this entity when under
 +     * the effect of a potion. If this entity is a player, this also affects the
 +     * particles they see in front of them.
 +     */
 +    public void setPotionParticles(boolean enabled);
 +
-+    /**
+     /**
       * Checks whether the living entity has block line of sight to another.
       * <p>
-      * This uses the same algorithm that hostile mobs use to find the closest
 -- 
-2.6.4
+2.18.0.windows.1
 

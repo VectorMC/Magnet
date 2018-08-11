@@ -1,14 +1,14 @@
-From f9965a275036b2f6a6c2d8ab4f3a9639f436d0f3 Mon Sep 17 00:00:00 2001
+From 767a9561b4e433066e135f98162bd9b699dfb3b9 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:39:57 -0500
 Subject: [PATCH] Fix hotbar text formatting
 
 ---
- src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java | 11 ++++++++++-
+ .../org/bukkit/craftbukkit/entity/CraftPlayer.java    | 11 ++++++++++-
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index b2f350d..5b86c7c 100644
+index b2f350d9..5b86c7c9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -20,8 +20,10 @@ import java.util.Set;
@@ -46,5 +46,5 @@ index b2f350d..5b86c7c 100644
      }
  
 -- 
-2.6.4
+2.18.0.windows.1
 

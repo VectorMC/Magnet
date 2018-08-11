@@ -1,4 +1,4 @@
-From 0628c9f2cc1417ef5cb038c975921c793fba67f4 Mon Sep 17 00:00:00 2001
+From 40b3e8defba557d73da0d2aaabdd3be286eefd8f Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 13:51:15 -0500
 Subject: [PATCH] Add setting to disable skull fetching
@@ -9,39 +9,39 @@ Subject: [PATCH] Add setting to disable skull fetching
  2 files changed, 12 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index 2fa67bc..790658c 100644
+index 2fa67bc8..790658cf 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -351,6 +351,13 @@ public final class Bukkit {
+@@ -350,6 +350,13 @@ public final class Bukkit {
+         return server.getIsolatePlugins();
      }
  
-     /**
++    /**
 +     * @see Server#getFetchSkulls()
 +     */
 +    public static boolean getFetchSkulls() {
 +        return server.getFetchSkulls();
 +    }
 +
-+    /**
+     /**
       * Gets default ticks per animal spawns value.
       * <p>
-      * <b>Example Usage:</b>
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 9276f99..555883e 100644
+index 9276f99b..555883e0 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -285,6 +285,11 @@ public interface Server extends PluginMessageRecipient {
+@@ -284,6 +284,11 @@ public interface Server extends PluginMessageRecipient {
+      */
      public boolean getIsolatePlugins();
  
-     /**
++    /**
 +     * Should player skulls with missing skin data be fetched from Mojang?
 +     */
 +    public boolean getFetchSkulls();
 +
-+    /**
+     /**
       * Gets default ticks per animal spawns value.
       * <p>
-      * <b>Example Usage:</b>
 -- 
-2.6.4
+2.18.0.windows.1
 

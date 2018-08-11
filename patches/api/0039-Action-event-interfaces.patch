@@ -1,75 +1,75 @@
-From c09f51dac525ad6ceba12a22bc602f5972c4cf6c Mon Sep 17 00:00:00 2001
+From 6dbf09884fdde79e227c1a7097530e093e658066 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 15:48:28 -0500
 Subject: [PATCH] Action event interfaces
 
 ---
- src/main/java/org/bukkit/event/EntityAction.java   | 28 ++++++++++++++++++++++
- src/main/java/org/bukkit/event/PlayerAction.java   | 14 +++++++++++
- .../org/bukkit/event/block/BlockBreakEvent.java    |  8 ++++++-
- .../org/bukkit/event/block/BlockDamageEvent.java   |  8 ++++++-
- .../org/bukkit/event/block/BlockIgniteEvent.java   |  8 ++++++-
- .../org/bukkit/event/block/BlockPlaceEvent.java    |  8 ++++++-
- .../org/bukkit/event/block/BlockUndamageEvent.java |  8 ++++++-
- .../bukkit/event/block/EntityBlockFormEvent.java   |  8 ++++++-
- .../org/bukkit/event/block/SignChangeEvent.java    |  8 ++++++-
- .../org/bukkit/event/entity/CreeperPowerEvent.java |  8 ++++++-
- .../org/bukkit/event/entity/EntityActionBase.java  | 16 +++++++++++++
- .../event/entity/EntityChangeBlockEvent.java       |  2 +-
- .../event/entity/EntityCombustByEntityEvent.java   |  8 ++++++-
- .../event/entity/EntityCreatePortalEvent.java      |  2 +-
- .../event/entity/EntityDamageByEntityEvent.java    |  8 ++++++-
- .../bukkit/event/entity/EntityExplodeEvent.java    |  2 +-
- .../bukkit/event/entity/EntityInteractEvent.java   |  2 +-
- .../event/entity/EntityPortalEnterEvent.java       |  2 +-
- .../bukkit/event/entity/EntityShootBowEvent.java   |  7 +++++-
- .../org/bukkit/event/entity/EntityTameEvent.java   |  9 ++++++-
- .../org/bukkit/event/entity/EntityTargetEvent.java |  2 +-
- .../bukkit/event/entity/EntityTeleportEvent.java   |  2 +-
- .../event/entity/ExplosionPrimeByEntityEvent.java  |  8 ++++++-
- .../org/bukkit/event/entity/HorseJumpEvent.java    |  7 +++++-
- .../java/org/bukkit/event/entity/PigZapEvent.java  |  8 ++++++-
- .../event/entity/PlayerLeashEntityEvent.java       |  8 ++++++-
- .../bukkit/event/entity/ProjectileHitEvent.java    |  7 +++++-
- .../bukkit/event/entity/ProjectileLaunchEvent.java | 10 +++++++-
- .../event/hanging/HangingBreakByEntityEvent.java   |  8 ++++++-
- .../bukkit/event/hanging/HangingPlaceEvent.java    |  8 ++++++-
- .../event/inventory/FurnaceExtractEvent.java       |  8 ++++++-
- .../org/bukkit/event/inventory/InventoryEvent.java | 12 +++++++++-
- .../event/inventory/InventoryMoveItemEvent.java    | 11 ++++++++-
- .../event/inventory/InventoryPickupItemEvent.java  | 11 ++++++++-
- .../org/bukkit/event/player/PlayerActionBase.java  | 20 ++++++++++++++++
- .../bukkit/event/player/PlayerAnimationEvent.java  |  2 +-
- .../bukkit/event/player/PlayerBedEnterEvent.java   |  2 +-
- .../bukkit/event/player/PlayerBedLeaveEvent.java   |  2 +-
- .../org/bukkit/event/player/PlayerBucketEvent.java |  2 +-
- .../bukkit/event/player/PlayerDropItemEvent.java   |  2 +-
- .../bukkit/event/player/PlayerEditBookEvent.java   |  2 +-
- .../bukkit/event/player/PlayerEggThrowEvent.java   |  2 +-
- .../org/bukkit/event/player/PlayerFishEvent.java   |  2 +-
- .../event/player/PlayerInteractEntityEvent.java    |  2 +-
- .../bukkit/event/player/PlayerInteractEvent.java   |  2 +-
- .../bukkit/event/player/PlayerItemBreakEvent.java  |  2 +-
- .../event/player/PlayerItemConsumeEvent.java       |  2 +-
- .../bukkit/event/player/PlayerItemHeldEvent.java   |  2 +-
- .../org/bukkit/event/player/PlayerMoveEvent.java   |  2 +-
- .../bukkit/event/player/PlayerOnGroundEvent.java   |  2 +-
- .../bukkit/event/player/PlayerPickupItemEvent.java |  2 +-
- .../event/player/PlayerShearEntityEvent.java       |  2 +-
- .../event/player/PlayerSpawnEntityEvent.java       |  2 +-
- .../event/player/PlayerToggleFlightEvent.java      |  2 +-
- .../event/player/PlayerToggleSneakEvent.java       |  2 +-
- .../event/player/PlayerToggleSprintEvent.java      |  2 +-
- .../event/player/PlayerUnleashEntityEvent.java     |  9 ++++++-
- .../bukkit/event/vehicle/VehicleDamageEvent.java   |  8 ++++++-
- .../bukkit/event/vehicle/VehicleDestroyEvent.java  |  8 ++++++-
- .../bukkit/event/vehicle/VehicleEnterEvent.java    |  8 ++++++-
- .../event/vehicle/VehicleEntityCollisionEvent.java |  9 ++++++-
- .../org/bukkit/event/vehicle/VehicleExitEvent.java |  8 ++++++-
- .../org/bukkit/event/vehicle/VehicleMoveEvent.java |  8 ++++++-
- .../bukkit/event/weather/LightningStrikeEvent.java |  8 ++++++-
- .../org/bukkit/event/world/StructureGrowEvent.java |  8 ++++++-
- .../bukkit/plugin/TimedRegisteredListenerTest.java |  3 ++-
+ .../java/org/bukkit/event/EntityAction.java   | 28 +++++++++++++++++++
+ .../java/org/bukkit/event/PlayerAction.java   | 14 ++++++++++
+ .../bukkit/event/block/BlockBreakEvent.java   |  8 +++++-
+ .../bukkit/event/block/BlockDamageEvent.java  |  8 +++++-
+ .../bukkit/event/block/BlockIgniteEvent.java  |  8 +++++-
+ .../bukkit/event/block/BlockPlaceEvent.java   |  8 +++++-
+ .../event/block/BlockUndamageEvent.java       |  8 +++++-
+ .../event/block/EntityBlockFormEvent.java     |  8 +++++-
+ .../bukkit/event/block/SignChangeEvent.java   |  8 +++++-
+ .../event/entity/CreeperPowerEvent.java       |  8 +++++-
+ .../bukkit/event/entity/EntityActionBase.java | 16 +++++++++++
+ .../event/entity/EntityChangeBlockEvent.java  |  2 +-
+ .../entity/EntityCombustByEntityEvent.java    |  8 +++++-
+ .../event/entity/EntityCreatePortalEvent.java |  2 +-
+ .../entity/EntityDamageByEntityEvent.java     |  8 +++++-
+ .../event/entity/EntityExplodeEvent.java      |  2 +-
+ .../event/entity/EntityInteractEvent.java     |  2 +-
+ .../event/entity/EntityPortalEnterEvent.java  |  2 +-
+ .../event/entity/EntityShootBowEvent.java     |  7 ++++-
+ .../bukkit/event/entity/EntityTameEvent.java  |  9 +++++-
+ .../event/entity/EntityTargetEvent.java       |  2 +-
+ .../event/entity/EntityTeleportEvent.java     |  2 +-
+ .../entity/ExplosionPrimeByEntityEvent.java   |  8 +++++-
+ .../bukkit/event/entity/HorseJumpEvent.java   |  7 ++++-
+ .../org/bukkit/event/entity/PigZapEvent.java  |  8 +++++-
+ .../event/entity/PlayerLeashEntityEvent.java  |  8 +++++-
+ .../event/entity/ProjectileHitEvent.java      |  7 ++++-
+ .../event/entity/ProjectileLaunchEvent.java   | 10 ++++++-
+ .../hanging/HangingBreakByEntityEvent.java    |  8 +++++-
+ .../event/hanging/HangingPlaceEvent.java      |  8 +++++-
+ .../event/inventory/FurnaceExtractEvent.java  |  8 +++++-
+ .../event/inventory/InventoryEvent.java       | 12 +++++++-
+ .../inventory/InventoryMoveItemEvent.java     | 11 +++++++-
+ .../inventory/InventoryPickupItemEvent.java   | 11 +++++++-
+ .../bukkit/event/player/PlayerActionBase.java | 20 +++++++++++++
+ .../event/player/PlayerAnimationEvent.java    |  2 +-
+ .../event/player/PlayerBedEnterEvent.java     |  2 +-
+ .../event/player/PlayerBedLeaveEvent.java     |  2 +-
+ .../event/player/PlayerBucketEvent.java       |  2 +-
+ .../event/player/PlayerDropItemEvent.java     |  2 +-
+ .../event/player/PlayerEditBookEvent.java     |  2 +-
+ .../event/player/PlayerEggThrowEvent.java     |  2 +-
+ .../bukkit/event/player/PlayerFishEvent.java  |  2 +-
+ .../player/PlayerInteractEntityEvent.java     |  2 +-
+ .../event/player/PlayerInteractEvent.java     |  2 +-
+ .../event/player/PlayerItemBreakEvent.java    |  2 +-
+ .../event/player/PlayerItemConsumeEvent.java  |  2 +-
+ .../event/player/PlayerItemHeldEvent.java     |  2 +-
+ .../bukkit/event/player/PlayerMoveEvent.java  |  2 +-
+ .../event/player/PlayerOnGroundEvent.java     |  2 +-
+ .../event/player/PlayerPickupItemEvent.java   |  2 +-
+ .../event/player/PlayerShearEntityEvent.java  |  2 +-
+ .../event/player/PlayerSpawnEntityEvent.java  |  2 +-
+ .../event/player/PlayerToggleFlightEvent.java |  2 +-
+ .../event/player/PlayerToggleSneakEvent.java  |  2 +-
+ .../event/player/PlayerToggleSprintEvent.java |  2 +-
+ .../player/PlayerUnleashEntityEvent.java      |  9 +++++-
+ .../event/vehicle/VehicleDamageEvent.java     |  8 +++++-
+ .../event/vehicle/VehicleDestroyEvent.java    |  8 +++++-
+ .../event/vehicle/VehicleEnterEvent.java      |  8 +++++-
+ .../vehicle/VehicleEntityCollisionEvent.java  |  9 +++++-
+ .../event/vehicle/VehicleExitEvent.java       |  8 +++++-
+ .../event/vehicle/VehicleMoveEvent.java       |  8 +++++-
+ .../event/weather/LightningStrikeEvent.java   |  8 +++++-
+ .../event/world/StructureGrowEvent.java       |  8 +++++-
+ .../plugin/TimedRegisteredListenerTest.java   |  3 +-
  66 files changed, 351 insertions(+), 62 deletions(-)
  create mode 100644 src/main/java/org/bukkit/event/EntityAction.java
  create mode 100644 src/main/java/org/bukkit/event/PlayerAction.java
@@ -78,7 +78,7 @@ Subject: [PATCH] Action event interfaces
 
 diff --git a/src/main/java/org/bukkit/event/EntityAction.java b/src/main/java/org/bukkit/event/EntityAction.java
 new file mode 100644
-index 0000000..fd5b2f0
+index 00000000..fd5b2f01
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EntityAction.java
 @@ -0,0 +1,28 @@
@@ -113,7 +113,7 @@ index 0000000..fd5b2f0
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/PlayerAction.java b/src/main/java/org/bukkit/event/PlayerAction.java
 new file mode 100644
-index 0000000..9296dc1
+index 00000000..9296dc11
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/PlayerAction.java
 @@ -0,0 +1,14 @@
@@ -133,7 +133,7 @@ index 0000000..9296dc1
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/block/BlockBreakEvent.java b/src/main/java/org/bukkit/event/block/BlockBreakEvent.java
-index a011f61..6175915 100644
+index a011f61a..6175915c 100644
 --- a/src/main/java/org/bukkit/event/block/BlockBreakEvent.java
 +++ b/src/main/java/org/bukkit/event/block/BlockBreakEvent.java
 @@ -4,6 +4,7 @@ import org.bukkit.block.Block;
@@ -166,7 +166,7 @@ index a011f61..6175915 100644
          return cancel;
      }
 diff --git a/src/main/java/org/bukkit/event/block/BlockDamageEvent.java b/src/main/java/org/bukkit/event/block/BlockDamageEvent.java
-index d80e00e..77f36df 100644
+index d80e00ec..77f36dfc 100644
 --- a/src/main/java/org/bukkit/event/block/BlockDamageEvent.java
 +++ b/src/main/java/org/bukkit/event/block/BlockDamageEvent.java
 @@ -4,6 +4,7 @@ import org.bukkit.block.Block;
@@ -199,7 +199,7 @@ index d80e00e..77f36df 100644
       * Gets if the block is set to instantly break when damaged by the player.
       *
 diff --git a/src/main/java/org/bukkit/event/block/BlockIgniteEvent.java b/src/main/java/org/bukkit/event/block/BlockIgniteEvent.java
-index 5ea8b07..cffa4a0 100644
+index 5ea8b07f..cffa4a08 100644
 --- a/src/main/java/org/bukkit/event/block/BlockIgniteEvent.java
 +++ b/src/main/java/org/bukkit/event/block/BlockIgniteEvent.java
 @@ -4,6 +4,7 @@ import org.bukkit.block.Block;
@@ -232,7 +232,7 @@ index 5ea8b07..cffa4a0 100644
       * Gets the player who ignited this block
       *
 diff --git a/src/main/java/org/bukkit/event/block/BlockPlaceEvent.java b/src/main/java/org/bukkit/event/block/BlockPlaceEvent.java
-index 6d0ffe8..ce87405 100644
+index 6d0ffe81..ce87405d 100644
 --- a/src/main/java/org/bukkit/event/block/BlockPlaceEvent.java
 +++ b/src/main/java/org/bukkit/event/block/BlockPlaceEvent.java
 @@ -5,6 +5,7 @@ import org.bukkit.block.BlockState;
@@ -265,7 +265,7 @@ index 6d0ffe8..ce87405 100644
       * Clarity method for getting the placed block. Not really needed except
       * for reasons of clarity.
 diff --git a/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java b/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
-index 7e81880..4972003 100644
+index 7e818803..49720036 100644
 --- a/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
 +++ b/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
 @@ -3,6 +3,7 @@ package org.bukkit.event.block;
@@ -285,20 +285,20 @@ index 7e81880..4972003 100644
    private static final HandlerList handlers = new HandlerList();
    private final Player player;
  
-@@ -30,6 +31,11 @@ public class BlockUndamageEvent extends BlockEvent {
+@@ -29,6 +30,11 @@ public class BlockUndamageEvent extends BlockEvent {
+     return player;
    }
  
-   @Override
++  @Override
 +  public Player getActor() {
 +    return getPlayer();
 +  }
 +
-+  @Override
+   @Override
    public HandlerList getHandlers() {
      return handlers;
-   }
 diff --git a/src/main/java/org/bukkit/event/block/EntityBlockFormEvent.java b/src/main/java/org/bukkit/event/block/EntityBlockFormEvent.java
-index 45efc32..6c49d27 100644
+index 45efc321..6c49d273 100644
 --- a/src/main/java/org/bukkit/event/block/EntityBlockFormEvent.java
 +++ b/src/main/java/org/bukkit/event/block/EntityBlockFormEvent.java
 @@ -3,6 +3,7 @@ package org.bukkit.event.block;
@@ -330,7 +330,7 @@ index 45efc32..6c49d27 100644
  }
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/block/SignChangeEvent.java b/src/main/java/org/bukkit/event/block/SignChangeEvent.java
-index bf55d81..ef61378 100644
+index bf55d816..ef613782 100644
 --- a/src/main/java/org/bukkit/event/block/SignChangeEvent.java
 +++ b/src/main/java/org/bukkit/event/block/SignChangeEvent.java
 @@ -4,13 +4,14 @@ import org.bukkit.block.Block;
@@ -362,7 +362,7 @@ index bf55d81..ef61378 100644
       * Gets all of the lines of text from the sign involved in this event.
       *
 diff --git a/src/main/java/org/bukkit/event/entity/CreeperPowerEvent.java b/src/main/java/org/bukkit/event/entity/CreeperPowerEvent.java
-index b103a6a..c07a210 100644
+index b103a6ae..c07a2101 100644
 --- a/src/main/java/org/bukkit/event/entity/CreeperPowerEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/CreeperPowerEvent.java
 @@ -3,6 +3,7 @@ package org.bukkit.event.entity;
@@ -396,7 +396,7 @@ index b103a6a..c07a210 100644
       *
 diff --git a/src/main/java/org/bukkit/event/entity/EntityActionBase.java b/src/main/java/org/bukkit/event/entity/EntityActionBase.java
 new file mode 100644
-index 0000000..fe4008b
+index 00000000..fe4008b6
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/entity/EntityActionBase.java
 @@ -0,0 +1,16 @@
@@ -418,7 +418,7 @@ index 0000000..fe4008b
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/entity/EntityChangeBlockEvent.java b/src/main/java/org/bukkit/event/entity/EntityChangeBlockEvent.java
-index 41be9ca..4989e6c 100644
+index 41be9ca9..4989e6cb 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityChangeBlockEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityChangeBlockEvent.java
 @@ -10,7 +10,7 @@ import org.bukkit.event.HandlerList;
@@ -431,7 +431,7 @@ index 41be9ca..4989e6c 100644
      private final Block block;
      private boolean cancel;
 diff --git a/src/main/java/org/bukkit/event/entity/EntityCombustByEntityEvent.java b/src/main/java/org/bukkit/event/entity/EntityCombustByEntityEvent.java
-index 639567b..0c5d568 100644
+index 639567bd..0c5d5687 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityCombustByEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityCombustByEntityEvent.java
 @@ -1,11 +1,12 @@
@@ -459,7 +459,7 @@ index 639567b..0c5d568 100644
 +    }
  }
 diff --git a/src/main/java/org/bukkit/event/entity/EntityCreatePortalEvent.java b/src/main/java/org/bukkit/event/entity/EntityCreatePortalEvent.java
-index 286c206..abf9b8d 100644
+index 286c206d..abf9b8df 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityCreatePortalEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityCreatePortalEvent.java
 @@ -10,7 +10,7 @@ import org.bukkit.event.HandlerList;
@@ -472,7 +472,7 @@ index 286c206..abf9b8d 100644
      private final List<BlockState> blocks;
      private boolean cancelled = false;
 diff --git a/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java b/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java
-index 49e74c3..0b1c59d 100644
+index 49e74c30..0b1c59d9 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityDamageByEntityEvent.java
 @@ -4,11 +4,12 @@ import java.util.Map;
@@ -500,7 +500,7 @@ index 49e74c3..0b1c59d 100644
 +    }
  }
 diff --git a/src/main/java/org/bukkit/event/entity/EntityExplodeEvent.java b/src/main/java/org/bukkit/event/entity/EntityExplodeEvent.java
-index 287035d..f464f15 100644
+index 287035d1..f464f156 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityExplodeEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityExplodeEvent.java
 @@ -11,7 +11,7 @@ import java.util.List;
@@ -513,7 +513,7 @@ index 287035d..f464f15 100644
      private boolean cancel;
      private final Location location;
 diff --git a/src/main/java/org/bukkit/event/entity/EntityInteractEvent.java b/src/main/java/org/bukkit/event/entity/EntityInteractEvent.java
-index 1c4e100..18d0a34 100644
+index 1c4e1003..18d0a347 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityInteractEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityInteractEvent.java
 @@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
@@ -526,7 +526,7 @@ index 1c4e100..18d0a34 100644
      protected Block block;
      private boolean cancelled;
 diff --git a/src/main/java/org/bukkit/event/entity/EntityPortalEnterEvent.java b/src/main/java/org/bukkit/event/entity/EntityPortalEnterEvent.java
-index 87d57b0..faf7eb8 100644
+index 87d57b01..faf7eb83 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityPortalEnterEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityPortalEnterEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -539,7 +539,7 @@ index 87d57b0..faf7eb8 100644
      private final Location location;
  
 diff --git a/src/main/java/org/bukkit/event/entity/EntityShootBowEvent.java b/src/main/java/org/bukkit/event/entity/EntityShootBowEvent.java
-index f8c91a1..51e6d7a 100644
+index f8c91a13..51e6d7ae 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityShootBowEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityShootBowEvent.java
 @@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
@@ -564,7 +564,7 @@ index f8c91a1..51e6d7a 100644
       * Gets the bow ItemStack used to fire the arrow.
       *
 diff --git a/src/main/java/org/bukkit/event/entity/EntityTameEvent.java b/src/main/java/org/bukkit/event/entity/EntityTameEvent.java
-index f105817..4115e07 100644
+index f105817a..4115e073 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityTameEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityTameEvent.java
 @@ -2,13 +2,15 @@ package org.bukkit.event.entity;
@@ -584,20 +584,20 @@ index f105817..4115e07 100644
      private static final HandlerList handlers = new HandlerList();
      private boolean cancelled;
      private final AnimalTamer owner;
-@@ -41,6 +43,11 @@ public class EntityTameEvent extends EntityEvent implements Cancellable {
+@@ -40,6 +42,11 @@ public class EntityTameEvent extends EntityEvent implements Cancellable {
+         return owner;
      }
  
-     @Override
++    @Override
 +    public Player getActor() {
 +        return getEntity().getServer().getPlayer(getOwner().getUniqueId());
 +    }
 +
-+    @Override
+     @Override
      public HandlerList getHandlers() {
          return handlers;
-     }
 diff --git a/src/main/java/org/bukkit/event/entity/EntityTargetEvent.java b/src/main/java/org/bukkit/event/entity/EntityTargetEvent.java
-index cf67251..95d36dd 100644
+index cf672513..95d36ddc 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityTargetEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityTargetEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -610,7 +610,7 @@ index cf67251..95d36dd 100644
      private boolean cancel = false;
      private Entity target;
 diff --git a/src/main/java/org/bukkit/event/entity/EntityTeleportEvent.java b/src/main/java/org/bukkit/event/entity/EntityTeleportEvent.java
-index 619f8d4..da1f3bc 100644
+index 619f8d4f..da1f3bc8 100644
 --- a/src/main/java/org/bukkit/event/entity/EntityTeleportEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/EntityTeleportEvent.java
 @@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
@@ -623,7 +623,7 @@ index 619f8d4..da1f3bc 100644
      private boolean cancel;
      private Location from;
 diff --git a/src/main/java/org/bukkit/event/entity/ExplosionPrimeByEntityEvent.java b/src/main/java/org/bukkit/event/entity/ExplosionPrimeByEntityEvent.java
-index 473e6f9..081d393 100644
+index 473e6f9d..081d393a 100644
 --- a/src/main/java/org/bukkit/event/entity/ExplosionPrimeByEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/ExplosionPrimeByEntityEvent.java
 @@ -2,6 +2,7 @@ package org.bukkit.event.entity;
@@ -654,7 +654,7 @@ index 473e6f9..081d393 100644
 +  }
  }
 diff --git a/src/main/java/org/bukkit/event/entity/HorseJumpEvent.java b/src/main/java/org/bukkit/event/entity/HorseJumpEvent.java
-index fad2468..f282034 100644
+index fad2468d..f2820346 100644
 --- a/src/main/java/org/bukkit/event/entity/HorseJumpEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/HorseJumpEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -679,7 +679,7 @@ index fad2468..f282034 100644
       * Gets the power of the jump.
       * <p>
 diff --git a/src/main/java/org/bukkit/event/entity/PigZapEvent.java b/src/main/java/org/bukkit/event/entity/PigZapEvent.java
-index aa80ebf..f494064 100644
+index aa80ebf1..f494064f 100644
 --- a/src/main/java/org/bukkit/event/entity/PigZapEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/PigZapEvent.java
 @@ -4,12 +4,13 @@ import org.bukkit.entity.LightningStrike;
@@ -710,7 +710,7 @@ index aa80ebf..f494064 100644
       * Gets the zombie pig that will replace the pig, provided the event is
       * not cancelled first.
 diff --git a/src/main/java/org/bukkit/event/entity/PlayerLeashEntityEvent.java b/src/main/java/org/bukkit/event/entity/PlayerLeashEntityEvent.java
-index abe2bb8..65816cf 100644
+index abe2bb81..65816cf7 100644
 --- a/src/main/java/org/bukkit/event/entity/PlayerLeashEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/PlayerLeashEntityEvent.java
 @@ -7,11 +7,12 @@ import org.bukkit.entity.Player;
@@ -727,20 +727,20 @@ index abe2bb8..65816cf 100644
      private static final HandlerList handlers = new HandlerList();
      private final Entity leashHolder;
      private final Entity entity;
-@@ -52,6 +53,11 @@ public class PlayerLeashEntityEvent extends Event implements Cancellable, Physic
+@@ -51,6 +52,11 @@ public class PlayerLeashEntityEvent extends Event implements Cancellable, Physic
+         return player;
      }
  
-     @Override
++    @Override
 +    public Player getActor() {
 +        return getPlayer();
 +    }
 +
-+    @Override
+     @Override
      public World getWorld() {
          return getEntity().getWorld();
-     }
 diff --git a/src/main/java/org/bukkit/event/entity/ProjectileHitEvent.java b/src/main/java/org/bukkit/event/entity/ProjectileHitEvent.java
-index 25ae832..0e961f7 100644
+index 25ae8323..0e961f7f 100644
 --- a/src/main/java/org/bukkit/event/entity/ProjectileHitEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/ProjectileHitEvent.java
 @@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
@@ -752,20 +752,20 @@ index 25ae832..0e961f7 100644
      private static final HandlerList handlers = new HandlerList();
  
      public ProjectileHitEvent(final Projectile projectile) {
-@@ -19,6 +19,11 @@ public class ProjectileHitEvent extends EntityEvent {
+@@ -18,6 +18,11 @@ public class ProjectileHitEvent extends EntityEvent {
+         return (Projectile) entity;
      }
  
-     @Override
++    @Override
 +    public Projectile getActor() {
 +        return getEntity();
 +    }
 +
-+    @Override
+     @Override
      public HandlerList getHandlers() {
          return handlers;
-     }
 diff --git a/src/main/java/org/bukkit/event/entity/ProjectileLaunchEvent.java b/src/main/java/org/bukkit/event/entity/ProjectileLaunchEvent.java
-index 0c9190c..0e633d9 100644
+index 0c9190ca..0e633d9b 100644
 --- a/src/main/java/org/bukkit/event/entity/ProjectileLaunchEvent.java
 +++ b/src/main/java/org/bukkit/event/entity/ProjectileLaunchEvent.java
 @@ -3,12 +3,14 @@ package org.bukkit.event.entity;
@@ -784,21 +784,21 @@ index 0c9190c..0e633d9 100644
      private static final HandlerList handlers = new HandlerList();
      private boolean cancelled;
  
-@@ -30,6 +32,12 @@ public class ProjectileLaunchEvent extends EntityEvent implements Cancellable {
+@@ -29,6 +31,12 @@ public class ProjectileLaunchEvent extends EntityEvent implements Cancellable {
+         return (Projectile) entity;
      }
  
-     @Override
++    @Override
 +    public Entity getActor() {
 +        ProjectileSource source = getEntity().getShooter();
 +        return source instanceof Entity ? (Entity) source : null;
 +    }
 +
-+    @Override
+     @Override
      public HandlerList getHandlers() {
          return handlers;
-     }
 diff --git a/src/main/java/org/bukkit/event/hanging/HangingBreakByEntityEvent.java b/src/main/java/org/bukkit/event/hanging/HangingBreakByEntityEvent.java
-index 80851ed..17a884f 100644
+index 80851ed0..17a884fa 100644
 --- a/src/main/java/org/bukkit/event/hanging/HangingBreakByEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/hanging/HangingBreakByEntityEvent.java
 @@ -2,11 +2,12 @@ package org.bukkit.event.hanging;
@@ -826,7 +826,7 @@ index 80851ed..17a884f 100644
 +    }
  }
 diff --git a/src/main/java/org/bukkit/event/hanging/HangingPlaceEvent.java b/src/main/java/org/bukkit/event/hanging/HangingPlaceEvent.java
-index b511c55..f7826d3 100644
+index b511c555..f7826d34 100644
 --- a/src/main/java/org/bukkit/event/hanging/HangingPlaceEvent.java
 +++ b/src/main/java/org/bukkit/event/hanging/HangingPlaceEvent.java
 @@ -6,11 +6,12 @@ import org.bukkit.entity.Hanging;
@@ -856,7 +856,7 @@ index b511c55..f7826d3 100644
       * Returns the block that the hanging entity was placed on
       *
 diff --git a/src/main/java/org/bukkit/event/inventory/FurnaceExtractEvent.java b/src/main/java/org/bukkit/event/inventory/FurnaceExtractEvent.java
-index b7381fa..1d6bdd6 100644
+index b7381fa1..1d6bdd6d 100644
 --- a/src/main/java/org/bukkit/event/inventory/FurnaceExtractEvent.java
 +++ b/src/main/java/org/bukkit/event/inventory/FurnaceExtractEvent.java
 @@ -3,12 +3,13 @@ package org.bukkit.event.inventory;
@@ -887,7 +887,7 @@ index b7381fa..1d6bdd6 100644
       * Get the Material of the item being retrieved
       *
 diff --git a/src/main/java/org/bukkit/event/inventory/InventoryEvent.java b/src/main/java/org/bukkit/event/inventory/InventoryEvent.java
-index e84debc..f4fc4a6 100644
+index e84debce..f4fc4a62 100644
 --- a/src/main/java/org/bukkit/event/inventory/InventoryEvent.java
 +++ b/src/main/java/org/bukkit/event/inventory/InventoryEvent.java
 @@ -5,16 +5,21 @@ import java.util.List;
@@ -913,20 +913,20 @@ index e84debc..f4fc4a6 100644
      private static final HandlerList handlers = new HandlerList();
      protected InventoryView transaction;
  
-@@ -56,6 +61,11 @@ public class InventoryEvent extends Event implements Physical {
+@@ -55,6 +60,11 @@ public class InventoryEvent extends Event implements Physical {
+         return getInventory().getWorld();
      }
  
-     @Override
++    @Override
 +    public Player getActor() {
 +        return (Player) getView().getPlayer();
 +    }
 +
-+    @Override
+     @Override
      public HandlerList getHandlers() {
          return handlers;
-     }
 diff --git a/src/main/java/org/bukkit/event/inventory/InventoryMoveItemEvent.java b/src/main/java/org/bukkit/event/inventory/InventoryMoveItemEvent.java
-index e751fbf..0545197 100644
+index e751fbfd..05451978 100644
 --- a/src/main/java/org/bukkit/event/inventory/InventoryMoveItemEvent.java
 +++ b/src/main/java/org/bukkit/event/inventory/InventoryMoveItemEvent.java
 @@ -3,10 +3,13 @@ package org.bukkit.event.inventory;
@@ -952,21 +952,21 @@ index e751fbf..0545197 100644
      private static final HandlerList handlers = new HandlerList();
      private boolean cancelled;
      private final Inventory sourceInventory;
-@@ -92,6 +95,12 @@ public class InventoryMoveItemEvent extends Event implements Cancellable, Physic
+@@ -91,6 +94,12 @@ public class InventoryMoveItemEvent extends Event implements Cancellable, Physic
+         return didSourceInitiate ? sourceInventory : destinationInventory;
      }
  
-     @Override
++    @Override
 +    public Entity getActor() {
 +        InventoryHolder holder = getInitiator().getHolder();
 +        return holder instanceof Entity ? (Entity) holder : null;
 +    }
 +
-+    @Override
+     @Override
      public World getWorld() {
          return getInitiator().getWorld();
-     }
 diff --git a/src/main/java/org/bukkit/event/inventory/InventoryPickupItemEvent.java b/src/main/java/org/bukkit/event/inventory/InventoryPickupItemEvent.java
-index 1eb684d..235657f 100644
+index 1eb684d7..235657f4 100644
 --- a/src/main/java/org/bukkit/event/inventory/InventoryPickupItemEvent.java
 +++ b/src/main/java/org/bukkit/event/inventory/InventoryPickupItemEvent.java
 @@ -2,16 +2,19 @@ package org.bukkit.event.inventory;
@@ -1005,7 +1005,7 @@ index 1eb684d..235657f 100644
       *
 diff --git a/src/main/java/org/bukkit/event/player/PlayerActionBase.java b/src/main/java/org/bukkit/event/player/PlayerActionBase.java
 new file mode 100644
-index 0000000..cc30faf
+index 00000000..cc30faf7
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/player/PlayerActionBase.java
 @@ -0,0 +1,20 @@
@@ -1031,7 +1031,7 @@ index 0000000..cc30faf
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/player/PlayerAnimationEvent.java b/src/main/java/org/bukkit/event/player/PlayerAnimationEvent.java
-index cabe77d..13cd912 100644
+index cabe77dd..13cd9129 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerAnimationEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerAnimationEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -1044,7 +1044,7 @@ index cabe77d..13cd912 100644
      private final PlayerAnimationType animationType;
      private boolean isCancelled = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerBedEnterEvent.java b/src/main/java/org/bukkit/event/player/PlayerBedEnterEvent.java
-index 09f1a66..ce9ed50 100644
+index 09f1a669..ce9ed503 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerBedEnterEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerBedEnterEvent.java
 @@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
@@ -1057,7 +1057,7 @@ index 09f1a66..ce9ed50 100644
      private boolean cancel = false;
      private final Block bed;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerBedLeaveEvent.java b/src/main/java/org/bukkit/event/player/PlayerBedLeaveEvent.java
-index 628ab0b..933b5e2 100644
+index 628ab0b0..933b5e22 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerBedLeaveEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerBedLeaveEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -1070,7 +1070,7 @@ index 628ab0b..933b5e2 100644
      private final Block bed;
  
 diff --git a/src/main/java/org/bukkit/event/player/PlayerBucketEvent.java b/src/main/java/org/bukkit/event/player/PlayerBucketEvent.java
-index d32c55e..ffb4c4f 100644
+index d32c55e4..ffb4c4fc 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerBucketEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerBucketEvent.java
 @@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
@@ -1083,7 +1083,7 @@ index d32c55e..ffb4c4f 100644
      private boolean cancelled = false;
      private final Block blockClicked;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerDropItemEvent.java b/src/main/java/org/bukkit/event/player/PlayerDropItemEvent.java
-index 5b41b65..f37ce2b 100644
+index 5b41b652..f37ce2ba 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerDropItemEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerDropItemEvent.java
 @@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
@@ -1096,7 +1096,7 @@ index 5b41b65..f37ce2b 100644
      private final Item drop;
      private boolean cancel = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerEditBookEvent.java b/src/main/java/org/bukkit/event/player/PlayerEditBookEvent.java
-index ea7ecef..1229984 100644
+index ea7ecefe..12299841 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerEditBookEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerEditBookEvent.java
 @@ -11,7 +11,7 @@ import org.bukkit.inventory.meta.BookMeta;
@@ -1109,7 +1109,7 @@ index ea7ecef..1229984 100644
  
      private final BookMeta previousBookMeta;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerEggThrowEvent.java b/src/main/java/org/bukkit/event/player/PlayerEggThrowEvent.java
-index 896347e..e1d9ac6 100644
+index 896347e6..e1d9ac6f 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerEggThrowEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerEggThrowEvent.java
 @@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
@@ -1122,7 +1122,7 @@ index 896347e..e1d9ac6 100644
      private final Egg egg;
      private boolean hatching;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerFishEvent.java b/src/main/java/org/bukkit/event/player/PlayerFishEvent.java
-index 5f1ecfe..84d2eb8 100644
+index 5f1ecfef..84d2eb8b 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerFishEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerFishEvent.java
 @@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
@@ -1135,7 +1135,7 @@ index 5f1ecfe..84d2eb8 100644
      private final Entity entity;
      private boolean cancel = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerInteractEntityEvent.java b/src/main/java/org/bukkit/event/player/PlayerInteractEntityEvent.java
-index 935211d..243634a 100644
+index 935211df..243634a3 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerInteractEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerInteractEntityEvent.java
 @@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
@@ -1148,7 +1148,7 @@ index 935211d..243634a 100644
      protected Entity clickedEntity;
      boolean cancelled = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerInteractEvent.java b/src/main/java/org/bukkit/event/player/PlayerInteractEvent.java
-index b12382f..d0eb433 100644
+index b12382f4..d0eb4333 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerInteractEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerInteractEvent.java
 @@ -15,7 +15,7 @@ import org.bukkit.event.block.Action;
@@ -1161,7 +1161,7 @@ index b12382f..d0eb433 100644
      protected ItemStack item;
      protected Action action;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerItemBreakEvent.java b/src/main/java/org/bukkit/event/player/PlayerItemBreakEvent.java
-index 176cd91..9016a46 100644
+index 176cd918..9016a469 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerItemBreakEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerItemBreakEvent.java
 @@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
@@ -1174,7 +1174,7 @@ index 176cd91..9016a46 100644
      private final ItemStack brokenItem;
  
 diff --git a/src/main/java/org/bukkit/event/player/PlayerItemConsumeEvent.java b/src/main/java/org/bukkit/event/player/PlayerItemConsumeEvent.java
-index 8ab76b1..d5b521b 100644
+index 8ab76b1d..d5b521b6 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerItemConsumeEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerItemConsumeEvent.java
 @@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
@@ -1187,7 +1187,7 @@ index 8ab76b1..d5b521b 100644
      private boolean isCancelled = false;
      private ItemStack item;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerItemHeldEvent.java b/src/main/java/org/bukkit/event/player/PlayerItemHeldEvent.java
-index f0d055a..37e7ac1 100644
+index f0d055a0..37e7ac15 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerItemHeldEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerItemHeldEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -1200,7 +1200,7 @@ index f0d055a..37e7ac1 100644
      private boolean cancel = false;
      private final int previous;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java b/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java
-index d56b7e4..7687667 100644
+index d56b7e40..7687667a 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerMoveEvent.java
 @@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
@@ -1213,7 +1213,7 @@ index d56b7e4..7687667 100644
      private boolean cancel = false;
      private Location from;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerOnGroundEvent.java b/src/main/java/org/bukkit/event/player/PlayerOnGroundEvent.java
-index 4a6c3d4..61f9641 100644
+index 4a6c3d4b..61f9641c 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerOnGroundEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerOnGroundEvent.java
 @@ -3,7 +3,7 @@ package org.bukkit.event.player;
@@ -1226,7 +1226,7 @@ index 4a6c3d4..61f9641 100644
      private boolean onGround;
  
 diff --git a/src/main/java/org/bukkit/event/player/PlayerPickupItemEvent.java b/src/main/java/org/bukkit/event/player/PlayerPickupItemEvent.java
-index dfba816..30e450c 100644
+index dfba8163..30e450cf 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerPickupItemEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerPickupItemEvent.java
 @@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
@@ -1239,7 +1239,7 @@ index dfba816..30e450c 100644
      private final Item item;
      private boolean cancel = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerShearEntityEvent.java b/src/main/java/org/bukkit/event/player/PlayerShearEntityEvent.java
-index 38afb3c..9448685 100644
+index 38afb3ce..94486855 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerShearEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerShearEntityEvent.java
 @@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
@@ -1252,7 +1252,7 @@ index 38afb3c..9448685 100644
      private boolean cancel;
      private final Entity what;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerSpawnEntityEvent.java b/src/main/java/org/bukkit/event/player/PlayerSpawnEntityEvent.java
-index 1fdc6ca..8e98f37 100644
+index 1fdc6cad..8e98f371 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerSpawnEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerSpawnEntityEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.Cancellable;
@@ -1265,7 +1265,7 @@ index 1fdc6ca..8e98f37 100644
      private boolean cancel;
      private final Entity what;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerToggleFlightEvent.java b/src/main/java/org/bukkit/event/player/PlayerToggleFlightEvent.java
-index 1c5ec37..b846be1 100644
+index 1c5ec37e..b846be18 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerToggleFlightEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerToggleFlightEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -1278,7 +1278,7 @@ index 1c5ec37..b846be1 100644
      private final boolean isFlying;
      private boolean cancel = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerToggleSneakEvent.java b/src/main/java/org/bukkit/event/player/PlayerToggleSneakEvent.java
-index 667acad..63b6ec6 100644
+index 667acad2..63b6ec60 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerToggleSneakEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerToggleSneakEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -1291,7 +1291,7 @@ index 667acad..63b6ec6 100644
      private final boolean isSneaking;
      private boolean cancel = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerToggleSprintEvent.java b/src/main/java/org/bukkit/event/player/PlayerToggleSprintEvent.java
-index cf065e1..f36f034 100644
+index cf065e11..f36f0349 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerToggleSprintEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerToggleSprintEvent.java
 @@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
@@ -1304,7 +1304,7 @@ index cf065e1..f36f034 100644
      private final boolean isSprinting;
      private boolean cancel = false;
 diff --git a/src/main/java/org/bukkit/event/player/PlayerUnleashEntityEvent.java b/src/main/java/org/bukkit/event/player/PlayerUnleashEntityEvent.java
-index f6aebef..059e1f9 100644
+index f6aebefb..059e1f92 100644
 --- a/src/main/java/org/bukkit/event/player/PlayerUnleashEntityEvent.java
 +++ b/src/main/java/org/bukkit/event/player/PlayerUnleashEntityEvent.java
 @@ -3,12 +3,14 @@ package org.bukkit.event.player;
@@ -1336,7 +1336,7 @@ index f6aebef..059e1f9 100644
          return cancelled;
      }
 diff --git a/src/main/java/org/bukkit/event/vehicle/VehicleDamageEvent.java b/src/main/java/org/bukkit/event/vehicle/VehicleDamageEvent.java
-index c7b9c1a..2296ab4 100644
+index c7b9c1a6..2296ab4b 100644
 --- a/src/main/java/org/bukkit/event/vehicle/VehicleDamageEvent.java
 +++ b/src/main/java/org/bukkit/event/vehicle/VehicleDamageEvent.java
 @@ -3,13 +3,14 @@ package org.bukkit.event.vehicle;
@@ -1368,7 +1368,7 @@ index c7b9c1a..2296ab4 100644
       * Gets the damage done to the vehicle
       *
 diff --git a/src/main/java/org/bukkit/event/vehicle/VehicleDestroyEvent.java b/src/main/java/org/bukkit/event/vehicle/VehicleDestroyEvent.java
-index f1176fd..5b0f545 100644
+index f1176fd2..5b0f5459 100644
 --- a/src/main/java/org/bukkit/event/vehicle/VehicleDestroyEvent.java
 +++ b/src/main/java/org/bukkit/event/vehicle/VehicleDestroyEvent.java
 @@ -3,6 +3,7 @@ package org.bukkit.event.vehicle;
@@ -1401,7 +1401,7 @@ index f1176fd..5b0f545 100644
          return cancelled;
      }
 diff --git a/src/main/java/org/bukkit/event/vehicle/VehicleEnterEvent.java b/src/main/java/org/bukkit/event/vehicle/VehicleEnterEvent.java
-index 85c9b21..029a028 100644
+index 85c9b210..029a028e 100644
 --- a/src/main/java/org/bukkit/event/vehicle/VehicleEnterEvent.java
 +++ b/src/main/java/org/bukkit/event/vehicle/VehicleEnterEvent.java
 @@ -3,12 +3,13 @@ package org.bukkit.event.vehicle;
@@ -1432,7 +1432,7 @@ index 85c9b21..029a028 100644
          return cancelled;
      }
 diff --git a/src/main/java/org/bukkit/event/vehicle/VehicleEntityCollisionEvent.java b/src/main/java/org/bukkit/event/vehicle/VehicleEntityCollisionEvent.java
-index 4d4d0e2..b5ff5a5 100644
+index 4d4d0e25..b5ff5a50 100644
 --- a/src/main/java/org/bukkit/event/vehicle/VehicleEntityCollisionEvent.java
 +++ b/src/main/java/org/bukkit/event/vehicle/VehicleEntityCollisionEvent.java
 @@ -3,12 +3,14 @@ package org.bukkit.event.vehicle;
@@ -1464,7 +1464,7 @@ index 4d4d0e2..b5ff5a5 100644
          return cancelled;
      }
 diff --git a/src/main/java/org/bukkit/event/vehicle/VehicleExitEvent.java b/src/main/java/org/bukkit/event/vehicle/VehicleExitEvent.java
-index 364451b..ab44ac6 100644
+index 364451b5..ab44ac68 100644
 --- a/src/main/java/org/bukkit/event/vehicle/VehicleExitEvent.java
 +++ b/src/main/java/org/bukkit/event/vehicle/VehicleExitEvent.java
 @@ -3,12 +3,13 @@ package org.bukkit.event.vehicle;
@@ -1495,7 +1495,7 @@ index 364451b..ab44ac6 100644
          return cancelled;
      }
 diff --git a/src/main/java/org/bukkit/event/vehicle/VehicleMoveEvent.java b/src/main/java/org/bukkit/event/vehicle/VehicleMoveEvent.java
-index 9a13e29..ec2f397 100644
+index 9a13e296..ec2f3979 100644
 --- a/src/main/java/org/bukkit/event/vehicle/VehicleMoveEvent.java
 +++ b/src/main/java/org/bukkit/event/vehicle/VehicleMoveEvent.java
 @@ -2,12 +2,13 @@ package org.bukkit.event.vehicle;
@@ -1526,7 +1526,7 @@ index 9a13e29..ec2f397 100644
       * Get the previous position.
       *
 diff --git a/src/main/java/org/bukkit/event/weather/LightningStrikeEvent.java b/src/main/java/org/bukkit/event/weather/LightningStrikeEvent.java
-index 66fd763..00b5127 100644
+index 66fd7636..00b51270 100644
 --- a/src/main/java/org/bukkit/event/weather/LightningStrikeEvent.java
 +++ b/src/main/java/org/bukkit/event/weather/LightningStrikeEvent.java
 @@ -3,12 +3,13 @@ package org.bukkit.event.weather;
@@ -1544,20 +1544,20 @@ index 66fd763..00b5127 100644
      private static final HandlerList handlers = new HandlerList();
      private boolean canceled;
      private final LightningStrike bolt;
-@@ -36,6 +37,11 @@ public class LightningStrikeEvent extends WeatherEvent implements Cancellable {
+@@ -35,6 +36,11 @@ public class LightningStrikeEvent extends WeatherEvent implements Cancellable {
+         return bolt;
      }
  
-     @Override
++    @Override
 +    public LightningStrike getActor() {
 +        return getLightning();
 +    }
 +
-+    @Override
+     @Override
      public HandlerList getHandlers() {
          return handlers;
-     }
 diff --git a/src/main/java/org/bukkit/event/world/StructureGrowEvent.java b/src/main/java/org/bukkit/event/world/StructureGrowEvent.java
-index 62d300d..5c1f51f 100644
+index 62d300d7..5c1f51fa 100644
 --- a/src/main/java/org/bukkit/event/world/StructureGrowEvent.java
 +++ b/src/main/java/org/bukkit/event/world/StructureGrowEvent.java
 @@ -7,12 +7,13 @@ import org.bukkit.block.BlockState;
@@ -1588,7 +1588,7 @@ index 62d300d..5c1f51f 100644
       * Gets an ArrayList of all blocks associated with the structure.
       *
 diff --git a/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java b/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java
-index b206b1f..ef75e5a 100644
+index b206b1f3..ef75e5ac 100644
 --- a/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java
 +++ b/src/test/java/org/bukkit/plugin/TimedRegisteredListenerTest.java
 @@ -8,6 +8,7 @@ import org.bukkit.event.EventException;
@@ -1609,5 +1609,5 @@ index b206b1f..ef75e5a 100644
          trl.callEvent(breakEvent);
          assertThat(trl.getEventClass(), is((Object) Event.class));
 -- 
-2.6.4
+2.18.0.windows.1
 

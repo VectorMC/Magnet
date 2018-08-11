@@ -1,14 +1,14 @@
-From 042fbcf8c33eec44ab0207e3a7e7e628aa416ac8 Mon Sep 17 00:00:00 2001
+From 778175ce6c301da7455a18e15149d45ce544b747 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 14:53:09 -0500
 Subject: [PATCH] Potion effect events
 
 ---
- .../bukkit/event/entity/PotionEffectAddEvent.java  | 32 +++++++++++++++
- .../org/bukkit/event/entity/PotionEffectEvent.java | 23 +++++++++++
- .../event/entity/PotionEffectExpireEvent.java      | 45 ++++++++++++++++++++++
- .../event/entity/PotionEffectExtendEvent.java      | 26 +++++++++++++
- .../event/entity/PotionEffectRemoveEvent.java      | 33 ++++++++++++++++
+ .../event/entity/PotionEffectAddEvent.java    | 32 +++++++++++++
+ .../event/entity/PotionEffectEvent.java       | 23 ++++++++++
+ .../event/entity/PotionEffectExpireEvent.java | 45 +++++++++++++++++++
+ .../event/entity/PotionEffectExtendEvent.java | 26 +++++++++++
+ .../event/entity/PotionEffectRemoveEvent.java | 33 ++++++++++++++
  5 files changed, 159 insertions(+)
  create mode 100644 src/main/java/org/bukkit/event/entity/PotionEffectAddEvent.java
  create mode 100644 src/main/java/org/bukkit/event/entity/PotionEffectEvent.java
@@ -18,7 +18,7 @@ Subject: [PATCH] Potion effect events
 
 diff --git a/src/main/java/org/bukkit/event/entity/PotionEffectAddEvent.java b/src/main/java/org/bukkit/event/entity/PotionEffectAddEvent.java
 new file mode 100644
-index 0000000..9c48b08
+index 00000000..9c48b08e
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/entity/PotionEffectAddEvent.java
 @@ -0,0 +1,32 @@
@@ -57,7 +57,7 @@ index 0000000..9c48b08
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/entity/PotionEffectEvent.java b/src/main/java/org/bukkit/event/entity/PotionEffectEvent.java
 new file mode 100644
-index 0000000..d45408c
+index 00000000..d45408c1
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/entity/PotionEffectEvent.java
 @@ -0,0 +1,23 @@
@@ -87,7 +87,7 @@ index 0000000..d45408c
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/entity/PotionEffectExpireEvent.java b/src/main/java/org/bukkit/event/entity/PotionEffectExpireEvent.java
 new file mode 100644
-index 0000000..0388fec
+index 00000000..0388fec4
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/entity/PotionEffectExpireEvent.java
 @@ -0,0 +1,45 @@
@@ -139,7 +139,7 @@ index 0000000..0388fec
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/entity/PotionEffectExtendEvent.java b/src/main/java/org/bukkit/event/entity/PotionEffectExtendEvent.java
 new file mode 100644
-index 0000000..d92f730
+index 00000000..d92f7303
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/entity/PotionEffectExtendEvent.java
 @@ -0,0 +1,26 @@
@@ -172,7 +172,7 @@ index 0000000..d92f730
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/entity/PotionEffectRemoveEvent.java b/src/main/java/org/bukkit/event/entity/PotionEffectRemoveEvent.java
 new file mode 100644
-index 0000000..30b89db
+index 00000000..30b89db2
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/entity/PotionEffectRemoveEvent.java
 @@ -0,0 +1,33 @@
@@ -211,5 +211,5 @@ index 0000000..30b89db
 +}
 \ No newline at end of file
 -- 
-2.6.4
+2.18.0.windows.1
 

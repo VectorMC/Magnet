@@ -1,59 +1,59 @@
-From 4f868f5b9709fbcf9e8ce2cbee5a437f9bdd6aa5 Mon Sep 17 00:00:00 2001
+From b53575b15e1be68b30345919dadfe6ea0cc7f2fa Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 20:51:08 -0500
 Subject: [PATCH] New event API
 
 ---
- src/main/java/org/bukkit/Bukkit.java               |  10 +
- src/main/java/org/bukkit/BukkitModule.java         |  44 ++++
- src/main/java/org/bukkit/Location.java             |   1 -
- src/main/java/org/bukkit/Server.java               |  14 ++
- src/main/java/org/bukkit/ServerInstanceModule.java |  35 +++
- src/main/java/org/bukkit/ServerModule.java         | 111 +++++++++
- .../bukkit/command/defaults/TimingsCommand.java    |   5 +-
- .../java/org/bukkit/event/BoundEventHandler.java   |  74 ++++++
- .../org/bukkit/event/CallableEventHandler.java     | 101 ++++++++
- src/main/java/org/bukkit/event/Event.java          | 137 +++++++++-
- src/main/java/org/bukkit/event/EventBody.java      |  11 +
- src/main/java/org/bukkit/event/EventBus.java       |  55 +++++
- src/main/java/org/bukkit/event/EventCallable.java  |  11 +
- src/main/java/org/bukkit/event/EventException.java |   3 +
- src/main/java/org/bukkit/event/EventExecutor.java  |   7 +
- .../java/org/bukkit/event/EventHandlerMeta.java    | 120 +++++++++
- .../java/org/bukkit/event/EventMethodExecutor.java | 119 +++++++++
- src/main/java/org/bukkit/event/EventRegistry.java  |  80 ++++++
- src/main/java/org/bukkit/event/HandlerList.java    | 149 ++++++-----
- .../java/org/bukkit/event/RegisteredHandler.java   |  22 ++
- src/main/java/org/bukkit/event/SimpleEventBus.java | 115 +++++++++
- .../java/org/bukkit/event/SimpleEventRegistry.java |  88 +++++++
- .../org/bukkit/permissions/PermissionBinder.java   |  18 ++
- .../org/bukkit/plugin/EventExecutorAdapter.java    |  18 ++
- src/main/java/org/bukkit/plugin/Plugin.java        |   6 +
- src/main/java/org/bukkit/plugin/PluginBase.java    |  52 ++++
- .../org/bukkit/plugin/PluginEventRegistry.java     |  57 +++++
- .../org/bukkit/plugin/PluginExceptionHandler.java  |  33 +++
- .../org/bukkit/plugin/PluginInstanceModule.java    |  22 ++
- src/main/java/org/bukkit/plugin/PluginModule.java  |  54 ++++
- .../java/org/bukkit/plugin/PluginScheduler.java    |  33 +++
- .../java/org/bukkit/plugin/RegisteredListener.java |  67 ++---
- .../org/bukkit/plugin/SimplePluginManager.java     | 123 +--------
- .../org/bukkit/plugin/TimedRegisteredListener.java |  10 +-
- .../java/org/bukkit/plugin/java/JavaPlugin.java    |  28 ++-
- .../org/bukkit/plugin/java/JavaPluginLoader.java   |  92 +------
- .../java/org/bukkit/plugin/java/ModularPlugin.java |  18 ++
- .../org/bukkit/plugin/java/PluginClassLoader.java  |  15 +-
- .../java/org/bukkit/scheduler/BukkitScheduler.java |  18 ++
- src/main/java/org/bukkit/scheduler/BukkitTask.java |   3 +-
- src/test/java/org/bukkit/TestServer.java           |  12 +
- src/test/java/org/bukkit/event/EventBusTest.java   | 275 +++++++++++++++++++++
- .../org/bukkit/event/EventHandlerMetaTest.java     |  87 +++++++
- .../org/bukkit/event/EventMethodExecutorTest.java  | 135 ++++++++++
- .../java/org/bukkit/event/EventRegistryTest.java   |  93 +++++++
- .../java/org/bukkit/event/HandlerListTest.java     |  18 ++
- src/test/java/org/bukkit/event/TestEvent.java      |   4 +
- .../org/bukkit/exception/TestExceptionHandler.java |  10 +
- .../java/org/bukkit/plugin/PluginManagerTest.java  |   4 +-
- src/test/java/org/bukkit/plugin/TestPlugin.java    |  37 ++-
+ src/main/java/org/bukkit/Bukkit.java          |  10 +
+ src/main/java/org/bukkit/BukkitModule.java    |  44 +++
+ src/main/java/org/bukkit/Location.java        |   1 -
+ src/main/java/org/bukkit/Server.java          |  14 +
+ .../java/org/bukkit/ServerInstanceModule.java |  35 +++
+ src/main/java/org/bukkit/ServerModule.java    | 111 +++++++
+ .../command/defaults/TimingsCommand.java      |   5 +-
+ .../org/bukkit/event/BoundEventHandler.java   |  74 +++++
+ .../bukkit/event/CallableEventHandler.java    | 101 +++++++
+ src/main/java/org/bukkit/event/Event.java     | 137 ++++++++-
+ src/main/java/org/bukkit/event/EventBody.java |  11 +
+ src/main/java/org/bukkit/event/EventBus.java  |  55 ++++
+ .../java/org/bukkit/event/EventCallable.java  |  11 +
+ .../java/org/bukkit/event/EventException.java |   3 +
+ .../java/org/bukkit/event/EventExecutor.java  |   7 +
+ .../org/bukkit/event/EventHandlerMeta.java    | 120 ++++++++
+ .../org/bukkit/event/EventMethodExecutor.java | 119 ++++++++
+ .../java/org/bukkit/event/EventRegistry.java  |  80 +++++
+ .../java/org/bukkit/event/HandlerList.java    | 149 ++++++----
+ .../org/bukkit/event/RegisteredHandler.java   |  22 ++
+ .../java/org/bukkit/event/SimpleEventBus.java | 115 ++++++++
+ .../org/bukkit/event/SimpleEventRegistry.java |  88 ++++++
+ .../bukkit/permissions/PermissionBinder.java  |  18 ++
+ .../bukkit/plugin/EventExecutorAdapter.java   |  18 ++
+ src/main/java/org/bukkit/plugin/Plugin.java   |   6 +
+ .../java/org/bukkit/plugin/PluginBase.java    |  52 ++++
+ .../bukkit/plugin/PluginEventRegistry.java    |  57 ++++
+ .../bukkit/plugin/PluginExceptionHandler.java |  33 +++
+ .../bukkit/plugin/PluginInstanceModule.java   |  22 ++
+ .../java/org/bukkit/plugin/PluginModule.java  |  54 ++++
+ .../org/bukkit/plugin/PluginScheduler.java    |  33 +++
+ .../org/bukkit/plugin/RegisteredListener.java |  67 ++---
+ .../bukkit/plugin/SimplePluginManager.java    | 123 +-------
+ .../plugin/TimedRegisteredListener.java       |  10 +-
+ .../org/bukkit/plugin/java/JavaPlugin.java    |  28 +-
+ .../bukkit/plugin/java/JavaPluginLoader.java  |  92 +-----
+ .../org/bukkit/plugin/java/ModularPlugin.java |  18 ++
+ .../bukkit/plugin/java/PluginClassLoader.java |  15 +-
+ .../org/bukkit/scheduler/BukkitScheduler.java |  18 ++
+ .../java/org/bukkit/scheduler/BukkitTask.java |   3 +-
+ src/test/java/org/bukkit/TestServer.java      |  12 +
+ .../java/org/bukkit/event/EventBusTest.java   | 275 ++++++++++++++++++
+ .../bukkit/event/EventHandlerMetaTest.java    |  87 ++++++
+ .../bukkit/event/EventMethodExecutorTest.java | 135 +++++++++
+ .../org/bukkit/event/EventRegistryTest.java   |  93 ++++++
+ .../org/bukkit/event/HandlerListTest.java     |  18 ++
+ src/test/java/org/bukkit/event/TestEvent.java |   4 +
+ .../exception/TestExceptionHandler.java       |  10 +
+ .../org/bukkit/plugin/PluginManagerTest.java  |   4 +-
+ .../java/org/bukkit/plugin/TestPlugin.java    |  37 ++-
  50 files changed, 2315 insertions(+), 339 deletions(-)
  create mode 100644 src/main/java/org/bukkit/BukkitModule.java
  create mode 100644 src/main/java/org/bukkit/ServerInstanceModule.java
@@ -86,7 +86,7 @@ Subject: [PATCH] New event API
  create mode 100644 src/test/java/org/bukkit/exception/TestExceptionHandler.java
 
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index 3ca1461..b4eade1 100644
+index 3ca14618..b4eade15 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
 @@ -13,6 +13,7 @@ import java.util.UUID;
@@ -129,7 +129,7 @@ index 3ca1461..b4eade1 100644
       *
 diff --git a/src/main/java/org/bukkit/BukkitModule.java b/src/main/java/org/bukkit/BukkitModule.java
 new file mode 100644
-index 0000000..b69aff1
+index 00000000..b69aff1d
 --- /dev/null
 +++ b/src/main/java/org/bukkit/BukkitModule.java
 @@ -0,0 +1,44 @@
@@ -179,7 +179,7 @@ index 0000000..b69aff1
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/Location.java b/src/main/java/org/bukkit/Location.java
-index cd7ac2f..6a0b39b 100644
+index cd7ac2f1..6a0b39b1 100644
 --- a/src/main/java/org/bukkit/Location.java
 +++ b/src/main/java/org/bukkit/Location.java
 @@ -6,7 +6,6 @@ import java.util.Map;
@@ -191,7 +191,7 @@ index cd7ac2f..6a0b39b 100644
  
  /**
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index a9e8973..c32ca44 100644
+index a9e8973b..c32ca449 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
 @@ -21,6 +21,7 @@ import org.bukkit.command.ConsoleCommandSender;
@@ -211,18 +211,19 @@ index a9e8973..c32ca44 100644
      /**
       * Get the maximum amount of players which can login to this server.
       *
-@@ -393,12 +396,21 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+@@ -392,6 +395,11 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+      */
      public ServicesManager getServicesManager();
  
-     /**
++    /**
 +     * Get the server event bus
 +     */
 +    EventBus eventBus();
 +
-+    /**
+     /**
       * Gets a list of all worlds on this server.
       *
-      * @return a list of worlds
+@@ -399,6 +407,10 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
       */
      public List<World> getWorlds();
  
@@ -244,7 +245,7 @@ index a9e8973..c32ca44 100644
       *
 diff --git a/src/main/java/org/bukkit/ServerInstanceModule.java b/src/main/java/org/bukkit/ServerInstanceModule.java
 new file mode 100644
-index 0000000..5339149
+index 00000000..53391492
 --- /dev/null
 +++ b/src/main/java/org/bukkit/ServerInstanceModule.java
 @@ -0,0 +1,35 @@
@@ -286,7 +287,7 @@ index 0000000..5339149
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/ServerModule.java b/src/main/java/org/bukkit/ServerModule.java
 new file mode 100644
-index 0000000..b62e327
+index 00000000..b62e3279
 --- /dev/null
 +++ b/src/main/java/org/bukkit/ServerModule.java
 @@ -0,0 +1,111 @@
@@ -403,7 +404,7 @@ index 0000000..b62e327
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/command/defaults/TimingsCommand.java b/src/main/java/org/bukkit/command/defaults/TimingsCommand.java
-index 80e0b0f..4c1df96 100644
+index 80e0b0f1..4c1df961 100644
 --- a/src/main/java/org/bukkit/command/defaults/TimingsCommand.java
 +++ b/src/main/java/org/bukkit/command/defaults/TimingsCommand.java
 @@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
@@ -434,7 +435,7 @@ index 80e0b0f..4c1df96 100644
                      }
 diff --git a/src/main/java/org/bukkit/event/BoundEventHandler.java b/src/main/java/org/bukkit/event/BoundEventHandler.java
 new file mode 100644
-index 0000000..fadd64f
+index 00000000..fadd64fa
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/BoundEventHandler.java
 @@ -0,0 +1,74 @@
@@ -515,7 +516,7 @@ index 0000000..fadd64f
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/CallableEventHandler.java b/src/main/java/org/bukkit/event/CallableEventHandler.java
 new file mode 100644
-index 0000000..bf2c117
+index 00000000..bf2c1176
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/CallableEventHandler.java
 @@ -0,0 +1,101 @@
@@ -622,7 +623,7 @@ index 0000000..bf2c117
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/Event.java b/src/main/java/org/bukkit/event/Event.java
-index 6677e1b..a8ca28a 100644
+index 6677e1bd..a8ca28ac 100644
 --- a/src/main/java/org/bukkit/event/Event.java
 +++ b/src/main/java/org/bukkit/event/Event.java
 @@ -1,5 +1,15 @@
@@ -641,7 +642,7 @@ index 6677e1b..a8ca28a 100644
  import org.bukkit.plugin.PluginManager;
  
  /**
-@@ -47,9 +57,134 @@ public abstract class Event {
+@@ -47,8 +57,133 @@ public abstract class Event {
          return name;
      }
  
@@ -706,7 +707,7 @@ index 6677e1b..a8ca28a 100644
 +        getHandlerList(handler.meta().event()).unregister(handler);
 +    }
  
-     /**
++    /**
 +     * Return the {@link HandlerList} for the given {@link Event} subtype
 +     *
 +     * This will search for an ancestor class containing a static method with this name and signature:
@@ -773,13 +774,12 @@ index 6677e1b..a8ca28a 100644
 +    public HandlerList getHandlers() {
 +        return getHandlerList(getClass());
 +    }
-+    /**
+     /**
       * Any custom event that should not by synchronized with other events must
       * use the specific constructor. These are the caveats of using an
-      * asynchronous event:
 diff --git a/src/main/java/org/bukkit/event/EventBody.java b/src/main/java/org/bukkit/event/EventBody.java
 new file mode 100644
-index 0000000..eb9c599
+index 00000000..eb9c5994
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventBody.java
 @@ -0,0 +1,11 @@
@@ -797,7 +797,7 @@ index 0000000..eb9c599
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/EventBus.java b/src/main/java/org/bukkit/event/EventBus.java
 new file mode 100644
-index 0000000..0507e23
+index 00000000..0507e23f
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventBus.java
 @@ -0,0 +1,55 @@
@@ -859,7 +859,7 @@ index 0000000..0507e23
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/EventCallable.java b/src/main/java/org/bukkit/event/EventCallable.java
 new file mode 100644
-index 0000000..2a20439
+index 00000000..2a204398
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventCallable.java
 @@ -0,0 +1,11 @@
@@ -876,7 +876,7 @@ index 0000000..2a20439
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/EventException.java b/src/main/java/org/bukkit/event/EventException.java
-index aef8d49..d34096e 100644
+index aef8d494..d34096e1 100644
 --- a/src/main/java/org/bukkit/event/EventException.java
 +++ b/src/main/java/org/bukkit/event/EventException.java
 @@ -1,5 +1,8 @@
@@ -890,7 +890,7 @@ index aef8d49..d34096e 100644
      private final Event event;
 diff --git a/src/main/java/org/bukkit/event/EventExecutor.java b/src/main/java/org/bukkit/event/EventExecutor.java
 new file mode 100644
-index 0000000..33d27c7
+index 00000000..33d27c7f
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventExecutor.java
 @@ -0,0 +1,7 @@
@@ -904,7 +904,7 @@ index 0000000..33d27c7
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/EventHandlerMeta.java b/src/main/java/org/bukkit/event/EventHandlerMeta.java
 new file mode 100644
-index 0000000..f564d89
+index 00000000..f564d897
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventHandlerMeta.java
 @@ -0,0 +1,120 @@
@@ -1031,7 +1031,7 @@ index 0000000..f564d89
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/EventMethodExecutor.java b/src/main/java/org/bukkit/event/EventMethodExecutor.java
 new file mode 100644
-index 0000000..3dd26e8
+index 00000000..3dd26e8d
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventMethodExecutor.java
 @@ -0,0 +1,119 @@
@@ -1157,7 +1157,7 @@ index 0000000..3dd26e8
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/EventRegistry.java b/src/main/java/org/bukkit/event/EventRegistry.java
 new file mode 100644
-index 0000000..13f85db
+index 00000000..13f85dba
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/EventRegistry.java
 @@ -0,0 +1,80 @@
@@ -1243,7 +1243,7 @@ index 0000000..13f85db
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/HandlerList.java b/src/main/java/org/bukkit/event/HandlerList.java
-index 7d5efff..c2f617a 100644
+index 7d5efffb..c2f617a3 100644
 --- a/src/main/java/org/bukkit/event/HandlerList.java
 +++ b/src/main/java/org/bukkit/event/HandlerList.java
 @@ -1,5 +1,6 @@
@@ -1516,7 +1516,7 @@ index 7d5efff..c2f617a 100644
      /**
 diff --git a/src/main/java/org/bukkit/event/RegisteredHandler.java b/src/main/java/org/bukkit/event/RegisteredHandler.java
 new file mode 100644
-index 0000000..520709f
+index 00000000..520709f0
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/RegisteredHandler.java
 @@ -0,0 +1,22 @@
@@ -1545,7 +1545,7 @@ index 0000000..520709f
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/SimpleEventBus.java b/src/main/java/org/bukkit/event/SimpleEventBus.java
 new file mode 100644
-index 0000000..9fdb4f6
+index 00000000..9fdb4f6a
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/SimpleEventBus.java
 @@ -0,0 +1,115 @@
@@ -1667,7 +1667,7 @@ index 0000000..9fdb4f6
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/event/SimpleEventRegistry.java b/src/main/java/org/bukkit/event/SimpleEventRegistry.java
 new file mode 100644
-index 0000000..42331b9
+index 00000000..42331b9a
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/SimpleEventRegistry.java
 @@ -0,0 +1,88 @@
@@ -1762,7 +1762,7 @@ index 0000000..42331b9
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/permissions/PermissionBinder.java b/src/main/java/org/bukkit/permissions/PermissionBinder.java
 new file mode 100644
-index 0000000..05165b1
+index 00000000..05165b11
 --- /dev/null
 +++ b/src/main/java/org/bukkit/permissions/PermissionBinder.java
 @@ -0,0 +1,18 @@
@@ -1787,7 +1787,7 @@ index 0000000..05165b1
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/EventExecutorAdapter.java b/src/main/java/org/bukkit/plugin/EventExecutorAdapter.java
 new file mode 100644
-index 0000000..b412a4a
+index 00000000..b412a4a0
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/EventExecutorAdapter.java
 @@ -0,0 +1,18 @@
@@ -1811,7 +1811,7 @@ index 0000000..b412a4a
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/Plugin.java b/src/main/java/org/bukkit/plugin/Plugin.java
-index 2a4b245..41fe908 100644
+index 2a4b245c..41fe9086 100644
 --- a/src/main/java/org/bukkit/plugin/Plugin.java
 +++ b/src/main/java/org/bukkit/plugin/Plugin.java
 @@ -8,6 +8,7 @@ import net.avicus.minecraft.api.configuration.Configurable;
@@ -1822,20 +1822,20 @@ index 2a4b245..41fe908 100644
  import org.bukkit.generator.ChunkGenerator;
  
  import com.avaje.ebean.EbeanServer;
-@@ -94,6 +95,11 @@ public interface Plugin extends TabExecutor, net.avicus.minecraft.api.plugin.Plu
+@@ -93,6 +94,11 @@ public interface Plugin extends TabExecutor, net.avicus.minecraft.api.plugin.Plu
+      */
      public PluginLoader getPluginLoader();
  
-     /**
++    /**
 +     * @return The {@link EventRegistry} belonging to this plugin.
 +     */
 +    EventRegistry eventRegistry();
 +
-+    /**
+     /**
       * Returns the Server instance currently running this plugin
       *
-      * @return Server running this plugin
 diff --git a/src/main/java/org/bukkit/plugin/PluginBase.java b/src/main/java/org/bukkit/plugin/PluginBase.java
-index 6031af1..8f043c0 100644
+index 6031af11..8f043c06 100644
 --- a/src/main/java/org/bukkit/plugin/PluginBase.java
 +++ b/src/main/java/org/bukkit/plugin/PluginBase.java
 @@ -1,5 +1,14 @@
@@ -1905,7 +1905,7 @@ index 6031af1..8f043c0 100644
          return getName().hashCode();
 diff --git a/src/main/java/org/bukkit/plugin/PluginEventRegistry.java b/src/main/java/org/bukkit/plugin/PluginEventRegistry.java
 new file mode 100644
-index 0000000..8a57106
+index 00000000..8a571061
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/PluginEventRegistry.java
 @@ -0,0 +1,57 @@
@@ -1969,7 +1969,7 @@ index 0000000..8a57106
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/PluginExceptionHandler.java b/src/main/java/org/bukkit/plugin/PluginExceptionHandler.java
 new file mode 100644
-index 0000000..e4a7dac
+index 00000000..e4a7dacf
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/PluginExceptionHandler.java
 @@ -0,0 +1,33 @@
@@ -2009,7 +2009,7 @@ index 0000000..e4a7dac
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/PluginInstanceModule.java b/src/main/java/org/bukkit/plugin/PluginInstanceModule.java
 new file mode 100644
-index 0000000..b1cc5fb
+index 00000000..b1cc5fbd
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/PluginInstanceModule.java
 @@ -0,0 +1,22 @@
@@ -2038,7 +2038,7 @@ index 0000000..b1cc5fb
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/PluginModule.java b/src/main/java/org/bukkit/plugin/PluginModule.java
 new file mode 100644
-index 0000000..c19e911
+index 00000000..c19e9116
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/PluginModule.java
 @@ -0,0 +1,54 @@
@@ -2099,7 +2099,7 @@ index 0000000..c19e911
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/PluginScheduler.java b/src/main/java/org/bukkit/plugin/PluginScheduler.java
 new file mode 100644
-index 0000000..7c14248
+index 00000000..7c14248f
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/PluginScheduler.java
 @@ -0,0 +1,33 @@
@@ -2138,7 +2138,7 @@ index 0000000..7c14248
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/RegisteredListener.java b/src/main/java/org/bukkit/plugin/RegisteredListener.java
-index 9dd0b7a..4b26a8e 100644
+index 9dd0b7a1..4b26a8e6 100644
 --- a/src/main/java/org/bukkit/plugin/RegisteredListener.java
 +++ b/src/main/java/org/bukkit/plugin/RegisteredListener.java
 @@ -1,32 +1,29 @@
@@ -2232,7 +2232,7 @@ index 9dd0b7a..4b26a8e 100644
 +    public boolean isIgnoringCancelled() { return meta().ignoreCancelled(); }
  }
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index eb66368..a5d4543 100644
+index fd8dd169..b413bdd6 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 @@ -24,7 +24,9 @@ import org.bukkit.command.Command;
@@ -2253,7 +2253,7 @@ index eb66368..a5d4543 100644
  
      public SimplePluginManager(Server instance, SimpleCommandMap commandMap) {
          server = instance;
-@@ -505,74 +506,13 @@ public final class SimplePluginManager implements PluginManager {
+@@ -506,74 +507,13 @@ public final class SimplePluginManager implements PluginManager {
          }
      }
  
@@ -2331,7 +2331,7 @@ index eb66368..a5d4543 100644
      }
  
      public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin) {
-@@ -592,46 +532,8 @@ public final class SimplePluginManager implements PluginManager {
+@@ -593,46 +533,8 @@ public final class SimplePluginManager implements PluginManager {
       *     cancelled
       */
      public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
@@ -2380,7 +2380,7 @@ index eb66368..a5d4543 100644
      }
  
      public Permission getPermission(String name) {
-@@ -763,15 +665,6 @@ public final class SimplePluginManager implements PluginManager {
+@@ -764,15 +666,6 @@ public final class SimplePluginManager implements PluginManager {
      }
  
      public boolean useTimings() {
@@ -2398,7 +2398,7 @@ index eb66368..a5d4543 100644
      }
  }
 diff --git a/src/main/java/org/bukkit/plugin/TimedRegisteredListener.java b/src/main/java/org/bukkit/plugin/TimedRegisteredListener.java
-index 164be93..304c310 100644
+index 164be937..304c310e 100644
 --- a/src/main/java/org/bukkit/plugin/TimedRegisteredListener.java
 +++ b/src/main/java/org/bukkit/plugin/TimedRegisteredListener.java
 @@ -2,12 +2,16 @@ package org.bukkit.plugin;
@@ -2431,7 +2431,7 @@ index 164be93..304c310 100644
      public void callEvent(Event event) throws EventException {
          if (event.isAsynchronous()) {
 diff --git a/src/main/java/org/bukkit/plugin/java/JavaPlugin.java b/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
-index d891eb6..2db586f 100644
+index d891eb68..2db586f2 100644
 --- a/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
 +++ b/src/main/java/org/bukkit/plugin/java/JavaPlugin.java
 @@ -15,6 +15,7 @@ import java.util.List;
@@ -2487,7 +2487,7 @@ index d891eb6..2db586f 100644
                      isEnabled = false;
                  }
 diff --git a/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java b/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java
-index 5cfeb03..68415b5 100644
+index 5cfeb03d..68415b5e 100644
 --- a/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java
 @@ -209,92 +209,12 @@ public final class JavaPluginLoader implements PluginLoader {
@@ -2591,7 +2591,7 @@ index 5cfeb03..68415b5 100644
      public void enablePlugin(final Plugin plugin) {
 diff --git a/src/main/java/org/bukkit/plugin/java/ModularPlugin.java b/src/main/java/org/bukkit/plugin/java/ModularPlugin.java
 new file mode 100644
-index 0000000..70df375
+index 00000000..70df3750
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/java/ModularPlugin.java
 @@ -0,0 +1,18 @@
@@ -2615,7 +2615,7 @@ index 0000000..70df375
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-index 917f324..1c134cd 100644
+index 917f3241..1c134cdb 100644
 --- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 @@ -3,6 +3,7 @@ package org.bukkit.plugin.java;
@@ -2650,7 +2650,7 @@ index 917f324..1c134cd 100644
          } catch (IllegalAccessException ex) {
              throw new InvalidPluginException("No public constructor", ex);
 diff --git a/src/main/java/org/bukkit/scheduler/BukkitScheduler.java b/src/main/java/org/bukkit/scheduler/BukkitScheduler.java
-index 6e28205..4dcd466 100644
+index 6e28205f..4dcd466b 100644
 --- a/src/main/java/org/bukkit/scheduler/BukkitScheduler.java
 +++ b/src/main/java/org/bukkit/scheduler/BukkitScheduler.java
 @@ -1,5 +1,6 @@
@@ -2683,7 +2683,7 @@ index 6e28205..4dcd466 100644
 +    }
  }
 diff --git a/src/main/java/org/bukkit/scheduler/BukkitTask.java b/src/main/java/org/bukkit/scheduler/BukkitTask.java
-index e447e64..c423381 100644
+index e447e64e..c4233815 100644
 --- a/src/main/java/org/bukkit/scheduler/BukkitTask.java
 +++ b/src/main/java/org/bukkit/scheduler/BukkitTask.java
 @@ -1,11 +1,12 @@
@@ -2701,7 +2701,7 @@ index e447e64..c423381 100644
      /**
       * Returns the taskId for the task.
 diff --git a/src/test/java/org/bukkit/TestServer.java b/src/test/java/org/bukkit/TestServer.java
-index 2d84032..5654c50 100644
+index 2d840320..5654c50b 100644
 --- a/src/test/java/org/bukkit/TestServer.java
 +++ b/src/test/java/org/bukkit/TestServer.java
 @@ -7,6 +7,8 @@ import java.util.Map;
@@ -2713,10 +2713,11 @@ index 2d84032..5654c50 100644
  import org.bukkit.plugin.PluginManager;
  import org.bukkit.plugin.SimplePluginManager;
  
-@@ -39,6 +41,14 @@ public class TestServer implements InvocationHandler {
+@@ -38,6 +40,14 @@ public class TestServer implements InvocationHandler {
+                         }
                      }
                  );
-             methodMap.put(
++            methodMap.put(
 +                Server.class.getMethod("eventBus"),
 +                new MethodHandler() {
 +                  public Object handle(TestServer server, Object[] args) {
@@ -2724,10 +2725,9 @@ index 2d84032..5654c50 100644
 +                  }
 +                }
 +            );
-+            methodMap.put(
+             methodMap.put(
                      Server.class.getMethod("getLogger"),
                      new MethodHandler() {
-                         final Logger logger = Logger.getLogger(TestServer.class.getCanonicalName());
 @@ -77,6 +87,7 @@ public class TestServer implements InvocationHandler {
              Server instance = Proxy.getProxyClass(Server.class.getClassLoader(), Server.class).asSubclass(Server.class).getConstructor(InvocationHandler.class).newInstance(server);
              Bukkit.setServer(instance);
@@ -2746,7 +2746,7 @@ index 2d84032..5654c50 100644
      public static Server getInstance() {
 diff --git a/src/test/java/org/bukkit/event/EventBusTest.java b/src/test/java/org/bukkit/event/EventBusTest.java
 new file mode 100644
-index 0000000..513200e
+index 00000000..513200e7
 --- /dev/null
 +++ b/src/test/java/org/bukkit/event/EventBusTest.java
 @@ -0,0 +1,275 @@
@@ -3028,7 +3028,7 @@ index 0000000..513200e
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/event/EventHandlerMetaTest.java b/src/test/java/org/bukkit/event/EventHandlerMetaTest.java
 new file mode 100644
-index 0000000..aee7e19
+index 00000000..aee7e193
 --- /dev/null
 +++ b/src/test/java/org/bukkit/event/EventHandlerMetaTest.java
 @@ -0,0 +1,87 @@
@@ -3122,7 +3122,7 @@ index 0000000..aee7e19
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/event/EventMethodExecutorTest.java b/src/test/java/org/bukkit/event/EventMethodExecutorTest.java
 new file mode 100644
-index 0000000..53225b5
+index 00000000..53225b57
 --- /dev/null
 +++ b/src/test/java/org/bukkit/event/EventMethodExecutorTest.java
 @@ -0,0 +1,135 @@
@@ -3264,7 +3264,7 @@ index 0000000..53225b5
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/event/EventRegistryTest.java b/src/test/java/org/bukkit/event/EventRegistryTest.java
 new file mode 100644
-index 0000000..da9c611
+index 00000000..da9c611e
 --- /dev/null
 +++ b/src/test/java/org/bukkit/event/EventRegistryTest.java
 @@ -0,0 +1,93 @@
@@ -3364,7 +3364,7 @@ index 0000000..da9c611
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/event/HandlerListTest.java b/src/test/java/org/bukkit/event/HandlerListTest.java
 new file mode 100644
-index 0000000..29cc9db
+index 00000000..29cc9db3
 --- /dev/null
 +++ b/src/test/java/org/bukkit/event/HandlerListTest.java
 @@ -0,0 +1,18 @@
@@ -3388,7 +3388,7 @@ index 0000000..29cc9db
 +}
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/event/TestEvent.java b/src/test/java/org/bukkit/event/TestEvent.java
-index 25904f5..badbcee 100644
+index 25904f5f..badbcee0 100644
 --- a/src/test/java/org/bukkit/event/TestEvent.java
 +++ b/src/test/java/org/bukkit/event/TestEvent.java
 @@ -4,6 +4,10 @@ package org.bukkit.event;
@@ -3404,7 +3404,7 @@ index 25904f5..badbcee 100644
      }
 diff --git a/src/test/java/org/bukkit/exception/TestExceptionHandler.java b/src/test/java/org/bukkit/exception/TestExceptionHandler.java
 new file mode 100644
-index 0000000..afd1466
+index 00000000..afd14661
 --- /dev/null
 +++ b/src/test/java/org/bukkit/exception/TestExceptionHandler.java
 @@ -0,0 +1,10 @@
@@ -3420,7 +3420,7 @@ index 0000000..afd1466
 +}
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/plugin/PluginManagerTest.java b/src/test/java/org/bukkit/plugin/PluginManagerTest.java
-index 6b86128..fd00bd9 100644
+index 6b86128e..fd00bd97 100644
 --- a/src/test/java/org/bukkit/plugin/PluginManagerTest.java
 +++ b/src/test/java/org/bukkit/plugin/PluginManagerTest.java
 @@ -26,7 +26,7 @@ public class PluginManagerTest {
@@ -3442,7 +3442,7 @@ index 6b86128..fd00bd9 100644
  
      @Test
 diff --git a/src/test/java/org/bukkit/plugin/TestPlugin.java b/src/test/java/org/bukkit/plugin/TestPlugin.java
-index 7e09892..ffb1f64 100644
+index 7e098925..ffb1f649 100644
 --- a/src/test/java/org/bukkit/plugin/TestPlugin.java
 +++ b/src/test/java/org/bukkit/plugin/TestPlugin.java
 @@ -4,6 +4,9 @@ import java.io.File;
@@ -3525,5 +3525,5 @@ index 7e09892..ffb1f64 100644
  
      public EbeanServer getDatabase() {
 -- 
-2.6.4
+2.18.0.windows.1
 

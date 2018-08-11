@@ -1,14 +1,14 @@
-From e986d1c578a3fb2506fffb602c80102e1281ae2a Mon Sep 17 00:00:00 2001
+From 060d49d3906eea56b3faa3638f4a60329dbf50ee Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 15:48:29 -0500
 Subject: [PATCH] Registration API
 
 ---
- src/main/java/org/bukkit/CraftBukkitRuntime.java   |  41 +++++++
- .../java/org/bukkit/craftbukkit/CraftServer.java   |   3 +-
- .../org/bukkit/craftbukkit/registry/CraftKey.java  |  62 ++++++++++
- .../bukkit/craftbukkit/registry/CraftRegistry.java | 101 +++++++++++++++++
- src/test/java/org/bukkit/support/DummyServer.java  | 125 +++++++++++----------
+ .../java/org/bukkit/CraftBukkitRuntime.java   |  41 ++++++
+ .../org/bukkit/craftbukkit/CraftServer.java   |   3 +-
+ .../bukkit/craftbukkit/registry/CraftKey.java |  62 +++++++++
+ .../craftbukkit/registry/CraftRegistry.java   | 101 ++++++++++++++
+ .../java/org/bukkit/support/DummyServer.java  | 125 +++++++++---------
  5 files changed, 271 insertions(+), 61 deletions(-)
  create mode 100644 src/main/java/org/bukkit/CraftBukkitRuntime.java
  create mode 100644 src/main/java/org/bukkit/craftbukkit/registry/CraftKey.java
@@ -16,7 +16,7 @@ Subject: [PATCH] Registration API
 
 diff --git a/src/main/java/org/bukkit/CraftBukkitRuntime.java b/src/main/java/org/bukkit/CraftBukkitRuntime.java
 new file mode 100644
-index 0000000..7728f57
+index 00000000..7728f57e
 --- /dev/null
 +++ b/src/main/java/org/bukkit/CraftBukkitRuntime.java
 @@ -0,0 +1,41 @@
@@ -63,7 +63,7 @@ index 0000000..7728f57
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 069af56..33ab147 100644
+index 069af56f..33ab1470 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -30,6 +30,7 @@ import net.minecraft.server.*;
@@ -85,7 +85,7 @@ index 069af56..33ab147 100644
      private final String serverVersion;
 diff --git a/src/main/java/org/bukkit/craftbukkit/registry/CraftKey.java b/src/main/java/org/bukkit/craftbukkit/registry/CraftKey.java
 new file mode 100644
-index 0000000..68a6752
+index 00000000..68a67529
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/registry/CraftKey.java
 @@ -0,0 +1,62 @@
@@ -154,7 +154,7 @@ index 0000000..68a6752
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/craftbukkit/registry/CraftRegistry.java b/src/main/java/org/bukkit/craftbukkit/registry/CraftRegistry.java
 new file mode 100644
-index 0000000..619bb74
+index 00000000..619bb743
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/registry/CraftRegistry.java
 @@ -0,0 +1,101 @@
@@ -261,7 +261,7 @@ index 0000000..619bb74
 +}
 \ No newline at end of file
 diff --git a/src/test/java/org/bukkit/support/DummyServer.java b/src/test/java/org/bukkit/support/DummyServer.java
-index e5215bb..34f6dd1 100644
+index e5215bb4..34f6dd11 100644
 --- a/src/test/java/org/bukkit/support/DummyServer.java
 +++ b/src/test/java/org/bukkit/support/DummyServer.java
 @@ -7,73 +7,78 @@ import java.util.HashMap;
@@ -405,5 +405,5 @@ index e5215bb..34f6dd1 100644
 +}
 \ No newline at end of file
 -- 
-2.6.4
+2.18.0.windows.1
 

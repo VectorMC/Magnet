@@ -1,14 +1,14 @@
-From 3b67d5bcf3845f5ba6d3ec274b2772ab60e66501 Mon Sep 17 00:00:00 2001
+From 0a807d612557d86aad9d8c655f57399555efba86 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Fri, 23 Dec 2016 03:12:50 -0600
 Subject: [PATCH] Allow villager GUI duplication
 
 ---
- .../bukkit/craftbukkit/entity/CraftHumanEntity.java | 21 +++++++++++++++++++++
+ .../craftbukkit/entity/CraftHumanEntity.java  | 21 +++++++++++++++++++
  1 file changed, 21 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
-index 8a08bab..ec3235e 100644
+index 8a08babc..ec3235e8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 @@ -2,12 +2,14 @@ package org.bukkit.craftbukkit.entity;
@@ -53,5 +53,5 @@ index 8a08bab..ec3235e 100644
          return perm.addAttachment(plugin);
      }
 -- 
-2.6.4
+2.18.0.windows.1
 

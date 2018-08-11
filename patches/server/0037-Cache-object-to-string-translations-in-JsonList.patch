@@ -1,17 +1,17 @@
-From 9beb181b61938ff45eeba4ee868860b4faab93f7 Mon Sep 17 00:00:00 2001
+From a4bc29faeb96f01ba1cd8faba55dc95fc661ab91 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 12:59:04 -0500
 Subject: [PATCH] Cache object to string translations in JsonList
 
 ---
- .../net/minecraft/server/GameProfileBanList.java   |  6 +-----
- src/main/java/net/minecraft/server/JsonList.java   | 25 ++++++++++++++++++++--
- src/main/java/net/minecraft/server/OpList.java     |  7 ++----
- src/main/java/net/minecraft/server/WhiteList.java  |  6 +-----
+ .../minecraft/server/GameProfileBanList.java  |  6 +----
+ .../java/net/minecraft/server/JsonList.java   | 25 +++++++++++++++++--
+ .../java/net/minecraft/server/OpList.java     |  7 ++----
+ .../java/net/minecraft/server/WhiteList.java  |  6 +----
  4 files changed, 27 insertions(+), 17 deletions(-)
 
 diff --git a/src/main/java/net/minecraft/server/GameProfileBanList.java b/src/main/java/net/minecraft/server/GameProfileBanList.java
-index 737035b..c2527f5 100644
+index 737035bf..c2527f53 100644
 --- a/src/main/java/net/minecraft/server/GameProfileBanList.java
 +++ b/src/main/java/net/minecraft/server/GameProfileBanList.java
 @@ -33,7 +33,7 @@ public class GameProfileBanList extends JsonList<GameProfile, GameProfileBanEntr
@@ -33,7 +33,7 @@ index 737035b..c2527f5 100644
 -    }
  }
 diff --git a/src/main/java/net/minecraft/server/JsonList.java b/src/main/java/net/minecraft/server/JsonList.java
-index 8e4ecfd..acb7a8c 100644
+index 8e4ecfd6..acb7a8c3 100644
 --- a/src/main/java/net/minecraft/server/JsonList.java
 +++ b/src/main/java/net/minecraft/server/JsonList.java
 @@ -1,6 +1,9 @@
@@ -83,7 +83,7 @@ index 8e4ecfd..acb7a8c 100644
      protected boolean d(K k0) {
          return this.d.containsKey(this.a(k0));
 diff --git a/src/main/java/net/minecraft/server/OpList.java b/src/main/java/net/minecraft/server/OpList.java
-index a85ad5d..c10a5a9 100644
+index a85ad5d4..c10a5a9b 100644
 --- a/src/main/java/net/minecraft/server/OpList.java
 +++ b/src/main/java/net/minecraft/server/OpList.java
 @@ -35,7 +35,8 @@ public class OpList extends JsonList<GameProfile, OpListEntry> {
@@ -106,7 +106,7 @@ index a85ad5d..c10a5a9 100644
 -    }
  }
 diff --git a/src/main/java/net/minecraft/server/WhiteList.java b/src/main/java/net/minecraft/server/WhiteList.java
-index 85085d5..3b4dd07 100644
+index 85085d54..3b4dd076 100644
 --- a/src/main/java/net/minecraft/server/WhiteList.java
 +++ b/src/main/java/net/minecraft/server/WhiteList.java
 @@ -33,7 +33,7 @@ public class WhiteList extends JsonList<GameProfile, WhiteListEntry> {
@@ -128,5 +128,5 @@ index 85085d5..3b4dd07 100644
 -    }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

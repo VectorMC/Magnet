@@ -1,16 +1,16 @@
-From 6798b824660918285624dc22a76309e0959b97ed Mon Sep 17 00:00:00 2001
+From cc59187521bb888f4972aafa34c34c3ac2eb8b85 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 17:23:46 -0500
 Subject: [PATCH] Block physics API
 
 ---
- src/main/java/net/minecraft/server/World.java      | 22 ++++++++++++++
- .../org/bukkit/craftbukkit/block/CraftBlock.java   | 35 ++++++++++++++++++++++
- .../bukkit/craftbukkit/util/CraftMagicNumbers.java | 15 ++++++++++
+ src/main/java/net/minecraft/server/World.java | 22 ++++++++++++
+ .../bukkit/craftbukkit/block/CraftBlock.java  | 35 +++++++++++++++++++
+ .../craftbukkit/util/CraftMagicNumbers.java   | 15 ++++++++
  3 files changed, 72 insertions(+)
 
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index f37a187..48d5cd7 100644
+index f37a187a..48d5cd7d 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -455,6 +455,15 @@ public abstract class World implements IBlockAccess {
@@ -64,7 +64,7 @@ index f37a187..48d5cd7 100644
              if (this.isLoaded(blockposition1)) {
                  IBlockData iblockdata = this.getType(blockposition1);
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 5f84ba3..9af96a6 100644
+index 5f84ba33..9af96a64 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -20,6 +20,7 @@ import org.bukkit.craftbukkit.CraftChunk;
@@ -115,7 +115,7 @@ index 5f84ba3..9af96a6 100644
 +    }
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index 589dba7..99d7519 100644
+index 589dba72..99d7519f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 @@ -1,5 +1,6 @@
@@ -159,5 +159,5 @@ index 589dba7..99d7519 100644
 +    }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

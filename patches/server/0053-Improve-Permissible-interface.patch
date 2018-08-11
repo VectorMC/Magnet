@@ -1,18 +1,18 @@
-From f6debd45733d30f9f96d8a0293059c94711a72be Mon Sep 17 00:00:00 2001
+From 2586da638fba5bad69b3c24318e80e8b80c45a61 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 14:38:12 -0500
 Subject: [PATCH] Improve Permissible interface
 
 ---
- .../command/ProxiedNativeCommandSender.java        | 61 ++++++++++++++++++++++
- .../craftbukkit/command/ServerCommandSender.java   | 61 ++++++++++++++++++++++
- .../org/bukkit/craftbukkit/entity/CraftEntity.java | 60 +++++++++++++++++++++
- .../craftbukkit/entity/CraftHumanEntity.java       | 61 ++++++++++++++++++++++
- .../craftbukkit/entity/CraftMinecartCommand.java   | 61 ++++++++++++++++++++++
+ .../command/ProxiedNativeCommandSender.java   | 61 +++++++++++++++++++
+ .../command/ServerCommandSender.java          | 61 +++++++++++++++++++
+ .../craftbukkit/entity/CraftEntity.java       | 60 ++++++++++++++++++
+ .../craftbukkit/entity/CraftHumanEntity.java  | 61 +++++++++++++++++++
+ .../entity/CraftMinecartCommand.java          | 61 +++++++++++++++++++
  5 files changed, 304 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
-index 78b9895..26662ef 100644
+index 78b9895d..26662ef2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
 @@ -1,6 +1,7 @@
@@ -23,10 +23,11 @@ index 78b9895..26662ef 100644
  import java.util.Set;
  import net.minecraft.server.ICommandListener;
  
-@@ -114,6 +115,66 @@ public class ProxiedNativeCommandSender implements ProxiedCommandSender {
+@@ -113,6 +114,66 @@ public class ProxiedNativeCommandSender implements ProxiedCommandSender {
+         return getCaller().getEffectivePermissions();
      }
  
-     @Override
++    @Override
 +    public boolean removeAttachments(Plugin plugin) {
 +        return getCaller().removeAttachments(plugin);
 +    }
@@ -86,12 +87,11 @@ index 78b9895..26662ef 100644
 +        return getCaller().getAttachments(plugin, permission);
 +    }
 +
-+    @Override
+     @Override
      public boolean isOp() {
          return getCaller().isOp();
-     }
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
-index 5c53210..9238ca4 100644
+index 5c532102..9238ca49 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
 @@ -1,5 +1,6 @@
@@ -169,13 +169,14 @@ index 5c53210..9238ca4 100644
          return false;
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 038ace0..8ce963e 100644
+index 038ace0a..8ce963e6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -555,6 +555,66 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -554,6 +554,66 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return perm.getEffectivePermissions();
      }
  
-     @Override
++    @Override
 +    public boolean removeAttachments(Plugin plugin) {
 +        return perm.removeAttachments(plugin);
 +    }
@@ -235,12 +236,11 @@ index 038ace0..8ce963e 100644
 +        return perm.getAttachments(plugin, permission);
 +    }
 +
-+    @Override
+     @Override
      public boolean isOp() {
          return perm.isOp();
-     }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
-index f1c6608..2ea3368 100644
+index f1c66084..2ea33685 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
 @@ -1,5 +1,6 @@
@@ -318,7 +318,7 @@ index f1c6608..2ea3368 100644
          return mode;
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
-index 2f6623c..643961d 100644
+index 2f6623c9..643961d2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
 @@ -1,5 +1,6 @@
@@ -328,10 +328,11 @@ index 2f6623c..643961d 100644
  import java.util.Set;
  
  import net.minecraft.server.EntityMinecartCommandBlock;
-@@ -121,6 +122,66 @@ public class CraftMinecartCommand extends CraftMinecart implements CommandMineca
+@@ -120,6 +121,66 @@ public class CraftMinecartCommand extends CraftMinecart implements CommandMineca
+         return perm.getEffectivePermissions();
      }
  
-     @Override
++    @Override
 +    public boolean removeAttachments(Plugin plugin) {
 +        return perm.removeAttachments(plugin);
 +    }
@@ -391,10 +392,9 @@ index 2f6623c..643961d 100644
 +        return perm.getAttachments(plugin, permission);
 +    }
 +
-+    @Override
+     @Override
      public Server getServer() {
          return Bukkit.getServer();
-     }
 -- 
-2.6.4
+2.18.0.windows.1
 

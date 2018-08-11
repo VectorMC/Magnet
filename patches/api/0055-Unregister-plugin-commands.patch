@@ -1,16 +1,16 @@
-From 414ec58675e333739d29e62a1dc2db6529175436 Mon Sep 17 00:00:00 2001
+From 9adfa994cdde1050d4aa61e0046c03df1f06ac92 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:08:25 -0500
 Subject: [PATCH] Unregister plugin commands
 
 ---
- src/main/java/org/bukkit/command/CommandMap.java       |  4 ++++
- src/main/java/org/bukkit/command/SimpleCommandMap.java | 18 ++++++++++++++++++
- .../java/org/bukkit/plugin/SimplePluginManager.java    |  8 ++++++++
+ .../java/org/bukkit/command/CommandMap.java    |  4 ++++
+ .../org/bukkit/command/SimpleCommandMap.java   | 18 ++++++++++++++++++
+ .../org/bukkit/plugin/SimplePluginManager.java |  8 ++++++++
  3 files changed, 30 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/command/CommandMap.java b/src/main/java/org/bukkit/command/CommandMap.java
-index e7e20d8..be14efd 100644
+index e7e20d89..be14efdb 100644
 --- a/src/main/java/org/bukkit/command/CommandMap.java
 +++ b/src/main/java/org/bukkit/command/CommandMap.java
 @@ -1,6 +1,7 @@
@@ -32,7 +32,7 @@ index e7e20d8..be14efd 100644
       * Looks for the requested command and executes it if found.
       *
 diff --git a/src/main/java/org/bukkit/command/SimpleCommandMap.java b/src/main/java/org/bukkit/command/SimpleCommandMap.java
-index f35bc09..8021d52 100644
+index f35bc092..8021d520 100644
 --- a/src/main/java/org/bukkit/command/SimpleCommandMap.java
 +++ b/src/main/java/org/bukkit/command/SimpleCommandMap.java
 @@ -9,6 +9,7 @@ import java.util.HashMap;
@@ -68,7 +68,7 @@ index f35bc09..8021d52 100644
       * {@inheritDoc}
       */
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index a5d4543..153e3a0 100644
+index b413bdd6..64a9c9ee 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 @@ -22,6 +22,7 @@ import org.apache.commons.lang.Validate;
@@ -79,7 +79,7 @@ index a5d4543..153e3a0 100644
  import org.bukkit.command.SimpleCommandMap;
  import org.bukkit.configuration.serialization.ConfigurationSerialization;
  import org.bukkit.event.BoundEventHandler;
-@@ -483,6 +484,13 @@ public final class SimplePluginManager implements PluginManager {
+@@ -484,6 +485,13 @@ public final class SimplePluginManager implements PluginManager {
              } catch (Throwable ex) {
                  server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering serializables " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
              }
@@ -94,5 +94,5 @@ index a5d4543..153e3a0 100644
      }
  
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,19 +1,19 @@
-From 1b9536cff56a65bee785a6ddcd8da1277f7d4d06 Mon Sep 17 00:00:00 2001
+From 793c26846ff7c005aff3ef7c5495c1ed1efe7d86 Mon Sep 17 00:00:00 2001
 From: Jedediah Smith <jedediah@silencegreys.com>
 Date: Fri, 3 Jun 2016 02:02:17 -0400
 Subject: [PATCH] Component support for signs
 
 ---
- .../java/net/minecraft/server/ChatModifier.java    |  12 ++
- .../net/minecraft/server/PlayerConnection.java     |  13 +-
- .../org/bukkit/craftbukkit/block/CraftSign.java    |  65 +++++--
- .../org/bukkit/craftbukkit/entity/CraftPlayer.java |  34 +++-
- .../bukkit/craftbukkit/util/BungeeChatUtils.java   | 187 +++++++++++++++++++++
+ .../net/minecraft/server/ChatModifier.java    |  12 ++
+ .../minecraft/server/PlayerConnection.java    |  13 +-
+ .../bukkit/craftbukkit/block/CraftSign.java   |  65 +++++-
+ .../craftbukkit/entity/CraftPlayer.java       |  34 +++-
+ .../craftbukkit/util/BungeeChatUtils.java     | 187 ++++++++++++++++++
  5 files changed, 296 insertions(+), 15 deletions(-)
  create mode 100644 src/main/java/org/bukkit/craftbukkit/util/BungeeChatUtils.java
 
 diff --git a/src/main/java/net/minecraft/server/ChatModifier.java b/src/main/java/net/minecraft/server/ChatModifier.java
-index 21f7e6b..689c0a1 100644
+index 21f7e6ba..689c0a1e 100644
 --- a/src/main/java/net/minecraft/server/ChatModifier.java
 +++ b/src/main/java/net/minecraft/server/ChatModifier.java
 @@ -300,6 +300,18 @@ public class ChatModifier {
@@ -36,7 +36,7 @@ index 21f7e6b..689c0a1 100644
  
          public ChatModifierSerializer() {}
 diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
-index f36bb8a..6ef3742 100644
+index f36bb8a8..6ef37428 100644
 --- a/src/main/java/net/minecraft/server/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/PlayerConnection.java
 @@ -1948,16 +1948,23 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
@@ -67,7 +67,7 @@ index f36bb8a..6ef3742 100644
               }
              // CraftBukkit end
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftSign.java b/src/main/java/org/bukkit/craftbukkit/block/CraftSign.java
-index 43adfcc..23428e4 100644
+index 43adfccd..23428e41 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftSign.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftSign.java
 @@ -11,40 +11,50 @@ import org.bukkit.craftbukkit.util.CraftChatMessage;
@@ -181,7 +181,7 @@ index 43adfcc..23428e4 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 2f2340f..cc29c44 100644
+index 2f2340fd..cc29c449 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -469,9 +469,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
@@ -234,7 +234,7 @@ index 2f2340f..cc29c44 100644
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/BungeeChatUtils.java b/src/main/java/org/bukkit/craftbukkit/util/BungeeChatUtils.java
 new file mode 100644
-index 0000000..c0ff3a1
+index 00000000..c0ff3a1e
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/util/BungeeChatUtils.java
 @@ -0,0 +1,187 @@
@@ -426,5 +426,5 @@ index 0000000..c0ff3a1
 +    }
 +}
 -- 
-2.6.4
+2.18.0.windows.1
 

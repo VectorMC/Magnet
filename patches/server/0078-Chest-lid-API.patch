@@ -1,15 +1,15 @@
-From ca2be85b48a18915baedb703266bc98dcc5e3d38 Mon Sep 17 00:00:00 2001
+From f5cb84986ca8c5e15e97dbc0c0d38df40f209b25 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 21:52:31 -0500
 Subject: [PATCH] Chest lid API
 
 ---
- .../java/net/minecraft/server/TileEntityChest.java | 50 +++++++++++++++++++++-
- .../org/bukkit/craftbukkit/block/CraftChest.java   | 10 +++++
+ .../net/minecraft/server/TileEntityChest.java | 50 ++++++++++++++++++-
+ .../bukkit/craftbukkit/block/CraftChest.java  | 10 ++++
  2 files changed, 58 insertions(+), 2 deletions(-)
 
 diff --git a/src/main/java/net/minecraft/server/TileEntityChest.java b/src/main/java/net/minecraft/server/TileEntityChest.java
-index 5192d95..1155ac2 100644
+index 5192d959..1155ac2d 100644
 --- a/src/main/java/net/minecraft/server/TileEntityChest.java
 +++ b/src/main/java/net/minecraft/server/TileEntityChest.java
 @@ -4,6 +4,7 @@ import java.util.Iterator;
@@ -98,7 +98,7 @@ index 5192d95..1155ac2 100644
              // CraftBukkit start - Call redstone event
              if (this.w() == Blocks.TRAPPED_CHEST) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java b/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java
-index ce36ee4..64cb35e 100644
+index ce36ee4a..64cb35e8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftChest.java
 @@ -84,4 +84,14 @@ public class CraftChest extends CraftBlockState implements Chest {
@@ -117,5 +117,5 @@ index ce36ee4..64cb35e 100644
 +    }
  }
 -- 
-2.6.4
+2.18.0.windows.1
 

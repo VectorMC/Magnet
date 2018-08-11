@@ -1,26 +1,26 @@
-From 724b47ac2967f34f5eba3d061a028b8b97915be7 Mon Sep 17 00:00:00 2001
+From c39468b54897025efe663cffe78551ab816ef1c7 Mon Sep 17 00:00:00 2001
 From: Jedediah Smith <jedediah@silencegreys.com>
 Date: Tue, 11 Feb 2014 22:12:50 -0600
 Subject: [PATCH] Fake name and skin API
 
 ---
- .../java/net/minecraft/server/EntityPlayer.java    |   9 +-
- .../minecraft/server/PacketPlayOutPlayerInfo.java  |  14 ++
- .../server/PacketPlayOutScoreboardTeam.java        |  22 ++
- .../net/minecraft/server/PlayerConnection.java     |  55 ++++-
- src/main/java/net/minecraft/server/PlayerList.java |  20 +-
- .../java/org/bukkit/craftbukkit/CraftServer.java   |  45 +++-
- .../command/ProxiedNativeCommandSender.java        |   6 +
- .../craftbukkit/command/ServerCommandSender.java   |   7 +
- .../org/bukkit/craftbukkit/entity/CraftEntity.java |   7 +
- .../craftbukkit/entity/CraftMinecartCommand.java   |   7 +
- .../org/bukkit/craftbukkit/entity/CraftPlayer.java | 263 ++++++++++++++++++++-
- .../java/org/bukkit/craftbukkit/util/Skins.java    |  61 +++++
+ .../net/minecraft/server/EntityPlayer.java    |   9 +-
+ .../server/PacketPlayOutPlayerInfo.java       |  14 +
+ .../server/PacketPlayOutScoreboardTeam.java   |  22 ++
+ .../minecraft/server/PlayerConnection.java    |  55 +++-
+ .../java/net/minecraft/server/PlayerList.java |  20 +-
+ .../org/bukkit/craftbukkit/CraftServer.java   |  45 ++-
+ .../command/ProxiedNativeCommandSender.java   |   6 +
+ .../command/ServerCommandSender.java          |   7 +
+ .../craftbukkit/entity/CraftEntity.java       |   7 +
+ .../entity/CraftMinecartCommand.java          |   7 +
+ .../craftbukkit/entity/CraftPlayer.java       | 263 +++++++++++++++++-
+ .../org/bukkit/craftbukkit/util/Skins.java    |  61 ++++
  12 files changed, 501 insertions(+), 15 deletions(-)
  create mode 100644 src/main/java/org/bukkit/craftbukkit/util/Skins.java
 
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 1e0706d..35c64a8 100644
+index 1e0706d8..35c64a85 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
 @@ -1022,7 +1022,14 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
@@ -40,7 +40,7 @@ index 1e0706d..35c64a8 100644
  
      public EntityHuman.EnumChatVisibility getChatFlags() {
 diff --git a/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java b/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java
-index fc5ad29..b211014 100644
+index fc5ad291..b211014e 100644
 --- a/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java
 +++ b/src/main/java/net/minecraft/server/PacketPlayOutPlayerInfo.java
 @@ -15,6 +15,20 @@ public class PacketPlayOutPlayerInfo implements Packet<PacketListenerPlayOut> {
@@ -65,7 +65,7 @@ index fc5ad29..b211014 100644
          this.a = packetplayoutplayerinfo_enumplayerinfoaction;
          EntityPlayer[] aentityplayer1 = aentityplayer;
 diff --git a/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java b/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java
-index 4b8eb3e..4e1a592 100644
+index 4b8eb3ee..4e1a5922 100644
 --- a/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java
 +++ b/src/main/java/net/minecraft/server/PacketPlayOutScoreboardTeam.java
 @@ -59,6 +59,28 @@ public class PacketPlayOutScoreboardTeam implements Packet<PacketListenerPlayOut
@@ -98,7 +98,7 @@ index 4b8eb3e..4e1a592 100644
          this.a = packetdataserializer.c(16);
          this.h = packetdataserializer.readByte();
 diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
-index 05b5937..f36bb8a 100644
+index 05b5937f..f36bb8a8 100644
 --- a/src/main/java/net/minecraft/server/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/PlayerConnection.java
 @@ -885,6 +885,8 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
@@ -178,7 +178,7 @@ index 05b5937..f36bb8a 100644
              CrashReport crashreport = CrashReport.a(throwable, "Sending packet");
              CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Packet being sent");
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index 3c2d319..e3d389f 100644
+index 3c2d3197..e3d389fc 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
 @@ -326,11 +326,14 @@ public abstract class PlayerList {
@@ -220,7 +220,7 @@ index 3c2d319..e3d389f 100644
          // CraftBukkit end
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 6fabb5c..5c4eeff 100644
+index 6fabb5c3..5c4eeffd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -401,7 +401,7 @@ public final class CraftServer implements Server {
@@ -316,7 +316,7 @@ index 6fabb5c..5c4eeff 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
-index 9acd92c..78b9895 100644
+index 9acd92c3..78b9895d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/ProxiedNativeCommandSender.java
 @@ -123,4 +123,10 @@ public class ProxiedNativeCommandSender implements ProxiedCommandSender {
@@ -331,7 +331,7 @@ index 9acd92c..78b9895 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
-index b339cf3..5c53210 100644
+index b339cf3e..5c532102 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/ServerCommandSender.java
 @@ -77,4 +77,11 @@ public abstract class ServerCommandSender implements CommandSender {
@@ -347,7 +347,7 @@ index b339cf3..5c53210 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index a2223e4..038ace0 100644
+index a2223e4a..038ace0a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -579,4 +579,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
@@ -363,7 +363,7 @@ index a2223e4..038ace0 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
-index 813b080..2f6623c 100644
+index 813b080a..2f6623c9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartCommand.java
 @@ -124,4 +124,11 @@ public class CraftMinecartCommand extends CraftMinecart implements CommandMineca
@@ -379,7 +379,7 @@ index 813b080..2f6623c 100644
 +    // Magnet end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 4bfd59d..2f2340f 100644
+index 4bfd59db..2f2340fd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -81,11 +81,18 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
@@ -679,7 +679,7 @@ index 4bfd59d..2f2340f 100644
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Skins.java b/src/main/java/org/bukkit/craftbukkit/util/Skins.java
 new file mode 100644
-index 0000000..43345fa
+index 00000000..43345fa5
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Skins.java
 @@ -0,0 +1,61 @@
@@ -745,5 +745,5 @@ index 0000000..43345fa
 +    }
 +}
 -- 
-2.6.4
+2.18.0.windows.1
 

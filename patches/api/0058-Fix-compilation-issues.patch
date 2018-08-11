@@ -1,28 +1,28 @@
-From 41207b4b6599f94fe6c44d8feab1a460c23540cc Mon Sep 17 00:00:00 2001
+From 359a9fa6ed1e1004854c931050e94b8f86082e7f Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 21:47:53 -0500
 Subject: [PATCH] Fix compilation issues
 
 ---
- src/main/java/org/bukkit/Bukkit.java               |   8 -
- src/main/java/org/bukkit/BukkitModule.java         |  24 ---
- src/main/java/org/bukkit/EntityLocation.java       |   2 +-
- src/main/java/org/bukkit/Location.java             |  10 ++
- src/main/java/org/bukkit/Server.java               |  10 +-
- src/main/java/org/bukkit/ServerModule.java         |   2 +
- src/main/java/org/bukkit/block/BlockState.java     |   2 +-
- .../bukkit/configuration/ConfigurationSection.java |   2 +-
- .../org/bukkit/configuration/MemorySection.java    |   2 +-
- .../org/bukkit/plugin/PluginDescriptionFile.java   |   3 +-
- src/test/java/org/bukkit/LocationTest.java         |   3 +-
- .../java/org/bukkit/event/SyntheticEventTest.java  |  49 ------
- src/test/java/org/bukkit/potion/PotionTest.java    | 170 ---------------------
+ src/main/java/org/bukkit/Bukkit.java          |   8 -
+ src/main/java/org/bukkit/BukkitModule.java    |  24 ---
+ src/main/java/org/bukkit/EntityLocation.java  |   2 +-
+ src/main/java/org/bukkit/Location.java        |  10 ++
+ src/main/java/org/bukkit/Server.java          |  10 +-
+ src/main/java/org/bukkit/ServerModule.java    |   2 +
+ .../java/org/bukkit/block/BlockState.java     |   2 +-
+ .../configuration/ConfigurationSection.java   |   2 +-
+ .../bukkit/configuration/MemorySection.java   |   2 +-
+ .../bukkit/plugin/PluginDescriptionFile.java  |   3 +-
+ src/test/java/org/bukkit/LocationTest.java    |   3 +-
+ .../org/bukkit/event/SyntheticEventTest.java  |  49 -----
+ .../java/org/bukkit/potion/PotionTest.java    | 170 ------------------
  13 files changed, 25 insertions(+), 262 deletions(-)
  delete mode 100644 src/test/java/org/bukkit/event/SyntheticEventTest.java
  delete mode 100644 src/test/java/org/bukkit/potion/PotionTest.java
 
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index b4eade1..322fdb2 100644
+index b4eade15..322fdb2c 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
 @@ -13,7 +13,6 @@ import java.util.UUID;
@@ -33,22 +33,22 @@ index b4eade1..322fdb2 100644
  import org.bukkit.command.CommandException;
  import org.bukkit.command.CommandMap;
  import org.bukkit.command.CommandSender;
-@@ -384,13 +383,6 @@ public final class Bukkit {
+@@ -383,13 +382,6 @@ public final class Bukkit {
+         return server.getConnectionThrottle();
      }
  
-     /**
+-    /**
 -     * Should plugins be able to access classes from other plugins that are not explicit dependencies?
 -     */
 -    public static boolean getIsolatePlugins() {
 -        return server.getIsolatePlugins();
 -    }
 -
--    /**
+     /**
       * @see Server#getFetchSkulls()
       */
-     public static boolean getFetchSkulls() {
 diff --git a/src/main/java/org/bukkit/BukkitModule.java b/src/main/java/org/bukkit/BukkitModule.java
-index b69aff1..fd3fb4b 100644
+index b69aff1d..fd3fb4b6 100644
 --- a/src/main/java/org/bukkit/BukkitModule.java
 +++ b/src/main/java/org/bukkit/BukkitModule.java
 @@ -2,11 +2,7 @@ package org.bukkit;
@@ -63,10 +63,11 @@ index b69aff1..fd3fb4b 100644
  
  /**
   * Bindings for global things that would be shared between servers,
-@@ -18,27 +14,7 @@ public class BukkitModule extends SingletonModule {
+@@ -17,28 +13,8 @@ public class BukkitModule extends SingletonModule {
+   @Override
    protected void configure() {}
  
-   @Provides
+-  @Provides
 -  VectorFactory vectorFactory(BukkitRuntime bukkit) {
 -    return bukkit.vectors();
 -  }
@@ -76,7 +77,7 @@ index b69aff1..fd3fb4b 100644
 -    return bukkit.blocks();
 -  }
 -
--  @Provides
+   @Provides
    ItemFactory itemFactory(BukkitRuntime bukkit) {
      return bukkit.getItemFactory();
    }
@@ -93,7 +94,7 @@ index b69aff1..fd3fb4b 100644
  }
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/EntityLocation.java b/src/main/java/org/bukkit/EntityLocation.java
-index eba0111..1509914 100644
+index eba01110..15099149 100644
 --- a/src/main/java/org/bukkit/EntityLocation.java
 +++ b/src/main/java/org/bukkit/EntityLocation.java
 @@ -55,7 +55,7 @@ public class EntityLocation extends Location {
@@ -106,7 +107,7 @@ index eba0111..1509914 100644
    }
  
 diff --git a/src/main/java/org/bukkit/Location.java b/src/main/java/org/bukkit/Location.java
-index 79a003c..199665e 100644
+index 79a003c2..199665e6 100644
 --- a/src/main/java/org/bukkit/Location.java
 +++ b/src/main/java/org/bukkit/Location.java
 @@ -21,6 +21,16 @@ public class Location implements Cloneable, ConfigurationSerializable, Locatable
@@ -127,21 +128,21 @@ index 79a003c..199665e 100644
       * Constructs a new Location with the given coordinates
       *
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 545427b..ac5379b 100644
+index 545427b4..ac5379b8 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -289,11 +289,6 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+@@ -288,11 +288,6 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
+      */
      public long getConnectionThrottle();
  
-     /**
+-    /**
 -     * Should plugins be able to access classes from other plugins that are not explicit dependencies?
 -     */
 -    public boolean getIsolatePlugins();
 -
--    /**
+     /**
       * Should player skulls with missing skin data be fetched from Mojang?
       */
-     public boolean getFetchSkulls();
 @@ -656,6 +651,11 @@ public interface Server extends PluginMessageRecipient, BukkitRuntime, LocalServ
       */
      public void shutdown();
@@ -155,7 +156,7 @@ index 545427b..ac5379b 100644
       * Broadcasts the specified message to every user with the given
       * permission name.
 diff --git a/src/main/java/org/bukkit/ServerModule.java b/src/main/java/org/bukkit/ServerModule.java
-index b62e327..9ada9a2 100644
+index b62e3279..9ada9a2a 100644
 --- a/src/main/java/org/bukkit/ServerModule.java
 +++ b/src/main/java/org/bukkit/ServerModule.java
 @@ -8,6 +8,7 @@ import com.google.inject.Provides;
@@ -175,7 +176,7 @@ index b62e327..9ada9a2 100644
      bind(net.avicus.minecraft.api.server.Server.class).to(LocalServer.class);
      bind(LocalServer.class).to(Server.class);
 diff --git a/src/main/java/org/bukkit/block/BlockState.java b/src/main/java/org/bukkit/block/BlockState.java
-index 36ff2ba..94340f7 100644
+index 36ff2baf..94340f78 100644
 --- a/src/main/java/org/bukkit/block/BlockState.java
 +++ b/src/main/java/org/bukkit/block/BlockState.java
 @@ -62,7 +62,7 @@ public interface BlockState extends Metadatable, Locatable {
@@ -188,7 +189,7 @@ index 36ff2ba..94340f7 100644
       * Gets the x-coordinate of this block
       *
 diff --git a/src/main/java/org/bukkit/configuration/ConfigurationSection.java b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
-index f1888fb..e801886 100644
+index f1888fb0..e8018866 100644
 --- a/src/main/java/org/bukkit/configuration/ConfigurationSection.java
 +++ b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
 @@ -853,5 +853,5 @@ public interface ConfigurationSection extends
@@ -199,7 +200,7 @@ index f1888fb..e801886 100644
 +    ConfigurationSection needSection(String path) throws net.avicus.minecraft.api.configuration.InvalidConfigurationException;
  }
 diff --git a/src/main/java/org/bukkit/configuration/MemorySection.java b/src/main/java/org/bukkit/configuration/MemorySection.java
-index a314560..6657813 100644
+index a3145605..6657813f 100644
 --- a/src/main/java/org/bukkit/configuration/MemorySection.java
 +++ b/src/main/java/org/bukkit/configuration/MemorySection.java
 @@ -705,7 +705,7 @@ public class MemorySection extends AbstractConfigurationSection implements Confi
@@ -212,7 +213,7 @@ index a314560..6657813 100644
      }
  
 diff --git a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
-index d3e73b5..4f5c4ca 100644
+index d3e73b5d..4f5c4cad 100644
 --- a/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
 +++ b/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java
 @@ -9,6 +9,7 @@ import java.util.List;
@@ -233,7 +234,7 @@ index d3e73b5..4f5c4ca 100644
          loadBefore = makePluginNameList(map, "loadbefore");
  
 diff --git a/src/test/java/org/bukkit/LocationTest.java b/src/test/java/org/bukkit/LocationTest.java
-index fa24776..d9acc89 100644
+index fa247763..d9acc89b 100644
 --- a/src/test/java/org/bukkit/LocationTest.java
 +++ b/src/test/java/org/bukkit/LocationTest.java
 @@ -6,6 +6,7 @@ import static org.junit.Assert.*;
@@ -255,7 +256,7 @@ index fa24776..d9acc89 100644
      private Location getLocation() {
 diff --git a/src/test/java/org/bukkit/event/SyntheticEventTest.java b/src/test/java/org/bukkit/event/SyntheticEventTest.java
 deleted file mode 100644
-index df6cf00..0000000
+index df6cf000..00000000
 --- a/src/test/java/org/bukkit/event/SyntheticEventTest.java
 +++ /dev/null
 @@ -1,49 +0,0 @@
@@ -310,7 +311,7 @@ index df6cf00..0000000
 -}
 diff --git a/src/test/java/org/bukkit/potion/PotionTest.java b/src/test/java/org/bukkit/potion/PotionTest.java
 deleted file mode 100644
-index 9ea901d..0000000
+index 9ea901d9..00000000
 --- a/src/test/java/org/bukkit/potion/PotionTest.java
 +++ /dev/null
 @@ -1,170 +0,0 @@
@@ -485,5 +486,5 @@ index 9ea901d..0000000
 -    private static final int SPLASH_BIT = 0x4000;
 -}
 -- 
-2.6.4
+2.18.0.windows.1
 

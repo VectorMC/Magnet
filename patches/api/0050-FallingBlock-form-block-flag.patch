@@ -1,4 +1,4 @@
-From 63ab737434cc3a8904f9a5b68a2e9f0e437d70da Mon Sep 17 00:00:00 2001
+From c83b006dfb607071fc0298cf35c62d11a9e288be Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 19:32:49 -0500
 Subject: [PATCH] FallingBlock form block flag
@@ -8,13 +8,14 @@ Subject: [PATCH] FallingBlock form block flag
  1 file changed, 15 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/entity/FallingBlock.java b/src/main/java/org/bukkit/entity/FallingBlock.java
-index 240a278..2692f81 100644
+index 240a2783..2692f81b 100644
 --- a/src/main/java/org/bukkit/entity/FallingBlock.java
 +++ b/src/main/java/org/bukkit/entity/FallingBlock.java
-@@ -61,6 +61,21 @@ public interface FallingBlock extends Entity {
+@@ -60,6 +60,21 @@ public interface FallingBlock extends Entity {
+      */
      void setHurtEntities(boolean hurtEntities);
  
-     /**
++    /**
 +     * Can this entity form a block when it lands?
 +     */
 +    boolean canFormBlock();
@@ -29,10 +30,9 @@ index 240a278..2692f81 100644
 +     */
 +    void setFormBlock(boolean formBlock);
 +
-+    /**
+     /**
       * Gets the source block location of the falling block
       *
-      * @return the source block location the falling block was spawned from
 -- 
-2.6.4
+2.18.0.windows.1
 

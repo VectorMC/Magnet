@@ -1,19 +1,19 @@
-From ed639c6b0058a2ae57efff8d9167d4142df108f4 Mon Sep 17 00:00:00 2001
+From ce4dd5056a703c368c411809b95baba01bcfddd7 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 18:51:55 -0500
 Subject: [PATCH] Recover from crash exceptions
 
 ---
- .../java/net/minecraft/server/CrashReport.java     |  4 ++++
- .../java/net/minecraft/server/EntityPlayer.java    |  9 ++++++--
- src/main/java/net/minecraft/server/TileEntity.java |  1 +
- src/main/java/net/minecraft/server/World.java      |  7 ++++++-
- .../java/org/bukkit/craftbukkit/CraftLogging.java  | 24 ++++++++++++++++++++++
+ .../net/minecraft/server/CrashReport.java     |  4 ++++
+ .../net/minecraft/server/EntityPlayer.java    |  9 +++++--
+ .../java/net/minecraft/server/TileEntity.java |  1 +
+ src/main/java/net/minecraft/server/World.java |  7 +++++-
+ .../org/bukkit/craftbukkit/CraftLogging.java  | 24 +++++++++++++++++++
  5 files changed, 42 insertions(+), 3 deletions(-)
  create mode 100644 src/main/java/org/bukkit/craftbukkit/CraftLogging.java
 
 diff --git a/src/main/java/net/minecraft/server/CrashReport.java b/src/main/java/net/minecraft/server/CrashReport.java
-index 741c419..2f540a8 100644
+index 741c419f..2f540a8e 100644
 --- a/src/main/java/net/minecraft/server/CrashReport.java
 +++ b/src/main/java/net/minecraft/server/CrashReport.java
 @@ -23,6 +23,7 @@ public class CrashReport {
@@ -46,7 +46,7 @@ index 741c419..2f540a8 100644
          return this.d;
      }
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 168a668..6de375f 100644
+index 168a6682..6de375f7 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
 @@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
@@ -73,7 +73,7 @@ index 168a668..6de375f 100644
  
      protected void i_() {
 diff --git a/src/main/java/net/minecraft/server/TileEntity.java b/src/main/java/net/minecraft/server/TileEntity.java
-index f68b132..ff1d146 100644
+index f68b132f..ff1d146e 100644
 --- a/src/main/java/net/minecraft/server/TileEntity.java
 +++ b/src/main/java/net/minecraft/server/TileEntity.java
 @@ -132,6 +132,7 @@ public abstract class TileEntity {
@@ -85,7 +85,7 @@ index f68b132..ff1d146 100644
          this.d = true;
      }
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index 48d5cd7..4b37fb6 100644
+index 48d5cd7d..4b37fb66 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
 @@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
@@ -111,7 +111,7 @@ index 48d5cd7..4b37fb6 100644
              if (entity.dead) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftLogging.java b/src/main/java/org/bukkit/craftbukkit/CraftLogging.java
 new file mode 100644
-index 0000000..54f9733
+index 00000000..54f97336
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftLogging.java
 @@ -0,0 +1,24 @@
@@ -141,5 +141,5 @@ index 0000000..54f9733
 +}
 \ No newline at end of file
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,14 +1,14 @@
-From 7d58f328c404bd1008b9437528cdb010951cd757 Mon Sep 17 00:00:00 2001
+From 5f8c3a0feeda977b123c5a44bdf38b75ee702859 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Mon, 16 Oct 2017 21:44:49 -0500
 Subject: [PATCH] Do things inside events
 
 ---
- src/main/java/net/minecraft/server/PlayerList.java | 74 ++++++++++++----------
+ .../java/net/minecraft/server/PlayerList.java | 74 ++++++++++---------
  1 file changed, 39 insertions(+), 35 deletions(-)
 
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index b2b0990..f276dfc 100644
+index b2b09901..f276dfc4 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
 @@ -389,48 +389,52 @@ public abstract class PlayerList {
@@ -100,5 +100,5 @@ index b2b0990..f276dfc 100644
      }
  
 -- 
-2.6.4
+2.18.0.windows.1
 

@@ -1,22 +1,23 @@
-From 81814158e48c0c2d6e226719d286167fc41d17c6 Mon Sep 17 00:00:00 2001
+From 1446797a569f66e83f2d9a3b23f34a02e12cf492 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Sun, 15 Oct 2017 14:03:16 -0500
 Subject: [PATCH] Block digging API
 
 ---
- src/main/java/org/bukkit/entity/Player.java        | 11 ++++++
- .../org/bukkit/event/block/BlockUndamageEvent.java | 40 ++++++++++++++++++++++
+ src/main/java/org/bukkit/entity/Player.java   | 11 +++++
+ .../event/block/BlockUndamageEvent.java       | 40 +++++++++++++++++++
  2 files changed, 51 insertions(+)
  create mode 100644 src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index 149b779..c5f2f3b 100644
+index 149b7791..c5f2f3be 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -990,6 +990,17 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+@@ -989,6 +989,17 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
+     public boolean teleportRelative(org.bukkit.util.Vector deltaPos, float deltaYaw, float deltaPitch, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause);
      public boolean teleportRelative(org.bukkit.util.Vector deltaPos, float deltaYaw, float deltaPitch);
  
-     /**
++    /**
 +     * Is the player digging a block?
 +     */
 +    public boolean isDigging();
@@ -27,13 +28,12 @@ index 149b779..c5f2f3b 100644
 +     */
 +    public org.bukkit.block.Block getDiggingBlock();
 +
-+    /**
+     /**
       * Checks to see if this player is currently standing on a block. This
       * information may not be reliable, as it is a state provided by the
-      * client, and may therefore not be accurate.
 diff --git a/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java b/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
 new file mode 100644
-index 0000000..7e81880
+index 00000000..7e818803
 --- /dev/null
 +++ b/src/main/java/org/bukkit/event/block/BlockUndamageEvent.java
 @@ -0,0 +1,40 @@
@@ -79,5 +79,5 @@ index 0000000..7e81880
 +}
 \ No newline at end of file
 -- 
-2.6.4
+2.18.0.windows.1
 

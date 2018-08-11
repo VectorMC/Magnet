@@ -1,14 +1,14 @@
-From ee10f74506560ede89cc7486fd891c61e4a754e7 Mon Sep 17 00:00:00 2001
+From 817ff2859c62479528e82f040add61ac2ceab1d0 Mon Sep 17 00:00:00 2001
 From: kashike <kashike@vq.lc>
 Date: Thu, 15 May 2014 22:42:51 -0400
 Subject: [PATCH] Expose CraftItemStack parent
 
 ---
- src/main/java/org/bukkit/craftbukkit/inventory/CraftItemStack.java | 5 +++++
+ .../org/bukkit/craftbukkit/inventory/CraftItemStack.java     | 5 +++++
  1 file changed, 5 insertions(+)
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemStack.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemStack.java
-index 23f05f4..91d287b 100644
+index 23f05f4d..91d287b8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemStack.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftItemStack.java
 @@ -91,6 +91,11 @@ public final class CraftItemStack extends ItemStack {
@@ -24,5 +24,5 @@ index 23f05f4..91d287b 100644
      /**
       * Mirror
 -- 
-2.6.4
+2.18.0.windows.1
 
